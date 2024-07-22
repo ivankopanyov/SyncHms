@@ -8,11 +8,36 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5CDEDE8F-EAA4-4D28-9E2E-B28CB94289DD}"
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
+		.gitignore = .gitignore
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SyncHms.Server", "src\SyncHms.Server\SyncHms.Server.csproj", "{C87F57D2-5071-4BBD-9394-2A58A3197B6F}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "synchms.client", "src\synchms.client\synchms.client.esproj", "{869433FC-1B50-4E50-B6BB-EA0C2A1F6F92}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C87F57D2-5071-4BBD-9394-2A58A3197B6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C87F57D2-5071-4BBD-9394-2A58A3197B6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C87F57D2-5071-4BBD-9394-2A58A3197B6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C87F57D2-5071-4BBD-9394-2A58A3197B6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{869433FC-1B50-4E50-B6BB-EA0C2A1F6F92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{869433FC-1B50-4E50-B6BB-EA0C2A1F6F92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{869433FC-1B50-4E50-B6BB-EA0C2A1F6F92}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{869433FC-1B50-4E50-B6BB-EA0C2A1F6F92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{869433FC-1B50-4E50-B6BB-EA0C2A1F6F92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{869433FC-1B50-4E50-B6BB-EA0C2A1F6F92}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C87F57D2-5071-4BBD-9394-2A58A3197B6F} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
+		{869433FC-1B50-4E50-B6BB-EA0C2A1F6F92} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E21802B7-9299-4950-8AA0-E33BB39763AC}

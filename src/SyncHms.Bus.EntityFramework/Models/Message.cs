@@ -8,11 +8,9 @@ internal class Message
     
     public string QueueName { get; set; }
 
+    public DateTime DateTime { get; set; } = DateTime.Now;
+
     public string Json { get; set; }
-
-    public bool Requeue { get; set; }
-
-    public bool Handled { get; set; }
 
     public virtual Queue Queue { get; set; }
 }

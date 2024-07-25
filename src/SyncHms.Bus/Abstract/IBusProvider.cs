@@ -4,7 +4,7 @@ public interface IBusProvider
 {
     Task PublishAsync<TMessage>(TMessage message);
 
-    Task SubscribeAsync<TMessage, TConsumer>(Func<TMessage, MessageContext, Task> handleMessage);
+    void Subscribe<TMessage, TConsumer>(Func<TMessage, IMessageContext, Task> handleMessage);
 }
 
 public interface IBusProvider<TOptions> : IBusProvider where TOptions : class, new()

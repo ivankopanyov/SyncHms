@@ -1,6 +1,6 @@
 ﻿namespace SyncHms.Bus.EntityFramework.Infrastructure;
 
-internal class EntityFrameworkBusContext(EntityFrameworkBusOptions options) : DbContext
+internal class BusContext(EntityFrameworkBusOptions options) : DbContext
 {
     public virtual DbSet<Exchange> Exchanges { get; set; }
 

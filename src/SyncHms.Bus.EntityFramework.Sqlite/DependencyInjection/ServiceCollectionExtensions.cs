@@ -1,8 +1,8 @@
 namespace SyncHms.Bus;
 
-public static class DependencyInjection
+public static class ServiceCollectionExtensions
 {
-    public static BusBuilder AddSqliteBus(this IServiceCollection services, Action<SqliteBusOptions>? optionsBuilder = null)
+    public static IBusBuilder AddSqliteBus(this IServiceCollection services, Action<SqliteBusOptions>? optionsBuilder = null)
     {
         var sqliteOptions = new SqliteBusOptions();
         optionsBuilder?.Invoke(sqliteOptions);

@@ -1,10 +1,8 @@
-using SyncHms.Bus.EntityFramework.Infrastructure;
-
 namespace SyncHms.Bus;
 
-public static class DependencyInjection
+public static class ServiceCollectionExtensions
 {
-    public static BusBuilder AddEntityFrameworkBus(this IServiceCollection services,
+    public static IBusBuilder AddEntityFrameworkBus(this IServiceCollection services,
         Action<EntityFrameworkBusOptions> optionsBuilder)
     {
         services.AddDbContext<BusContext>();

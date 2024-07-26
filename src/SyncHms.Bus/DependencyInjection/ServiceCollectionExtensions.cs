@@ -1,8 +1,8 @@
 ﻿namespace SyncHms.Bus;
 
-public static class DependencyInjection
+public static class ServiceCollectionExtensions
 {
-    public static BusBuilder AddBus<TProvider, TOptions>(this IServiceCollection services, Action<TOptions> optionsBuilder)
+    public static IBusBuilder AddBus<TProvider, TOptions>(this IServiceCollection services, Action<TOptions> optionsBuilder)
         where TProvider : class, IBusProvider<TOptions> where TOptions : class, new()
     {
         ArgumentNullException.ThrowIfNull(optionsBuilder, nameof(optionsBuilder));

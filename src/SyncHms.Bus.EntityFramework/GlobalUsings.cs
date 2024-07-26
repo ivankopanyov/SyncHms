@@ -2,6 +2,7 @@
 global using Microsoft.Extensions.DependencyInjection;
 global using Newtonsoft.Json;
 global using SyncHms.Bus.EntityFramework.Implement;
+global using SyncHms.Bus.EntityFramework.Infrastructure;
 global using SyncHms.Bus.EntityFramework.Infrastructure.Factories.Abstract;
 global using SyncHms.Bus.EntityFramework.Infrastructure.Factories.Implement;
 global using SyncHms.Bus.EntityFramework.Models;

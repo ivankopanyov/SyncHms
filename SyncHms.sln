@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Bus.Services", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Fias.Entities", "src\SyncHms.Fias.Entities\SyncHms.Fias.Entities.csproj", "{067BF9E9-A611-4F9F-9209-E0BC848F1EF2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.CheckDB", "src\SyncHms.CheckDB\SyncHms.CheckDB.csproj", "{BD4940B5-D727-4214-868D-6F5B75D3A7E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{067BF9E9-A611-4F9F-9209-E0BC848F1EF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{067BF9E9-A611-4F9F-9209-E0BC848F1EF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{067BF9E9-A611-4F9F-9209-E0BC848F1EF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD4940B5-D727-4214-868D-6F5B75D3A7E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD4940B5-D727-4214-868D-6F5B75D3A7E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD4940B5-D727-4214-868D-6F5B75D3A7E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD4940B5-D727-4214-868D-6F5B75D3A7E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,6 +86,7 @@ Global
 		{2632B29C-B693-4497-85D4-307A078A11CB} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 		{56CB956E-A2C5-456D-A91A-18C2BD1C5341} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 		{067BF9E9-A611-4F9F-9209-E0BC848F1EF2} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
+		{BD4940B5-D727-4214-868D-6F5B75D3A7E4} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E21802B7-9299-4950-8AA0-E33BB39763AC}

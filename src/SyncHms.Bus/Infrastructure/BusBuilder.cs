@@ -1,11 +1,6 @@
 namespace SyncHms.Bus;
 
-public class BusBuilder
+public class BusBuilder(IServiceCollection services)
 {
-    public IServiceCollection Services { get; private init; }
-
-    internal BusBuilder(IServiceCollection services)
-    {
-        Services = services;
-    }
+    public IServiceCollection Services { get; private init; } = services;
 }

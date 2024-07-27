@@ -33,6 +33,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Opera.Entities.Tabl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Opera.Entities.Views", "src\SyncHms.Opera.Entities.Views\SyncHms.Opera.Entities.Views.csproj", "{EDFF7855-1749-4621-B781-941F02891BE9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Cache", "src\SyncHms.Cache\SyncHms.Cache.csproj", "{562DF789-36C2-4803-98F6-F47247B74609}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Cache.Memory", "src\SyncHms.Cache.Memory\SyncHms.Cache.Memory.csproj", "{C043EB88-68F6-47E4-89AC-85A577903342}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +89,14 @@ Global
 		{EDFF7855-1749-4621-B781-941F02891BE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDFF7855-1749-4621-B781-941F02891BE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDFF7855-1749-4621-B781-941F02891BE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{562DF789-36C2-4803-98F6-F47247B74609}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{562DF789-36C2-4803-98F6-F47247B74609}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{562DF789-36C2-4803-98F6-F47247B74609}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{562DF789-36C2-4803-98F6-F47247B74609}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C043EB88-68F6-47E4-89AC-85A577903342}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C043EB88-68F6-47E4-89AC-85A577903342}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C043EB88-68F6-47E4-89AC-85A577903342}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C043EB88-68F6-47E4-89AC-85A577903342}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -101,6 +113,8 @@ Global
 		{BD4940B5-D727-4214-868D-6F5B75D3A7E4} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 		{FF975008-D5FB-44F0-8E31-6668DB97944C} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 		{EDFF7855-1749-4621-B781-941F02891BE9} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
+		{562DF789-36C2-4803-98F6-F47247B74609} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
+		{C043EB88-68F6-47E4-89AC-85A577903342} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E21802B7-9299-4950-8AA0-E33BB39763AC}

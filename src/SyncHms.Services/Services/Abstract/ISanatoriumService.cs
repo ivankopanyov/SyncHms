@@ -4,11 +4,13 @@ public delegate void PostingRequestHandle(PostingRequest message);
 
 public interface ISanatoriumService : IService<ServiceBusOptions, ApplicationEnvironment>
 {
+    bool UsePosting { get; }
+    
     ApplicationEnvironment Environment { get; }
 
     event PostingRequestHandle? PostingRequestEvent;
 
-    internal void SendPostingRequest(PostingRequest message);
+    void SendPostingRequest(PostingRequest message);
 
     void Exec(Action<IEndpointInstance?> action);
 

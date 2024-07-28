@@ -12,6 +12,8 @@ internal class SanatoriumService : ISanatoriumService
 
     private CancellationToken _cancellationToken;
 
+    public bool UsePosting => Environment.UsePosting;
+
     public ApplicationEnvironment Environment => _control.Environment;
     
     public event PostingRequestHandle? PostingRequestEvent;
@@ -79,9 +81,7 @@ internal class SanatoriumService : ISanatoriumService
                 return Task.CompletedTask;
             });
 
-            endpointConfiguration.RegisterComponents(services => services
-                .AddSingleton(_control)
-                .AddSingleton<ISanatoriumService>(this)); 
+            endpointConfiguration.RegisterComponents(services => services.AddSingleton<ISanatoriumService>(this)); 
 
             _endpointInstance = await Task
                 .Run(async () => await Endpoint.Start(endpointConfiguration, _cancellationToken))

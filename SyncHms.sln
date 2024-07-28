@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.EntityFramework.Sha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Domain.EntityFramework.Sqlite", "src\SyncHms.Domain.EntityFramework.Sqlite\SyncHms.Domain.EntityFramework.Sqlite.csproj", "{CDACE8E6-5894-49C4-A9E4-BBDA53634E1F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Services", "src\SyncHms.Services\SyncHms.Services.csproj", "{25448535-985F-4C10-94A9-839C213E410E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +123,10 @@ Global
 		{CDACE8E6-5894-49C4-A9E4-BBDA53634E1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CDACE8E6-5894-49C4-A9E4-BBDA53634E1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CDACE8E6-5894-49C4-A9E4-BBDA53634E1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25448535-985F-4C10-94A9-839C213E410E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25448535-985F-4C10-94A9-839C213E410E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25448535-985F-4C10-94A9-839C213E410E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25448535-985F-4C10-94A9-839C213E410E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -143,6 +149,7 @@ Global
 		{BD7DEE0F-8A58-4EB9-8D14-2A5F7AC7F0F7} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 		{2703F852-288D-404F-A097-90E76B64D7F5} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 		{CDACE8E6-5894-49C4-A9E4-BBDA53634E1F} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
+		{25448535-985F-4C10-94A9-839C213E410E} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E21802B7-9299-4950-8AA0-E33BB39763AC}

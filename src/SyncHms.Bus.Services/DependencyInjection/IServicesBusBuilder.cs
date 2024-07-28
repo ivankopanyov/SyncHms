@@ -1,4 +1,4 @@
-namespace SyncHms.Bus.Services.DependencyInjection;
+namespace SyncHms.Bus.Services;
 
 public interface IServicesBusBuilder : IBusBuilder
 {

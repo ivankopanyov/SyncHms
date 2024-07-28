@@ -16,7 +16,8 @@ internal class ExchangeRepository : IExchangeRepository
         _busContextFactory = busContextFactory;
         _options = options;
 
-        InitializeDatabase();
+        using var context = _busContextFactory.Create();
+        DatabaseHelper.InitializeDatabase(context, options.InitDatabase);
     }
 
     public void Add<TMessage, TConsumer>(Func<TMessage, IMessageContext, Task> handleMessage)
@@ -50,20 +51,5 @@ internal class ExchangeRepository : IExchangeRepository
         var name = BusEntity.GetName(typeof(TMessage));
         if (_exchanges.FirstOrDefault(h => h.Name.Equals(name)) is Exchange<TMessage> exchange)
             await exchange.PublishAsync(message);
-    }
-
-    private void InitializeDatabase()
-    {
-        using var context = _busContextFactory.Create();
-        switch (_options.InitDatabase)
-        {
-            case InitDatabase.Migrate:
-                context.Database.Migrate();
-                break;
-            case InitDatabase.EnsureCreated:
-            default:
-                context.Database.EnsureCreated();
-                break;
-        }
     }
 }

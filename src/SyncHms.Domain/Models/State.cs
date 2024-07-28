@@ -1,6 +1,6 @@
-﻿namespace SyncHms.Bus.Services;
+namespace SyncHms.Domain;
 
-public class ServiceState
+public class State
 {
     public bool IsActive { get; set; }
 
@@ -9,4 +9,6 @@ public class ServiceState
     public string? StackTrace { get; set; }
 
     public string? Info { get; set; }
+
+    public State Clone() => (State)MemberwiseClone();
 }

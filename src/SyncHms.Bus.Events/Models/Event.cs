@@ -3,9 +3,6 @@ namespace SyncHms.Bus.Events;
 public class Event
 {
     [JsonProperty]
-    internal string Id { get; set; }
-
-    [JsonProperty]
     internal string TaskId { get; set; }
 
     [JsonProperty]

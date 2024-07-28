@@ -1,4 +1,4 @@
-namespace SyncHms.Bus;
+namespace SyncHms.EntityFramework.Shared;
 
 public enum InitDatabase
 {

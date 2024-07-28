@@ -37,6 +37,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Cache", "src\SyncHm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Cache.Memory", "src\SyncHms.Cache.Memory\SyncHms.Cache.Memory.csproj", "{C043EB88-68F6-47E4-89AC-85A577903342}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Domain", "src\SyncHms.Domain\SyncHms.Domain.csproj", "{6D1A4FAE-9674-4723-94F7-5D282847C36E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Domain.EntityFramework", "src\SyncHms.Domain.EntityFramework\SyncHms.Domain.EntityFramework.csproj", "{BD7DEE0F-8A58-4EB9-8D14-2A5F7AC7F0F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.EntityFramework.Shared", "src\SyncHms.EntityFramework.Shared\SyncHms.EntityFramework.Shared.csproj", "{2703F852-288D-404F-A097-90E76B64D7F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Domain.EntityFramework.Sqlite", "src\SyncHms.Domain.EntityFramework.Sqlite\SyncHms.Domain.EntityFramework.Sqlite.csproj", "{CDACE8E6-5894-49C4-A9E4-BBDA53634E1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +105,22 @@ Global
 		{C043EB88-68F6-47E4-89AC-85A577903342}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C043EB88-68F6-47E4-89AC-85A577903342}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C043EB88-68F6-47E4-89AC-85A577903342}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D1A4FAE-9674-4723-94F7-5D282847C36E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D1A4FAE-9674-4723-94F7-5D282847C36E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D1A4FAE-9674-4723-94F7-5D282847C36E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D1A4FAE-9674-4723-94F7-5D282847C36E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD7DEE0F-8A58-4EB9-8D14-2A5F7AC7F0F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD7DEE0F-8A58-4EB9-8D14-2A5F7AC7F0F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD7DEE0F-8A58-4EB9-8D14-2A5F7AC7F0F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD7DEE0F-8A58-4EB9-8D14-2A5F7AC7F0F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2703F852-288D-404F-A097-90E76B64D7F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2703F852-288D-404F-A097-90E76B64D7F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2703F852-288D-404F-A097-90E76B64D7F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2703F852-288D-404F-A097-90E76B64D7F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDACE8E6-5894-49C4-A9E4-BBDA53634E1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDACE8E6-5894-49C4-A9E4-BBDA53634E1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDACE8E6-5894-49C4-A9E4-BBDA53634E1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDACE8E6-5894-49C4-A9E4-BBDA53634E1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -115,6 +139,10 @@ Global
 		{EDFF7855-1749-4621-B781-941F02891BE9} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 		{562DF789-36C2-4803-98F6-F47247B74609} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 		{C043EB88-68F6-47E4-89AC-85A577903342} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
+		{6D1A4FAE-9674-4723-94F7-5D282847C36E} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
+		{BD7DEE0F-8A58-4EB9-8D14-2A5F7AC7F0F7} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
+		{2703F852-288D-404F-A097-90E76B64D7F5} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
+		{CDACE8E6-5894-49C4-A9E4-BBDA53634E1F} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E21802B7-9299-4950-8AA0-E33BB39763AC}

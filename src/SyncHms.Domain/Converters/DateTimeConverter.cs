@@ -1,4 +1,4 @@
-namespace SyncHms.Bus.Events.Converters;
+namespace SyncHms.Domain.Converters;
 
 internal class DateTimeConverter : IsoDateTimeConverter
 {

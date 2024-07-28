@@ -8,4 +8,5 @@ global using SyncHms.Bus.EntityFramework.Infrastructure.Factories.Implement;
 global using SyncHms.Bus.EntityFramework.Models;
 global using SyncHms.Bus.EntityFramework.Repositories.Abstract;
 global using SyncHms.Bus.EntityFramework.Repositories.Implement;
+global using SyncHms.EntityFramework.Shared;
 global using System.Runtime.Serialization;

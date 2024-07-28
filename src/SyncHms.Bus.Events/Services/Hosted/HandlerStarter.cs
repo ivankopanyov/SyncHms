@@ -2,8 +2,6 @@ namespace SyncHms.Bus.Events.Services.Hosted;
 
 internal class HandlerStarter<THandler, TIn> : BackgroundService where THandler : HandlerBase<TIn>
 {
-    private static readonly string QueueName = typeof(THandler).FullName ?? typeof(THandler).Name;
-
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
     private readonly ILogger? _logger;
@@ -18,12 +16,6 @@ internal class HandlerStarter<THandler, TIn> : BackgroundService where THandler 
 
     private readonly bool _useLogging;
 
-    private readonly object _lock = new();
-
-    private DateTime _dateTime = DateTime.Now.Trim(TimeSpan.TicksPerSecond);
-
-    private int _counter;
-
     public HandlerStarter(IServiceScopeFactory serviceScopeFactory, IEventPublisher<TIn> eventPublisher,
         IBusProvider provider, HandlerOptions<THandler, TIn> options, ILogger<THandler> logger)
     {
@@ -31,8 +23,7 @@ internal class HandlerStarter<THandler, TIn> : BackgroundService where THandler 
 
         eventPublisher.PublishEvent += async @in => await HandleAsync(new Event<TIn>
         {   
-            Id = GenerateId(),
-            TaskId = GenerateId(),
+            TaskId = Guid.NewGuid().ToString(),
             TaskName = _taskName,
             Message = @in
         });
@@ -58,18 +49,11 @@ internal class HandlerStarter<THandler, TIn> : BackgroundService where THandler 
             {
                 await LogAsync(new EventLog
                 {
-                    Id = @event.Id,
                     TaskId = @event.TaskId,
                     TaskName = @event.TaskName,
                     HandlerName = _handlerName,
-                    IsError = true,
                     IsEnd = true,
-                    Data = new EventData
-                    {
-                        LogId = @event.Id,
-                        TaskId = @event.TaskId,
-                        Error = "Input object is null"
-                    }
+                    Error = "Input object is null"
                 });
             }
 
@@ -99,24 +83,17 @@ internal class HandlerStarter<THandler, TIn> : BackgroundService where THandler 
             {
                 await LogAsync(new EventLog
                 {
-                    Id = @event.Id,
                     TaskId = @event.TaskId,
                     TaskName = @event.TaskName,
                     HandlerName = _handlerName,
                     Message = handler.Message(@event.Message),
                     IsEnd = !context.Events.Any(),
-                    Data = new EventData
-                    {
-                        LogId = @event.Id,
-                        TaskId = @event.TaskId,
-                        InputObjectJson = inputObjectJson,
-                    }
+                    InputObjectJson = inputObjectJson
                 });
             }
 
             foreach (var @out in context.Events)
             {
-                @out.Id = GenerateId();
                 @out.TaskId = @event.TaskId;
                 @out.TaskName = @event.TaskName;
                 await @out.PublishAsync(_provider);
@@ -128,21 +105,14 @@ internal class HandlerStarter<THandler, TIn> : BackgroundService where THandler 
             {
                 await LogAsync(new EventLog
                 {
-                    Id = @event.Id,
                     TaskId = @event.TaskId,
                     TaskName = @event.TaskName,
                     HandlerName = _handlerName,
                     Message = handler.Message(@event.Message),
-                    IsError = true,
                     IsEnd = true,
-                    Data = new EventData
-                    {
-                        LogId = @event.Id,
-                        TaskId = @event.TaskId,
-                        Error = ex.Message,
-                        StackTrace = ex.StackTrace,
-                        InputObjectJson = inputObjectJson,
-                    }
+                    Error = ex.Message,
+                    StackTrace = ex.StackTrace,
+                    InputObjectJson = inputObjectJson
                 }, ex);
             }
         }
@@ -150,7 +120,6 @@ internal class HandlerStarter<THandler, TIn> : BackgroundService where THandler 
         {
             if (@event.Error == null || @event.Error != ex.Message)
             {
-                @event.Id = GenerateId();
                 @event.Error = ex.Message;
                 @event.StackTrace = ex.StackTrace;
 
@@ -158,20 +127,13 @@ internal class HandlerStarter<THandler, TIn> : BackgroundService where THandler 
                 {
                     await LogAsync(new EventLog
                     {
-                        Id = @event.Id,
                         TaskName = @event.TaskName,
                         HandlerName = _handlerName,
                         TaskId = @event.TaskId,
                         Message = handler.Message(@event.Message),
-                        IsError = true,
-                        Data = new EventData
-                        {
-                            LogId = @event.Id,
-                            TaskId = @event.TaskId,
-                            Error = @event.Error,
-                            StackTrace = @event.StackTrace,
-                            InputObjectJson = inputObjectJson,
-                        }
+                        Error = @event.Error,
+                        StackTrace = @event.StackTrace,
+                        InputObjectJson = inputObjectJson
                     }, ex);
                 }
                 
@@ -193,25 +155,9 @@ internal class HandlerStarter<THandler, TIn> : BackgroundService where THandler 
         
         await _provider.PublishAsync(new Event<EventLog>
         {
-            Id = GenerateId(),
             Message = eventLog
         });
     }
 
     protected sealed override Task ExecuteAsync(CancellationToken stoppingToken) => Task.CompletedTask;
-
-    private string GenerateId()
-    {
-        lock(_lock)
-        {
-            var now = DateTime.Now.Trim(TimeSpan.TicksPerSecond);
-            if (_dateTime != now)
-            {
-                _dateTime = now;
-                _counter = 0;
-            }
-
-            return $"{_dateTime:yyMMddHHmmss}{(++_counter).ToString().PadLeft(2, '0')}";
-        }
-    }
 }

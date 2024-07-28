@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SyncHms.Bus\SyncHms.Bus.csproj" />
+    <ProjectReference Include="..\SyncHms.EntityFramework.Shared\SyncHms.EntityFramework.Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -18,7 +18,7 @@ internal static class LoggerExtensions
         };
 
         var logLevel = LogLevel.Information;
-        if (eventLog.IsError)
+        if (eventLog.Error != null)
             logLevel = eventLog.IsEnd ? LogLevel.Critical : LogLevel.Error;
 
         using (logger.BeginScope(state))

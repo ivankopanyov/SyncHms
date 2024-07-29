@@ -2,7 +2,7 @@ namespace SyncHms.Domain;
 
 public static class CacheBuilderExtensions
 {
-    public static IServiceCollection AddSqliteDomain<TEnvironment>(this ICacheBuilder cacheBuilder,
+    public static ICacheBuilder AddSqliteDomain<TEnvironment>(this ICacheBuilder cacheBuilder,
         Action<DatabaseOptions>? optionsBuilder = null) where TEnvironment : class, new ()
     {
         var sqliteOptions = new DatabaseOptions

@@ -1,6 +1,5 @@
 namespace SyncHms.Bus;
 
-public interface IBusBuilder
+public interface IBusBuilder : IServiceCollection
 {
-    IServiceCollection Services { get; }
 }

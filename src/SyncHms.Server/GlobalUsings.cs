@@ -1,3 +1,10 @@
 ﻿global using Microsoft.AspNetCore.Mvc;
+global using SyncHms.Bus;
+global using SyncHms.Cache;
+global using SyncHms.Domain;
+global using SyncHms.EntityFramework.Shared;
+global using SyncHms.Events;
+global using SyncHms.Identity;
+global using SyncHms.Services;
 global using System.Net;
 global using System.Reflection;

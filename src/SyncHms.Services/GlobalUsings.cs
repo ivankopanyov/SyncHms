@@ -6,6 +6,7 @@ global using SyncHms.Bus;
 global using SyncHms.Bus.Services;
 global using SyncHms.Cache;
 global using SyncHms.CheckDB;
+global using SyncHms.DependencyInjection;
 global using SyncHms.Fias.Entities;
 global using SyncHms.Opera.Entities.Tables;
 global using SyncHms.Services.Attributes;

@@ -1,6 +1,6 @@
 namespace SyncHms.Services.DependencyInjection;
 
-internal class ApplicationServicesBuilder(IServiceCollection services) : IApplicationServicesBuilder
+internal class ApplicationServicesBuilder(IServiceCollection services) :
+    ServicesBusBuilder<ApplicationEnvironment>(services), IApplicationServicesBuilder
 {
-    public IServiceCollection Services => services;
 }

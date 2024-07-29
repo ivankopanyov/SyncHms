@@ -12,7 +12,7 @@ public static class BusBuilderExtensions
     public static IEventsBusBuilder AddEvents(this IBusBuilder busBuilder, Action<EventBusOptions>? options = null)
     {
         if (options == null)
-            return new EventsBusBuilder(busBuilder.Services);
+            return new EventsBusBuilder(busBuilder);
         
         var eventBusOptions = new EventBusOptions();
         options.Invoke(eventBusOptions);
@@ -26,6 +26,6 @@ public static class BusBuilderExtensions
             .WriteTo.File(eventBusOptions.LogFileName ?? "logs/events_.log",
                 outputTemplate: OutputFileTemplate, rollingInterval: RollingInterval.Day));
 
-        return new EventsBusBuilder(busBuilder.Services);
+        return new EventsBusBuilder(busBuilder);
     }
 }

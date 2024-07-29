@@ -5,7 +5,7 @@ public static class ApplicationServicesBuilderExtensions
     public static IApplicationEventsBuilder AddCache<TImplement>(this IApplicationServicesBuilder applicationServicesBuilder)
         where TImplement : class, ICache
     {
-        applicationServicesBuilder.Services.AddCache<TImplement>();
+        ((IServiceCollection)applicationServicesBuilder).AddCache<TImplement>();
         return new ApplicationEventsBuilder(applicationServicesBuilder);
     }
     
@@ -13,7 +13,7 @@ public static class ApplicationServicesBuilderExtensions
         Action<TOptions>? options = null)
         where TImplement : class, ICache where TOptions : class, new()
     {
-        applicationServicesBuilder.Services.AddCache<TImplement, TOptions>(options);
+        ((IServiceCollection)applicationServicesBuilder).AddCache<TImplement, TOptions>(options);
         return new ApplicationEventsBuilder(applicationServicesBuilder);
     }
 }

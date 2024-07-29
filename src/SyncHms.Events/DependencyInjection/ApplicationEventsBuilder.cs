@@ -1,14 +1,13 @@
 namespace SyncHms.Events.DependencyInjection;
 
-internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) : IApplicationEventsBuilder
+internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
+    EventsBusBuilder(builder), IApplicationEventsBuilder
 {
     private const string ResvTaskName = "RESV";
 
     private const string PostTaskName = "POST";
 
     private const string NServiceBusHandlerName = "N_SERVICE_BUS";
-    
-    public IServiceCollection Services => builder.Services;
     
     public IApplicationEventsBuilder AddApplicationEvents(Action<EventBusOptions>? options = null)
     {
@@ -56,7 +55,7 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) : I
                 handlerOptions.HandlerName = NServiceBusHandlerName;
             })
             .AddEventLog<TelegramMessageHandler>()
-            .Services.AddHostedService<PostingRequestPublisher>();
+            .AddHostedService<PostingRequestPublisher>();
 
         return this;
     }

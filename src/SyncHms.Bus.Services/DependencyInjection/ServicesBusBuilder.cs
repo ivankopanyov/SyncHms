@@ -1,15 +1,15 @@
-﻿namespace SyncHms.Bus.Services.DependencyInjection;
+﻿namespace SyncHms.Bus.Services;
 
-public class ServicesBusBuilder(IServiceCollection services) : IServicesBusBuilder
+public class ServicesBusBuilder(IServiceCollection services) : ApplicationBuilder(services), IServicesBusBuilder
 {
     private readonly HashSet<string> _serviceNames = [];
-
-    public IServiceCollection Services => services;
+    
+    private readonly IServiceCollection _services = services;
 
     public IServicesBusBuilder AddTransient<TAbstract, TImplement, TOptions>(Action<ServiceOptions> options)
         where TAbstract : class, IService<TOptions> where TImplement : class, TAbstract where TOptions : class, new()
     {
-        Services.AddTransient<TAbstract, TImplement>();
+        _services.AddTransient<TAbstract, TImplement>();
         AddService<TAbstract, TOptions>(options);
         return this;
     }
@@ -17,7 +17,7 @@ public class ServicesBusBuilder(IServiceCollection services) : IServicesBusBuild
     public IServicesBusBuilder AddScoped<TAbstract, TImplement, TOptions>(Action<ServiceOptions> options)
         where TAbstract : class, IService<TOptions> where TImplement : class, TAbstract where TOptions : class, new()
     {
-        Services.AddScoped<TAbstract, TImplement>();
+        _services.AddScoped<TAbstract, TImplement>();
         AddService<TAbstract, TOptions>(options);
         return this;
     }
@@ -25,7 +25,7 @@ public class ServicesBusBuilder(IServiceCollection services) : IServicesBusBuild
     public IServicesBusBuilder AddSingleton<TAbstract, TImplement, TOptions>(Action<ServiceOptions> options)
         where TAbstract : class, IService<TOptions> where TImplement : class, TAbstract where TOptions : class, new()
     {
-        Services.AddSingleton<TAbstract, TImplement>();
+        _services.AddSingleton<TAbstract, TImplement>();
         AddService<TAbstract, TOptions>(options);
         return this;
     }
@@ -43,7 +43,7 @@ public class ServicesBusBuilder(IServiceCollection services) : IServicesBusBuild
         if (!_serviceNames.Add(serviceOptions.ServiceName))
             throw new ArgumentException($"Service named {serviceOptions.ServiceName} has already been registered.", nameof(serviceOptions.ServiceName));
 
-        Services
+        _services
             .AddHostedService<ControlStarter<TService, TOptions>>()
             .AddSingleton<IControl<TOptions>, Control<TOptions>>()
             .AddSingleton(new ServiceOptions<TOptions>
@@ -53,17 +53,17 @@ public class ServicesBusBuilder(IServiceCollection services) : IServicesBusBuild
     }
 }
 
-public class ServicesBusBuilder<TEnvironment>(IServiceCollection services) : IServicesBusBuilder<TEnvironment>
+public class ServicesBusBuilder<TEnvironment>(IServiceCollection services) : ApplicationBuilder(services), IServicesBusBuilder<TEnvironment>
     where TEnvironment : class, new()
 {
     private readonly HashSet<string> _serviceNames = [];
-
-    public IServiceCollection Services => services;
+    
+    private readonly IServiceCollection _services = services;
 
     public IServicesBusBuilder<TEnvironment> AddTransient<TAbstract, TImplement, TOptions>(Action<ServiceOptions> options)
         where TAbstract : class, IService<TOptions, TEnvironment> where TImplement : class, TAbstract where TOptions : class, new()
     {
-        Services.AddTransient<TAbstract, TImplement>();
+        _services.AddTransient<TAbstract, TImplement>();
         AddService<TAbstract, TOptions>(options);
         return this;
     }
@@ -71,7 +71,7 @@ public class ServicesBusBuilder<TEnvironment>(IServiceCollection services) : ISe
     public IServicesBusBuilder<TEnvironment> AddScoped<TAbstract, TImplement, TOptions>(Action<ServiceOptions> options)
         where TAbstract : class, IService<TOptions, TEnvironment> where TImplement : class, TAbstract where TOptions : class, new()
     {
-        Services.AddScoped<TAbstract, TImplement>();
+        _services.AddScoped<TAbstract, TImplement>();
         AddService<TAbstract, TOptions>(options);
         return this;
     }
@@ -79,7 +79,7 @@ public class ServicesBusBuilder<TEnvironment>(IServiceCollection services) : ISe
     public IServicesBusBuilder<TEnvironment> AddSingleton<TAbstract, TImplement, TOptions>(Action<ServiceOptions> options)
         where TAbstract : class, IService<TOptions, TEnvironment> where TImplement : class, TAbstract where TOptions : class, new()
     {
-        Services.AddSingleton<TAbstract, TImplement>();
+        _services.AddSingleton<TAbstract, TImplement>();
         AddService<TAbstract, TOptions>(options);
         return this;
     }
@@ -97,7 +97,7 @@ public class ServicesBusBuilder<TEnvironment>(IServiceCollection services) : ISe
         if (!_serviceNames.Add(serviceOptions.ServiceName))
             throw new ArgumentException($"Service named {serviceOptions.ServiceName} has already been registered.", nameof(serviceOptions.ServiceName));
 
-        Services
+        _services
             .AddHostedService<ControlStarter<TService, TOptions, TEnvironment>>()
             .AddSingleton<IControl<TOptions, TEnvironment>, Control<TOptions, TEnvironment>>()
             .AddSingleton(new ServiceOptions<TOptions>

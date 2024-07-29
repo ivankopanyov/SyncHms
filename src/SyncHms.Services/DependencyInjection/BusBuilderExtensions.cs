@@ -5,8 +5,15 @@ public static class BusBuilderExtensions
     public static IApplicationServicesBuilder AddApplicationServices(this IBusBuilder servicesBusBuilder,
         Action<SyncHms.Bus.Services.ServiceBusOptions>? optionsAction = null)
     {
-        servicesBusBuilder
+        return servicesBusBuilder
             .AddServices<ApplicationEnvironment>(optionsAction)
+            .AddApplicationServices();
+    }
+    
+    public static IApplicationServicesBuilder AddApplicationServices(this IServicesBusBuilder<ApplicationEnvironment> servicesBusBuilder,
+        Action<SyncHms.Bus.Services.ServiceBusOptions>? optionsAction = null)
+    {
+        servicesBusBuilder
             .AddSingleton<IFiasService, FiasService, FiasServiceOptions>(options =>
                 options.ServiceName = "Fias")
             .AddSingleton<ISanatoriumService, SanatoriumService, ServiceBusOptions>(options =>
@@ -17,8 +24,8 @@ public static class BusBuilderExtensions
                 options.ServiceName = "CheckDB")
             .AddScoped<ITelegramBotService, TelegramBotService, TelegramBotOptions>(options =>
                 options.ServiceName = "TelegramBot")
-            .Services.AddCacheMemory();
+            .AddCacheMemory();
 
-        return new ApplicationServicesBuilder(servicesBusBuilder.Services);
+        return new ApplicationServicesBuilder(servicesBusBuilder);
     }
 }

@@ -11,27 +11,27 @@ public static class BusBuilderExtensions
     public static IServicesBusBuilder AddServices(this IBusBuilder busBuilder,
         Action<ServiceBusOptions>? optionsAction = null)
     {
-        busBuilder.Services
+        busBuilder
             .AddSingleton<IServiceController, ServiceController>()
             .AddHostedService<ServiceControllerStarter>();
         
         if (optionsAction != null)
             AddServices(optionsAction);
         
-        return new ServicesBusBuilder(busBuilder.Services);
+        return new ServicesBusBuilder(busBuilder);
     }
 
     public static IServicesBusBuilder<TEnvironment> AddServices<TEnvironment>(this IBusBuilder busBuilder,
         Action<ServiceBusOptions>? optionsAction = null) where TEnvironment : class, new()
     {
-        busBuilder.Services
+        busBuilder
             .AddSingleton<IServiceController<TEnvironment>, ServiceController<TEnvironment>>()
             .AddHostedService<ServiceControllerStarter<TEnvironment>>();
         
         if (optionsAction != null)
             AddServices(optionsAction);
         
-        return new ServicesBusBuilder<TEnvironment>(busBuilder.Services);
+        return new ServicesBusBuilder<TEnvironment>(busBuilder);
     }
 
     private static void AddServices(Action<ServiceBusOptions> optionsAction)

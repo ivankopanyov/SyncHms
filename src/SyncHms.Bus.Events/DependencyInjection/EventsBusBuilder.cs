@@ -1,9 +1,9 @@
-namespace SyncHms.Bus.Events.DependencyInjection;
+namespace SyncHms.Bus.Events;
 
-internal class EventsBusBuilder(IServiceCollection services) : IEventsBusBuilder
+public class EventsBusBuilder(IServiceCollection services) : ApplicationBuilder(services), IEventsBusBuilder
 {
-    public IServiceCollection Services => services;
-    
+    private readonly IServiceCollection _services = services;
+
     public IEventsBusBuilder AddEvent<THandler, TIn>(Action<HandlerOptions> action) where THandler : Handler<TIn>
     {
         ArgumentNullException.ThrowIfNull(action);
@@ -25,7 +25,7 @@ internal class EventsBusBuilder(IServiceCollection services) : IEventsBusBuilder
 
     private void AddHandler<THandler, TIn>(HandlerOptions<THandler, TIn> options) where THandler : HandlerBase<TIn>
     {
-        Services
+        _services
             .AddTransient<THandler>()
             .AddSingleton<IEventPublisher<TIn>, EventPublisher<TIn>>()
             .AddSingleton(options)

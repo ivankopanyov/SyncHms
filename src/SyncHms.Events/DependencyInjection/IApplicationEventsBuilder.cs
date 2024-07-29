@@ -1,6 +1,6 @@
 namespace SyncHms.Events;
 
-public interface IApplicationEventsBuilder : IBusBuilder, ICacheBuilder
+public interface IApplicationEventsBuilder : IEventsBusBuilder, ICacheBuilder
 {
     IApplicationEventsBuilder AddApplicationEvents(Action<EventBusOptions>? options = null);
 }

@@ -1,5 +1,5 @@
 namespace SyncHms.Services;
 
-public interface IApplicationServicesBuilder : IBusBuilder
+public interface IApplicationServicesBuilder : IServicesBusBuilder<ApplicationEnvironment>
 {
 }

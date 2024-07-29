@@ -2,13 +2,13 @@ namespace SyncHms.Identity;
 
 public static class CacheBuilderExtensions
 {
-    public static void AddIdentity(this ICacheBuilder builder,
+    public static ICacheBuilder AddIdentity(this ICacheBuilder cacheBuilder,
         Action<IdentityOptions> optionsBuilder)
     {
         var options = new IdentityOptions();
         optionsBuilder?.Invoke(options);
         
-        builder.Services
+        cacheBuilder
             .AddSingleton(options)
             .AddScoped<IConnectionRepository, ConnectionRepository>()
             .AddScoped<ITokenService, JwtService>()
@@ -27,9 +27,11 @@ public static class CacheBuilderExtensions
             })
             .AddEntityFrameworkStores<IdentityContext>();
         
-        builder.Services
+        cacheBuilder
             .AddAuthentication()
             .AddJwtBearer()
             .AddJwtBearer("Refresh");
+
+        return cacheBuilder;
     }
 }

@@ -21,4 +21,12 @@
 	</Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SyncHms.Bus.EntityFramework.Sqlite\SyncHms.Bus.EntityFramework.Sqlite.csproj" />
+    <ProjectReference Include="..\SyncHms.Domain.EntityFramework.Sqlite\SyncHms.Domain.EntityFramework.Sqlite.csproj" />
+    <ProjectReference Include="..\SyncHms.Events\SyncHms.Events.csproj" />
+    <ProjectReference Include="..\SyncHms.Identity.Sqlite\SyncHms.Identity.Sqlite.csproj" />
+    <ProjectReference Include="..\SyncHms.Services\SyncHms.Services.csproj" />
+  </ItemGroup>
+
 </Project>

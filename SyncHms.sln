@@ -49,6 +49,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Services", "src\Syn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Events", "src\SyncHms.Events\SyncHms.Events.csproj", "{4634AB21-5C99-4270-BC3A-0A5238D350C3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Identity", "src\SyncHms.Identity\SyncHms.Identity.csproj", "{41EF408E-1678-41EB-A40C-2FA83604A225}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHms.Identity.Sqlite", "src\SyncHms.Identity.Sqlite\SyncHms.Identity.Sqlite.csproj", "{3AD79776-0BE4-4BFA-B2DB-CCBA2E771BEA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -133,6 +137,14 @@ Global
 		{4634AB21-5C99-4270-BC3A-0A5238D350C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4634AB21-5C99-4270-BC3A-0A5238D350C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4634AB21-5C99-4270-BC3A-0A5238D350C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41EF408E-1678-41EB-A40C-2FA83604A225}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41EF408E-1678-41EB-A40C-2FA83604A225}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41EF408E-1678-41EB-A40C-2FA83604A225}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41EF408E-1678-41EB-A40C-2FA83604A225}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AD79776-0BE4-4BFA-B2DB-CCBA2E771BEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AD79776-0BE4-4BFA-B2DB-CCBA2E771BEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AD79776-0BE4-4BFA-B2DB-CCBA2E771BEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AD79776-0BE4-4BFA-B2DB-CCBA2E771BEA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -157,6 +169,8 @@ Global
 		{CDACE8E6-5894-49C4-A9E4-BBDA53634E1F} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 		{25448535-985F-4C10-94A9-839C213E410E} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 		{4634AB21-5C99-4270-BC3A-0A5238D350C3} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
+		{41EF408E-1678-41EB-A40C-2FA83604A225} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
+		{3AD79776-0BE4-4BFA-B2DB-CCBA2E771BEA} = {D81A9ED1-BC32-4113-9527-DC71C0760244}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E21802B7-9299-4950-8AA0-E33BB39763AC}

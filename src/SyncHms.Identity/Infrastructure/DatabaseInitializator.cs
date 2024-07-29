@@ -1,12 +1,12 @@
-namespace SyncHms.Domain.EntityFramework.Infrastructure;
+namespace SyncHms.Identity.Infrastructure;
 
 internal class DatabaseInitializator : BackgroundService
 {
     public DatabaseInitializator(IServiceScopeFactory serviceScopeFactory,
-        EntityFrameworkDomainOptions options)
+        IdentityOptions options)
     {
         var serviceScope = serviceScopeFactory.CreateScope();
-        var context = serviceScope.ServiceProvider.GetRequiredService<DomainContext>();
+        var context = serviceScope.ServiceProvider.GetRequiredService<IdentityContext>();
         DatabaseHelper.InitializeDatabase(context, options.InitDatabase);
     }
     

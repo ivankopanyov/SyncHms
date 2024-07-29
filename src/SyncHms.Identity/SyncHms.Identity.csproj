@@ -7,17 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.15" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.15" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\SyncHms.Cache\SyncHms.Cache.csproj" />
-      <ProjectReference Include="..\SyncHms.Domain\SyncHms.Domain.csproj" />
       <ProjectReference Include="..\SyncHms.EntityFramework.Shared\SyncHms.EntityFramework.Shared.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Repositories\" />
     </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 namespace SyncHms.Domain.EntityFramework.Repositories.Implement;
 
-internal class EnvironmentRepository<TEnvironment>(DomainContext context, ICache cache)
+internal class EnvironmentRepository<TEnvironment>(IDomainContextFactory domainContextFactory, ICache cache)
     : IEnvironmentRepository<TEnvironment> where TEnvironment : class, new()
 {
     private const string Key = "environment";
@@ -16,6 +16,7 @@ internal class EnvironmentRepository<TEnvironment>(DomainContext context, ICache
             if (await cache.GetAsync<TEnvironment>(Key) is { } environment)
                 return environment;
 
+            await using var context = domainContextFactory.Create();
             if (await context.AppOptions.AsNoTracking().FirstOrDefaultAsync(o => o.Id == Key) is not
                 { } result) 
                 return null;
@@ -44,6 +45,7 @@ internal class EnvironmentRepository<TEnvironment>(DomainContext context, ICache
 
         try
         {
+            await using var context = domainContextFactory.Create();
             var options = await context.AppOptions.FirstOrDefaultAsync(o => o.Id == Key);
             TEnvironment? env = null;
             

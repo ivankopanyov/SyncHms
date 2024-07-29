@@ -3,21 +3,16 @@ namespace SyncHms.Bus;
 public static class ServiceCollectionExtensions
 {
     public static IBusBuilder AddSqliteBus(this IServiceCollection services,
-        Action<DatabaseOptions>? optionsBuilder = null)
+        Action<SqliteBusOptions>? optionsBuilder = null)
     {
-        var sqliteOptions = new DatabaseOptions
-        {
-            ConnectionString = "Data Source=bus.db"
-        };
-        
+        var sqliteOptions = new SqliteBusOptions();
         optionsBuilder?.Invoke(sqliteOptions);
-        return services.AddEntityFrameworkBus(builder =>
-        {
-            builder.InitDatabase = sqliteOptions.InitDatabase;
-            builder.OnConfiguring(options =>
+        return services
+            .AddSingleton(sqliteOptions)
+            .AddEntityFrameworkBus<SqliteBusContext>(builder => 
             {
-                options.UseSqlite(sqliteOptions.ConnectionString);
+                builder.UseMigrations = sqliteOptions.UseMigrations;
+                builder.ContractResolver = sqliteOptions.ContractResolver;
             });
-        });
     }
 }

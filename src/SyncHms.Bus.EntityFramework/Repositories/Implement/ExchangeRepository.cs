@@ -1,24 +1,11 @@
 namespace SyncHms.Bus.EntityFramework.Repositories.Implement;
 
-internal class ExchangeRepository : IExchangeRepository
+internal class ExchangeRepository(IBusContextFactory busContextFactory,
+    EntityFrameworkBusOptions options): IExchangeRepository
 {
-    private readonly IBusContextFactory _busContextFactory;
-    
-    private readonly EntityFrameworkBusOptions _options;
-    
     private readonly HashSet<BusEntity> _exchanges = [];
 
     private readonly object _lock = new();
-
-    public ExchangeRepository(IBusContextFactory busContextFactory,
-        EntityFrameworkBusOptions options)
-    {
-        _busContextFactory = busContextFactory;
-        _options = options;
-
-        using var context = _busContextFactory.Create();
-        DatabaseHelper.InitializeDatabase(context, options.InitDatabase);
-    }
 
     public void Add<TMessage, TConsumer>(Func<TMessage, IMessageContext, Task> handleMessage)
     {
@@ -33,7 +20,7 @@ internal class ExchangeRepository : IExchangeRepository
             if ((exchange = _exchanges.FirstOrDefault(h => h.Name.Equals(name)) as Exchange<TMessage>) == null)
             {
                 exists = false;
-                exchange = new Exchange<TMessage>(_busContextFactory, _options);
+                exchange = new Exchange<TMessage>(busContextFactory, options);
                 _exchanges.Add(exchange);
             }
         }

@@ -1,6 +1,6 @@
 namespace SyncHms.Bus.EntityFramework.Models;
 
-internal abstract class BusEntity
+public abstract class BusEntity
 {
     public abstract string Name { get; }
 

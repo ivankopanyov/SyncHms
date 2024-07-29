@@ -2,8 +2,8 @@ namespace SyncHms.Identity;
 
 public static class CacheBuilderExtensions
 {
-    public static ICacheBuilder AddIdentity(this ICacheBuilder cacheBuilder,
-        Action<IdentityOptions> optionsBuilder)
+    public static ICacheBuilder AddIdentity<TContext>(this ICacheBuilder cacheBuilder,
+        Action<IdentityOptions>? optionsBuilder = null) where TContext : IdentityContext
     {
         var options = new IdentityOptions();
         optionsBuilder?.Invoke(options);
@@ -15,8 +15,8 @@ public static class CacheBuilderExtensions
             .AddScoped<IIdentityService, IdentityService>()
             .AddSingleton<IPostConfigureOptions<JwtBearerOptions>, Infrastructure.JwtBearerPostConfigureOptions>()
             .AddSingleton<IUserIdProvider, UserIdProvider>()
-            .AddHostedService<DatabaseInitializator>()
-            .AddDbContext<IdentityContext>()
+            .AddSingleton<IIdentityContextFactory, IdentityContextFactory<TContext>>()
+            .AddDbContext<TContext>()
             .AddIdentity<User, Role>(identityOptions =>
             {
                 identityOptions.Password.RequiredUniqueChars = 0;
@@ -25,7 +25,7 @@ public static class CacheBuilderExtensions
                 identityOptions.Password.RequireUppercase = false;
                 identityOptions.Password.RequireDigit = false;
             })
-            .AddEntityFrameworkStores<IdentityContext>();
+            .AddEntityFrameworkStores<TContext>();
         
         cacheBuilder
             .AddAuthentication()

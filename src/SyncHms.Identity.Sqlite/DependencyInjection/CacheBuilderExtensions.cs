@@ -2,24 +2,18 @@ namespace SyncHms.Identity;
 
 public static class CacheBuilderExtensions
 {
-    public static void AddSqliteIdentity(this ICacheBuilder cacheBuilder,
-        Action<SqliteOptions>? optionsBuilder = null)
+    public static ICacheBuilder AddSqliteIdentity(this ICacheBuilder cacheBuilder,
+        Action<SqliteIdentityOptions>? optionsBuilder = null)
     {
-        var sqliteOptions = new SqliteOptions
-        {
-            ConnectionString = "Data Source=identity.db"
-        };
-        
+        var sqliteOptions = new SqliteIdentityOptions();
         optionsBuilder?.Invoke(sqliteOptions);
-        cacheBuilder.AddIdentity(builder =>
+        cacheBuilder.AddSingleton(sqliteOptions);
+        
+        return cacheBuilder.AddIdentity<SqliteIdentityContext>(builder =>
         {
             builder.AccessTokenExpirationMinutes = sqliteOptions.AccessTokenExpirationMinutes;
             builder.RefreshTokenExpirationDays = sqliteOptions.RefreshTokenExpirationDays;
-            builder.InitDatabase = sqliteOptions.InitDatabase;
-            builder.OnConfiguring(options =>
-            {
-                options.UseSqlite(sqliteOptions.ConnectionString);
-            });
+            builder.UseMigrations = sqliteOptions.UseMigrations;
         });
     }
 }

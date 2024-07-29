@@ -13,7 +13,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\SyncHms.Cache\SyncHms.Cache.csproj" />
-      <ProjectReference Include="..\SyncHms.EntityFramework.Shared\SyncHms.EntityFramework.Shared.csproj" />
     </ItemGroup>
 
 </Project>

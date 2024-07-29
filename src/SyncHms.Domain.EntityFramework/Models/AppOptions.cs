@@ -1,6 +1,6 @@
 namespace SyncHms.Domain.EntityFramework.Models;
 
-internal class AppOptions
+public class AppOptions
 {
     public string Id { get; set; }
 

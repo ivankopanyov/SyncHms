@@ -1,3 +1,6 @@
 global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.DependencyInjection;
 global using SyncHms.Cache;
-global using SyncHms.EntityFramework.Shared;
+global using SyncHms.Identity.Infrastructure;
+global using SyncHms.Identity.Sqlite.Options;
+global using SyncHms.Identity.Sqlite.Infrastructure;

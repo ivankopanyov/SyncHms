@@ -1,6 +1,6 @@
 ﻿namespace SyncHms.Bus.EntityFramework.Models;
 
-internal class Exchange
+public class Exchange
 {
     public virtual string Name { get; set; }
 

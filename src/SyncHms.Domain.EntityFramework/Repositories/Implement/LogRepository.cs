@@ -1,15 +1,17 @@
 namespace SyncHms.Domain.EntityFramework.Repositories.Implement;
 
-internal class LogRepository(DomainContext context) : ILogRepository
+internal class LogRepository(IDomainContextFactory domainContextFactory) : ILogRepository
 {
     public async Task AddAsync(Log log)
     {
+        await using var context = domainContextFactory.Create();
         await context.Logs.AddAsync(log);
         await context.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<Log>?> GetAsync(string taskId)
     {
+        await using var context = domainContextFactory.Create();
         var logs = await context.Logs
             .AsNoTracking()
             .Where(l => l.TaskId == taskId)
@@ -20,6 +22,7 @@ internal class LogRepository(DomainContext context) : ILogRepository
 
     public async Task<LogData?> GetDataAsync(string logId)
     {
+        await using var context = domainContextFactory.Create();
         return await context.LogDatas
             .AsNoTracking()
             .FirstOrDefaultAsync(ld => ld.LogId == logId);
@@ -30,6 +33,7 @@ internal class LogRepository(DomainContext context) : ILogRepository
         if (filter?.Size is <= 0)
             return [];
 
+        await using var context = domainContextFactory.Create();
         IQueryable<IGrouping<string, Log>> query = context.Logs
             .AsNoTracking()
             .OrderByDescending(l => l.DateTime)

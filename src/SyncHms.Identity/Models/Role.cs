@@ -1,5 +1,5 @@
 namespace SyncHms.Identity.Models;
 
-internal class Role : IdentityRole<long>
+public class Role : IdentityRole<long>
 { 
 }

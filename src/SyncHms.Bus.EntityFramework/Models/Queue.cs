@@ -1,6 +1,6 @@
 ﻿namespace SyncHms.Bus.EntityFramework.Models;
 
-internal class Queue
+public class Queue
 {
     public string Name { get; set; }
 

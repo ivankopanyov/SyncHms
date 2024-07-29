@@ -1,5 +1,6 @@
-namespace SyncHms.Domain;
+namespace SyncHms.Domain.EntityFramework;
 
-public class EntityFrameworkDomainOptions : EntityFrameworkOptions
+public class EntityFrameworkDomainOptions
 {
+    public bool UseMigrations { get; set; } = true;
 }

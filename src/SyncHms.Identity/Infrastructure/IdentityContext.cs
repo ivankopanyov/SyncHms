@@ -1,9 +1,19 @@
 namespace SyncHms.Identity.Infrastructure;
 
-internal class IdentityContext(IdentityOptions options) : IdentityDbContext<User, Role, long>
+public abstract class IdentityContext : IdentityDbContext<User, Role, long>
 {
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    internal IServiceScope? ServiceScope { private get; set; }
+    
+    protected abstract override void OnConfiguring(DbContextOptionsBuilder optionsBuilder);
+
+    protected sealed override void OnModelCreating(ModelBuilder builder)
     {
-        options.OptionsBuilder?.Invoke(optionsBuilder);
+        base.OnModelCreating(builder);
+    }
+
+    public sealed override void Dispose()
+    {
+        base.Dispose();
+        ServiceScope?.Dispose();
     }
 }

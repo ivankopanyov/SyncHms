@@ -1,19 +1,18 @@
-﻿namespace SyncHms.Bus.EntityFramework.Infrastructure;
+﻿namespace SyncHms.Bus.EntityFramework;
 
-internal class BusContext(EntityFrameworkBusOptions options) : DbContext
+public abstract class BusContext : DbContext
 {
+    internal IServiceScope? ServiceScope { private get; set; }
+
     public virtual DbSet<Exchange> Exchanges { get; set; }
 
     public virtual DbSet<Queue> Queues { get; set; }
 
     public virtual DbSet<Message> Messages { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        options.OptionsBuilder?.Invoke(optionsBuilder);
-    }
+    protected abstract override void OnConfiguring(DbContextOptionsBuilder optionsBuilder);
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected sealed override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
@@ -59,5 +58,11 @@ internal class BusContext(EntityFrameworkBusOptions options) : DbContext
                 .HasForeignKey(m => new { m.QueueName, m.ExchangeName })
                 .OnDelete(DeleteBehavior.Cascade);
         });
+    }
+
+    public sealed override void Dispose()
+    {
+        base.Dispose();
+        ServiceScope?.Dispose();
     }
 }

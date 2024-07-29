@@ -1,8 +1,10 @@
 namespace SyncHms.Identity;
 
-public class IdentityOptions : EntityFrameworkOptions
+public class IdentityOptions
 {
-    public int AccessTokenExpirationMinutes { get; set; }
+    public int AccessTokenExpirationMinutes { get; set; } = 1;
 
-    public int RefreshTokenExpirationDays { get; set; }
+    public int RefreshTokenExpirationDays { get; set; } = 7;
+
+    public bool UseMigrations { get; set; } = true;
 }

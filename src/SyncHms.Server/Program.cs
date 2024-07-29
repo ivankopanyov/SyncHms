@@ -1,12 +1,12 @@
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddSqliteBus(options => options.InitDatabase = InitDatabase.EnsureCreated)
+    .AddSqliteBus()
     .AddApplicationServices()
     .AddCache<MemoryCache>()
     .AddApplicationEvents()
-    .AddSqliteDomain<ApplicationEnvironment>(options => options.InitDatabase = InitDatabase.EnsureCreated)
-    .AddSqliteIdentity(options => options.InitDatabase = InitDatabase.EnsureCreated);
+    .AddSqliteDomain<ApplicationEnvironment>()
+    .AddSqliteIdentity();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

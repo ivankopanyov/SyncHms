@@ -1,6 +1,6 @@
 namespace SyncHms.Domain.EntityFramework.Repositories.Implement;
 
-internal class ServiceRepository(DomainContext context, ICache cache) : IServiceRepository
+internal class ServiceRepository(IDomainContextFactory domainContextFactory, ICache cache) : IServiceRepository
 {
     private const string Key = "services";
 
@@ -15,6 +15,7 @@ internal class ServiceRepository(DomainContext context, ICache cache) : IService
             if (await GetAllUsedAsync())
                 return await cache.GetAllAsync<Service>();
 
+            await using var context = domainContextFactory.Create();
             var services = await context.Services.AsNoTracking().ToListAsync();
 
             foreach (var service in services)
@@ -42,6 +43,7 @@ internal class ServiceRepository(DomainContext context, ICache cache) : IService
             if (await cache.GetAsync<Service>(serviceName) is { } s)
                 return s;
 
+            await using var context = domainContextFactory.Create();
             if (await context.Services
                     .AsNoTracking()
                     .FirstOrDefaultAsync(s => s.Name == serviceName) is not { } service)
@@ -75,6 +77,7 @@ internal class ServiceRepository(DomainContext context, ICache cache) : IService
             
             if (!await GetAllUsedAsync())
             {
+                await using var context = domainContextFactory.Create();
                 if (await context.Services
                         .AsNoTracking()
                         .FirstOrDefaultAsync(s => s.Name == service.Name) is { } s)
@@ -105,6 +108,7 @@ internal class ServiceRepository(DomainContext context, ICache cache) : IService
 
         try
         {
+            await using var context = domainContextFactory.Create();
             if (await context.Services.FirstOrDefaultAsync(s => s.Name == service.Name) is not {} s)
             {
                 s = new Service()
@@ -148,6 +152,7 @@ internal class ServiceRepository(DomainContext context, ICache cache) : IService
         {
             var result = await cache.PopAsync<Service>(serviceName);
 
+            await using var context = domainContextFactory.Create();
             if (await context.Services
                     .AsNoTracking()
                     .FirstOrDefaultAsync(s => s.Name == serviceName) is not { } service)

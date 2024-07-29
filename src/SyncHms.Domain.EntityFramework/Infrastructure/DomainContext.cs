@@ -1,7 +1,9 @@
 namespace SyncHms.Domain.EntityFramework.Infrastructure;
 
-internal class DomainContext(EntityFrameworkDomainOptions options) : DbContext
+public abstract class DomainContext : DbContext
 {
+    internal IServiceScope? ServiceScope { private get; set; }
+
     public virtual DbSet<Service> Services { get; set; }
     
     public virtual DbSet<AppOptions> AppOptions { get; set; }
@@ -10,12 +12,9 @@ internal class DomainContext(EntityFrameworkDomainOptions options) : DbContext
     
     public virtual DbSet<LogData> LogDatas { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        options.OptionsBuilder?.Invoke(optionsBuilder);
-    }
+    protected abstract override void OnConfiguring(DbContextOptionsBuilder optionsBuilder);
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected sealed override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Service>(buildAction =>
         {
@@ -57,5 +56,11 @@ internal class DomainContext(EntityFrameworkDomainOptions options) : DbContext
                 .HasForeignKey<Log>(l => l.LogDataId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+    }
+
+    public sealed override void Dispose()
+    {
+        base.Dispose();
+        ServiceScope?.Dispose();
     }
 }

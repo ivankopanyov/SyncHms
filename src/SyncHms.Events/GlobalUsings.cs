@@ -5,7 +5,6 @@ global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Hosting;
 global using NServiceBus;
-global using SyncHms.Bus;
 global using SyncHms.Bus.Events;
 global using SyncHms.Cache;
 global using SyncHms.CheckDB;

@@ -2,18 +2,18 @@ namespace SyncHms.Domain;
 
 public static class CacheBuilderExtensions
 {
-    public static ICacheBuilder AddEntityFrameworkDomain<TEnvironment>(this ICacheBuilder cacheBuilder,
-        Action<EntityFrameworkDomainOptions> optionsBuilder)
-        where TEnvironment : class, new()
+    public static ICacheBuilder AddEntityFrameworkDomain<TContext, TEnvironment>(this ICacheBuilder cacheBuilder,
+        Action<EntityFrameworkDomainOptions>? optionsBuilder = null)
+        where TContext : DomainContext where TEnvironment : class, new()
     {
         var options = new EntityFrameworkDomainOptions();
-        optionsBuilder.Invoke(options);
+        optionsBuilder?.Invoke(options);
         
         cacheBuilder
             .AddRepositories<TEnvironment>()
-            .AddHostedService<DatabaseInitializator>()
+            .AddSingleton<IDomainContextFactory, DomainContextFactory<TContext>>()
             .AddSingleton(options)
-            .AddDbContext<DomainContext>();
+            .AddDbContext<TContext>();
 
         return cacheBuilder;
     }

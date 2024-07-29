@@ -2,7 +2,6 @@
 global using SyncHms.Bus;
 global using SyncHms.Cache;
 global using SyncHms.Domain;
-global using SyncHms.EntityFramework.Shared;
 global using SyncHms.Events;
 global using SyncHms.Identity;
 global using SyncHms.Services;

@@ -1,7 +1,8 @@
 namespace SyncHms.Domain.EntityFramework.Repositories.Implement;
 
-internal class EnvironmentRepository<TEnvironment>(IDomainContextFactory domainContextFactory, ICache cache)
-    : IEnvironmentRepository<TEnvironment> where TEnvironment : class, new()
+internal class EnvironmentRepository<TEnvironment>(IDomainContextFactory domainContextFactory, ICache cache,
+    EntityFrameworkDomainOptions domainOptions) : IEnvironmentRepository<TEnvironment>
+    where TEnvironment : class, new()
 {
     private const string Key = "environment";
 
@@ -21,7 +22,8 @@ internal class EnvironmentRepository<TEnvironment>(IDomainContextFactory domainC
                 { } result) 
                 return null;
             
-            if (JsonConvert.DeserializeObject<TEnvironment>(result.Value) is not {} env)
+            if (JsonConvert.DeserializeObject<TEnvironment>(result.Value, domainOptions.JsonSerializerSettings)
+                is not {} env)
             {
                 context.AppOptions.Remove(result);
                 await context.SaveChangesAsync();
@@ -51,7 +53,7 @@ internal class EnvironmentRepository<TEnvironment>(IDomainContextFactory domainC
             
             if (options != null)
             {
-                env = JsonConvert.DeserializeObject<TEnvironment>(options.Value);
+                env = JsonConvert.DeserializeObject<TEnvironment>(options.Value, domainOptions.JsonSerializerSettings);
                 if (env == null)
                 {
                     context.AppOptions.Remove(options);
@@ -67,14 +69,14 @@ internal class EnvironmentRepository<TEnvironment>(IDomainContextFactory domainC
 
             if (options != null)
             {
-                options.Value = JsonConvert.SerializeObject(environment);
+                options.Value = JsonConvert.SerializeObject(environment, domainOptions.JsonSerializerSettings);
             }
             else
             {
                 await context.AppOptions.AddAsync(new AppOptions
                 {
                     Id = Key,
-                    Value = JsonConvert.SerializeObject(environment)
+                    Value = JsonConvert.SerializeObject(environment, domainOptions.JsonSerializerSettings)
                 });
             }
 

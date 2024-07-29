@@ -1,4 +1,4 @@
-namespace SyncHms.Bus.EntityFramework.Sqlite.Options;
+namespace SyncHms.Bus.EntityFramework.Sqlite;
 
 public class SqliteBusOptions : EntityFrameworkBusOptions
 {

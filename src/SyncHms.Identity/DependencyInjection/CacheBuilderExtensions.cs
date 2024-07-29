@@ -3,13 +3,11 @@ namespace SyncHms.Identity;
 public static class CacheBuilderExtensions
 {
     public static ICacheBuilder AddIdentity<TContext>(this ICacheBuilder cacheBuilder,
-        Action<IdentityOptions>? optionsBuilder = null) where TContext : IdentityContext
+        Action<IdentityOptions>? setupAction = null) where TContext : IdentityContext
     {
         var options = new IdentityOptions();
-        optionsBuilder?.Invoke(options);
         
         cacheBuilder
-            .AddSingleton(options)
             .AddScoped<IConnectionRepository, ConnectionRepository>()
             .AddScoped<ITokenService, JwtService>()
             .AddScoped<IIdentityService, IdentityService>()
@@ -19,15 +17,13 @@ public static class CacheBuilderExtensions
             .AddDbContext<TContext>()
             .AddIdentity<User, Role>(identityOptions =>
             {
-                identityOptions.Password.RequiredUniqueChars = 0;
-                identityOptions.Password.RequireNonAlphanumeric = false;
-                identityOptions.Password.RequireLowercase = false;
-                identityOptions.Password.RequireUppercase = false;
-                identityOptions.Password.RequireDigit = false;
+                options.Options = identityOptions;
+                setupAction?.Invoke(options);
             })
             .AddEntityFrameworkStores<TContext>();
         
         cacheBuilder
+            .AddSingleton(options)
             .AddAuthentication()
             .AddJwtBearer()
             .AddJwtBearer("Refresh");

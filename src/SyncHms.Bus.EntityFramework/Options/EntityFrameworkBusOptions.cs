@@ -1,4 +1,4 @@
-﻿namespace SyncHms.Bus.EntityFramework;
+﻿namespace SyncHms.Bus;
 
 public class EntityFrameworkBusOptions
 {

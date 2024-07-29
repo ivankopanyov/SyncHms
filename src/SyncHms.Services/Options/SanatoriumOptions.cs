@@ -1,6 +1,6 @@
 namespace SyncHms.Services;
 
-public class ServiceBusOptions
+public class SanatoriumOptions
 {
     [Required(AllowEmptyStrings = true)]
     public string ConnectionString { get; set; } = "Data Source=localhost;Initial Catalog=servicebus;User Id=;Password=;Min Pool Size=1;Connection Timeout=10;";
@@ -20,7 +20,7 @@ public class ServiceBusOptions
     public override int GetHashCode() => HashCode.Combine(ConnectionString, ServerEndpoint, Endpoint, License);
 
     public override bool Equals(object? obj) => 
-        obj is ServiceBusOptions other 
+        obj is SanatoriumOptions other 
         && ConnectionString == other.ConnectionString
         && Endpoint == other.Endpoint
         && ServerEndpoint == other.ServerEndpoint

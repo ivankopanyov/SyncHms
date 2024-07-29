@@ -1,13 +1,18 @@
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddSqliteBus()
-    .AddApplicationServices()
-    .AddCache<MemoryCache>()
-    .AddApplicationEvents()
-    .AddSqliteDomain<ApplicationEnvironment>()
-    .AddSqliteIdentity();
+var loggerConfiguration = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/all_logs_.log", rollingInterval: RollingInterval.Day);
 
+builder.Services
+    .AddBus(builder)
+    .AddServices(builder, loggerConfiguration)
+    .AddCache(builder)
+    .AddEvents(builder, loggerConfiguration)
+    .AddDomain(builder)
+    .AddIdentity(builder);
+
+builder.Services.AddSerilog(loggerConfiguration.CreateLogger());
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

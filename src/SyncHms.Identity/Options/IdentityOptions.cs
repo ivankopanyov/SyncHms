@@ -7,4 +7,6 @@ public class IdentityOptions
     public int RefreshTokenExpirationDays { get; set; } = 7;
 
     public bool UseMigrations { get; set; } = true;
+
+    public Microsoft.AspNetCore.Identity.IdentityOptions Options { get; internal set; }
 }

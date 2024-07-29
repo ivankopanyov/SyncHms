@@ -3,7 +3,7 @@ namespace SyncHms.Services;
 public static class BusBuilderExtensions
 {
     public static IApplicationServicesBuilder AddApplicationServices(this IBusBuilder servicesBusBuilder,
-        Action<SyncHms.Bus.Services.ServiceBusOptions>? optionsAction = null)
+        Action<ServiceBusOptions>? optionsAction = null)
     {
         return servicesBusBuilder
             .AddServices<ApplicationEnvironment>(optionsAction)
@@ -11,12 +11,12 @@ public static class BusBuilderExtensions
     }
     
     public static IApplicationServicesBuilder AddApplicationServices(this IServicesBusBuilder<ApplicationEnvironment> servicesBusBuilder,
-        Action<SyncHms.Bus.Services.ServiceBusOptions>? optionsAction = null)
+        Action<ServiceBusOptions>? optionsAction = null)
     {
         servicesBusBuilder
             .AddSingleton<IFiasService, FiasService, FiasServiceOptions>(options =>
                 options.ServiceName = "Fias")
-            .AddSingleton<ISanatoriumService, SanatoriumService, ServiceBusOptions>(options =>
+            .AddSingleton<ISanatoriumService, SanatoriumService, SanatoriumOptions>(options =>
                 options.ServiceName = "NServiceBus")
             .AddScoped<IOperaService, OperaService, OperaOptions>(options =>
                 options.ServiceName = "Oracle")

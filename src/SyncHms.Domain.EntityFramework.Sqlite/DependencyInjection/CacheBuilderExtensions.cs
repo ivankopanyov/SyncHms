@@ -1,4 +1,4 @@
-namespace SyncHms.Domain;
+namespace SyncHms.Domain.EntityFramework.Sqlite;
 
 public static class CacheBuilderExtensions
 {
@@ -10,6 +10,7 @@ public static class CacheBuilderExtensions
         cacheBuilder.AddSingleton(sqliteOptions);
         return cacheBuilder.AddEntityFrameworkDomain<SqliteDomainContext, TEnvironment>(builder =>
         {
+            builder.ContractResolver = sqliteOptions.ContractResolver;
             builder.UseMigrations = sqliteOptions.UseMigrations;
         });
     }

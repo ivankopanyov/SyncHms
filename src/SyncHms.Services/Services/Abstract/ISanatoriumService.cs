@@ -2,7 +2,7 @@ namespace SyncHms.Services;
 
 public delegate void PostingRequestHandle(PostingRequest message);
 
-public interface ISanatoriumService : IService<ServiceBusOptions, ApplicationEnvironment>
+public interface ISanatoriumService : IService<SanatoriumOptions, ApplicationEnvironment>
 {
     bool UsePosting { get; }
     

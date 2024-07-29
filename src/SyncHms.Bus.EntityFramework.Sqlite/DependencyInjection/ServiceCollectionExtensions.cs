@@ -1,12 +1,12 @@
-namespace SyncHms.Bus;
+namespace SyncHms.Bus.EntityFramework.Sqlite;
 
 public static class ServiceCollectionExtensions
 {
     public static IBusBuilder AddSqliteBus(this IServiceCollection services,
-        Action<SqliteBusOptions>? optionsBuilder = null)
+        Action<SqliteBusOptions>? setupAction = null)
     {
         var sqliteOptions = new SqliteBusOptions();
-        optionsBuilder?.Invoke(sqliteOptions);
+        setupAction?.Invoke(sqliteOptions);
         return services
             .AddSingleton(sqliteOptions)
             .AddEntityFrameworkBus<SqliteBusContext>(builder => 

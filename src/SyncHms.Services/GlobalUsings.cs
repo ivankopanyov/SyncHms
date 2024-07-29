@@ -1,7 +1,10 @@
 global using Logus.HMS.Messages.Invoice;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
+global using Newtonsoft.Json;
+global using Newtonsoft.Json.Serialization;
 global using NServiceBus.Persistence;
+global using Serilog;
 global using SyncHms.Bus;
 global using SyncHms.Bus.Services;
 global using SyncHms.Cache;

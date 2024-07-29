@@ -4,7 +4,7 @@ internal class SanatoriumService : ISanatoriumService
 {
     private readonly SemaphoreSlim _semaphore = new(1);
 
-    private readonly IControl<ServiceBusOptions, ApplicationEnvironment> _control;
+    private readonly IControl<SanatoriumOptions, ApplicationEnvironment> _control;
 
     private IEndpointInstance? _endpointInstance;
 
@@ -18,14 +18,14 @@ internal class SanatoriumService : ISanatoriumService
     
     public event PostingRequestHandle? PostingRequestEvent;
 
-    public SanatoriumService(IControl<ServiceBusOptions, ApplicationEnvironment> control)
+    public SanatoriumService(IControl<SanatoriumOptions, ApplicationEnvironment> control)
     {
         _control = control;
         _cancellationToken = _cancellationTokenSource.Token;
         Connect(_control.Options);
     }
 
-    public Task ChangedOptionsHandleAsync(ServiceBusOptions options)
+    public Task ChangedOptionsHandleAsync(SanatoriumOptions options)
     {
         Connect(options);
         throw new Exception("Restarting the service.");
@@ -33,7 +33,7 @@ internal class SanatoriumService : ISanatoriumService
 
     public Task ChangedEnvironmentHandleAsync(ApplicationEnvironment current, ApplicationEnvironment previous) => Task.CompletedTask;
 
-    private void Connect(ServiceBusOptions options) => new Thread(async () =>
+    private void Connect(SanatoriumOptions options) => new Thread(async () =>
     {
         await _cancellationTokenSource.CancelAsync();
 

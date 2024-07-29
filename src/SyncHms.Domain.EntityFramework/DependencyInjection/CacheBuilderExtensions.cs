@@ -1,4 +1,4 @@
-namespace SyncHms.Domain;
+namespace SyncHms.Domain.EntityFramework;
 
 public static class CacheBuilderExtensions
 {

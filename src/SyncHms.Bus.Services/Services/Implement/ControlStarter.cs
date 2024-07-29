@@ -3,7 +3,10 @@
 internal class ControlStarter<TService, TOptions> : BackgroundService
     where TService : IService<TOptions> where TOptions : class, new()
 {
-    private static readonly Lazy<ServicesSerializerSettings> _serializerSettings = new(() => new());
+    private readonly JsonSerializerSettings _settings = new()
+    {
+        ContractResolver = new DescriptionContractResolver()
+    };
 
     private readonly ILogger _logger;
 
@@ -93,7 +96,7 @@ internal class ControlStarter<TService, TOptions> : BackgroundService
 
         try
         {
-            if (JsonConvert.DeserializeObject<TOptions>(configuration.JsonOptions, _serializerSettings.Value) is not { } options)
+            if (JsonConvert.DeserializeObject<TOptions>(configuration.JsonOptions, _settings) is not { } options)
             {
                 await SendOptionsAsync("Failed to deserialize options.", false);
                 return;
@@ -150,7 +153,7 @@ internal class ControlStarter<TService, TOptions> : BackgroundService
     {
         try
         {
-            serviceInfo.JsonOptions = JsonConvert.SerializeObject(_control.Options, _serializerSettings.Value);
+            serviceInfo.JsonOptions = JsonConvert.SerializeObject(_control.Options, _settings);
         }
         catch (Exception ex)
         {

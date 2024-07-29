@@ -95,7 +95,7 @@ internal class SanatoriumService : ISanatoriumService
         }
         catch (Exception ex)
         {
-            _control.Unactive(ex);
+            _control.Unactive(ex.Message.Split('\n')[0]);
 			Connect(options);
         }
         finally

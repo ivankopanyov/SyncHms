@@ -20,6 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
+	<Content Include="..\..\.dockerignore">
+	  <Link>.dockerignore</Link>
+	</Content>
 	<Content Include="..\synchms.client\dist\**\*.*">
 	  <Link>dist\%(RecursiveDir)%(FileName)%(Extension)</Link>
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -56,7 +56,7 @@ public static class ConfigureServices
         var options = new BusProviderOptions();
         appBuilder.Configuration.Bind(BusProviderOptions.Section, options);
         
-        return builder
+        var result = builder
             .AddApplicationEvents(eventsOptions =>
             {
                 eventsOptions.LogFileName = "logs/events_.log";
@@ -64,9 +64,12 @@ public static class ConfigureServices
                 if (loggerConfiguration != null)
                     eventsOptions.LoggerConfiguration = loggerConfiguration;
             });
+
+        builder.AddEventLog<UpdateLogHandler>();
+        return result;
     }
     
-    public static ICacheBuilder AddDomain(this IApplicationEventsBuilder builder,
+    public static ICacheBuilder AddDomain(this ICacheBuilder builder,
         WebApplicationBuilder appBuilder)
     {
         var options = new DomainProviderOptions();
@@ -108,5 +111,13 @@ public static class ConfigureServices
                     identityOptions.ConnectionString = options.Sql.ConnectionString;
             })
         };
+    }
+
+    public static WebApplication MapHubs(this WebApplication app)
+    {
+        app.MapHub<LogHub>("/logs");
+        app.MapHub<ServiceHub>("/services");
+        app.MapHub<EnvironmentHub>("/environment");
+        return app;
     }
 }

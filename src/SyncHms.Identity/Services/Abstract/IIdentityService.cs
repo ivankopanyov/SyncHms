@@ -2,7 +2,7 @@ namespace SyncHms.Identity;
 
 public interface IIdentityService
 {
-    Task<bool> ExistsAsync();
+    Task<bool> AnyAsync();
 
     Task<Token> SignUpAsync(string username, string password);
 

@@ -2,7 +2,6 @@ global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
 global using Newtonsoft.Json;
 global using SyncHms.Cache;
-global using SyncHms.Domain.EntityFramework;
 global using SyncHms.Domain.EntityFramework.Repositories.Implement;
 global using SyncHms.Domain.EntityFramework.Infrastructure;
 global using SyncHms.Domain.EntityFramework.Infrastructure.Factories.Abstract;

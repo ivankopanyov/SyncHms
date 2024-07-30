@@ -5,7 +5,7 @@ internal class IdentityService(UserManager<User> userManager, ITokenService toke
 {
     private static readonly SemaphoreSlim _semaphore = new(1);
     
-    public async Task<bool> ExistsAsync()
+    public async Task<bool> AnyAsync()
     {
         await _semaphore.WaitAsync();
 

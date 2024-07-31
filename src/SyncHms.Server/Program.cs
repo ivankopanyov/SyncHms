@@ -13,7 +13,8 @@ builder.Services
     .AddCache(builder)
     .AddEvents(builder, loggerConfiguration)
     .AddDomain(builder)
-    .AddIdentity(builder);
+    .AddIdentity(builder)
+    .AddHostedService<ServiceHandler>();
 
 builder.Services
     .AddSerilog(loggerConfiguration.CreateLogger())

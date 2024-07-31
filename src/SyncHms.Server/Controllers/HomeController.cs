@@ -17,7 +17,7 @@ public class HomeController(ILogger<HomeController> logger) : ControllerBase
     [ProducesResponseType<string>((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<ActionResult<string>> FileAsync([FromRoute] string resource) =>
-        await ContentAsync(Path.Combine(_path, resource));
+        await ContentAsync(Path.Combine(_path, resource), Path.Combine(_path, "index.html"));
 
     [HttpGet("assets/{resource}")]
     [ProducesResponseType<string>((int)HttpStatusCode.OK)]
@@ -25,13 +25,16 @@ public class HomeController(ILogger<HomeController> logger) : ControllerBase
     public async Task<ActionResult<string>> AssetsAsync([FromRoute] string resource) =>
         await ContentAsync(Path.Combine(_path, "assets", resource));
 
-    private async Task<ActionResult<string>> ContentAsync(string filePath)
+    private async Task<ActionResult<string>> ContentAsync(string filePath, string? defaultFilePath = null)
     {
-        if (System.IO.File.Exists(filePath))
+        var path = System.IO.File.Exists(filePath) ? filePath
+            : defaultFilePath != null && System.IO.File.Exists(defaultFilePath) ? defaultFilePath : null;
+        
+        if (path != null)
         {
             try
             {
-                return Content(await System.IO.File.ReadAllTextAsync(filePath), ContentType(filePath));
+                return Content(await System.IO.File.ReadAllTextAsync(path), ContentType(path));
             }
             catch (Exception ex)
             {

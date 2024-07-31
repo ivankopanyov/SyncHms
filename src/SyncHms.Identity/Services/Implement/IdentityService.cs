@@ -1,7 +1,7 @@
 namespace SyncHms.Identity.Services.Implement;
 
-internal class IdentityService(UserManager<User> userManager, ITokenService tokenService,
-    IConnectionRepository connectionRepository) : IIdentityService
+internal class IdentityService(IIdentityContextFactory contextFactory, UserManager<User> userManager,
+    ITokenService tokenService, IConnectionRepository connectionRepository) : IIdentityService
 {
     private static readonly SemaphoreSlim _semaphore = new(1);
     
@@ -28,12 +28,9 @@ internal class IdentityService(UserManager<User> userManager, ITokenService toke
             if (await userManager.Users.AsNoTracking().AnyAsync())
                 throw new MethodAccessException();
 
-            var name = username.Trim();
-
             var user = new User
             {
-                UserName = name.ToLower(),
-                NormalizedUserName = name,
+                UserName = username,
                 CanModified = false
             };
 

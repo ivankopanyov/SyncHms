@@ -4,6 +4,7 @@ public class Log : IComparable<Log>
 {
     public string Id { get; set; }
     
+    [JsonIgnore]
     public string LogDataId { get; set; }
 
     public string TaskId { get; set; }

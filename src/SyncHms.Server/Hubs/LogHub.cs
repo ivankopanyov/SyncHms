@@ -21,6 +21,7 @@ public class LogHub(ILogRepository logRepository) : Hub
 
     private async Task SendAsync(SearchFilter filter, bool update = false)
     {
-        await Clients.Client(Context.ConnectionId).SendAsync("Logs", await logRepository.FindAsync(filter), update);
+        var logs = await logRepository.FindAsync(filter);
+        await Clients.Client(Context.ConnectionId).SendAsync("Logs", logs, update);
     }
 }

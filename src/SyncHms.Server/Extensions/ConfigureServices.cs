@@ -115,9 +115,9 @@ public static class ConfigureServices
 
     public static WebApplication MapHubs(this WebApplication app)
     {
-        app.MapHub<LogHub>("/logs");
-        app.MapHub<ServiceHub>("/services");
-        app.MapHub<EnvironmentHub>("/environment");
+        app.MapHub<LogHub>("/hub/logs");
+        app.MapHub<ServiceHub>("/hub/services");
+        app.MapHub<EnvironmentHub>("/hub/environment");
         return app;
     }
 }

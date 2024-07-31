@@ -34,35 +34,41 @@ internal class LogRepository(IDomainContextFactory domainContextFactory) : ILogR
             return [];
 
         await using var context = domainContextFactory.Create();
-        IQueryable<IGrouping<string, Log>> query = context.Logs
+
+        var query = context.Logs
             .AsNoTracking()
             .OrderByDescending(l => l.DateTime)
             .GroupBy(l => l.TaskId)
-            .OrderByDescending(g => g.First().DateTime);
+            .Select(g => new
+            {
+                First = g.First(),
+                Logs = g.ToList()
+            });
 
         if (filter != null)
         {
             if (filter.IsError is { } isError)
-                query = query.Where(g => g.First().IsError == isError);
+                query = query.Where(g => g.First.IsError == isError);
 
             if (filter.IsEnd is { } isEnd)
-                query = query.Where(g => g.First().IsEnd == isEnd);
+                query = query.Where(g => g.First.IsEnd == isEnd);
 
             if (filter.TaskNames?.Count is > 0)
-                query = query.Where(g => g.First().TaskName != null && filter.TaskNames.Contains(g.First().TaskName));
+                query = query.Where(g => g.First.TaskName != null && filter.TaskNames.Contains(g.First.TaskName));
             
             // pattern
 
             if (filter.To is { } to)
-                query = query.Where(g => g.First().DateTime < to);
+                query = query.Where(g => g.First.DateTime < to);
             
             if (filter.To is { } from)
-                query = query.Where(g => g.First().DateTime > from);
+                query = query.Where(g => g.First.DateTime > from);
 
             if (filter.Size is { } size)
                 query = query.Take(size);
         }
 
-        return await query.SelectMany(g => g).ToListAsync();
+        var result = await query.ToListAsync();
+        return result.SelectMany(l => l.Logs);
     }
 }

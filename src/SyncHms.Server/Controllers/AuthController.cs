@@ -23,7 +23,7 @@ public class AuthController(IIdentityService identityService) : ControllerBase
     {
         try
         {
-            Token token = await identityService.SignUpAsync(login.Username, login.Password);
+            var token = await identityService.SignUpAsync(login.Username, login.Password);
             return SetCookie(token);
         }
         catch (MethodAccessException)
@@ -61,9 +61,8 @@ public class AuthController(IIdentityService identityService) : ControllerBase
     [Authorize(AuthenticationSchemes = "Refresh")]
     public async Task<IActionResult> RefreshAsync()
     {
-        
         var refreshToken = HttpContext.Request.Cookies["Refresh"];
-        if (string.IsNullOrEmpty(refreshToken) || UserId is not long userId ||
+        if (string.IsNullOrEmpty(refreshToken) || UserId is not { } userId ||
             await identityService.RefreshAsync(userId, refreshToken) is not { } token)
         {
             RemoveCookie();
@@ -82,7 +81,7 @@ public class AuthController(IIdentityService identityService) : ControllerBase
         RemoveCookie();
 
         var refreshToken = Request.Cookies["Refresh"];
-        if (string.IsNullOrEmpty(refreshToken) || UserId is not long userId)
+        if (string.IsNullOrEmpty(refreshToken) || UserId is not { } userId)
             return Unauthorized();
 
         await identityService.SignOutAsync(userId, refreshToken);

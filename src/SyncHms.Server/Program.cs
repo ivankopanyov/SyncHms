@@ -1,6 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
 var loggerConfiguration = new LoggerConfiguration()
+    .WriteTo.Console()
     .WriteTo.File("logs/all_logs_.log", rollingInterval: RollingInterval.Day);
 
 builder.Services

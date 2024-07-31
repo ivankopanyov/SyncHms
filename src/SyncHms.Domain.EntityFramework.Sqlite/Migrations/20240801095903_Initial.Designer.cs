@@ -11,7 +11,7 @@ using SyncHms.Domain.EntityFramework.Sqlite.Infrastructure;
 namespace SyncHms.Domain.EntityFramework.Sqlite.Migrations
 {
     [DbContext(typeof(SqliteDomainContext))]
-    [Migration("20240729113035_Initial")]
+    [Migration("20240801095903_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -53,7 +53,6 @@ namespace SyncHms.Domain.EntityFramework.Sqlite.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("LogDataId")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Message")
@@ -93,6 +92,10 @@ namespace SyncHms.Domain.EntityFramework.Sqlite.Migrations
                     b.Property<string>("StackTrace")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("TaskId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.ToTable("LogDatas");
@@ -116,8 +119,7 @@ namespace SyncHms.Domain.EntityFramework.Sqlite.Migrations
                     b.HasOne("SyncHms.Domain.LogData", "LogData")
                         .WithOne("Log")
                         .HasForeignKey("SyncHms.Domain.Log", "LogDataId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("LogData");
                 });

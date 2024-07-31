@@ -27,16 +27,16 @@ public class LogController(ILogRepository logRepository) : ControllerBase
             : NotFound($"Task {id} not found.");
     }
 
-    [HttpGet("{taskId}/{eventId}")]
+    [HttpGet("{id}/data")]
     [ProducesResponseType<LogData>((int)HttpStatusCode.OK)]
     [ProducesResponseType<string>((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType<string>((int)HttpStatusCode.NotFound)]
     [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public async Task<ActionResult<LogData>> GetEventAsync([Required][FromRoute] string logId)
+    public async Task<ActionResult<LogData>> GetEventAsync([Required][FromRoute] string id)
     {
-        return await logRepository.GetDataAsync(logId) is { } logData
+        return await logRepository.GetDataAsync(id) is { } logData
             ? Ok(logData)
-            : NotFound($"Log {logId} not found.");
+            : NotFound($"Log {id} not found.");
     }
 }

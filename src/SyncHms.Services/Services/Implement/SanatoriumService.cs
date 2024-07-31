@@ -22,44 +22,50 @@ internal class SanatoriumService : ISanatoriumService
     {
         _control = control;
         _cancellationToken = _cancellationTokenSource.Token;
-        Connect(_control.Options);
     }
 
     public Task ChangedOptionsHandleAsync(SanatoriumOptions options)
     {
         Connect(options);
-        throw new Exception("Restarting the service.");
+        throw new Exception(options.Enabled
+            ? "Restarting the service."
+            : "Service is disabled");
     }
 
-    public Task ChangedEnvironmentHandleAsync(ApplicationEnvironment current, ApplicationEnvironment previous) => Task.CompletedTask;
+    public Task ChangedEnvironmentHandleAsync(ApplicationEnvironment current,
+        ApplicationEnvironment previous) => Task.CompletedTask;
 
-    private void Connect(SanatoriumOptions options) => new Thread(async () =>
+    private void Connect(SanatoriumOptions sanatoriumOptions) => new Thread(async newOptions =>
     {
+        var options = (SanatoriumOptions)newOptions!;
         await _cancellationTokenSource.CancelAsync();
 
         await _semaphore.WaitAsync();
 
-        if (_endpointInstance != null)
-        {
-            try
-            {
-                await _endpointInstance.Stop();
-            }
-            catch (Exception ex)
-            {
-                _control.Unactive(ex);
-            }
-        }
-
-        if (_cancellationToken.IsCancellationRequested)
-        {
-            _cancellationTokenSource = new CancellationTokenSource();
-            _cancellationToken = _cancellationTokenSource.Token;
-        }
-
         try
         {
-            await Task.Delay(TimeSpan.FromSeconds(Math.Max(options.ConnectionDelay, 0)), _cancellationToken);
+            if (_endpointInstance != null)
+            {
+                try
+                {
+                    await _endpointInstance.Stop();
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+
+            if (!options.Enabled)
+                return;
+
+            if (_cancellationToken.IsCancellationRequested)
+            {
+                _cancellationTokenSource = new CancellationTokenSource();
+                _cancellationToken = _cancellationTokenSource.Token;
+            }
+            
+            await Task.Delay(TimeSpan.FromSeconds(Math.Max(_control.Options.ConnectionDelay, 0)), _cancellationToken);
 
             var endpointConfiguration = new EndpointConfiguration(options.Endpoint);
             endpointConfiguration.AssemblyScanner().ExcludeAssemblies("Logus.HMS.Messages");
@@ -91,7 +97,8 @@ internal class SanatoriumService : ISanatoriumService
         }
         catch (OperationCanceledException ex)
         {
-            _control.Unactive(ex);
+            _control.Unactive(_control.Options.Enabled 
+                ? ex : new Exception("Service is disabled"));
         }
         catch (Exception ex)
         {
@@ -102,7 +109,7 @@ internal class SanatoriumService : ISanatoriumService
         {
             _semaphore.Release();
         }
-    }).Start();
+    }).Start(sanatoriumOptions);
 
     public void SendPostingRequest(PostingRequest message)
     {
@@ -112,6 +119,9 @@ internal class SanatoriumService : ISanatoriumService
     public void Exec(Action<IEndpointInstance?> action)
     {
         ArgumentNullException.ThrowIfNull(action, nameof(action));
+
+        if (!_control.Options.Enabled)
+            throw new InvalidOperationException("Service is disabled.");
 
         try
         {
@@ -128,6 +138,9 @@ internal class SanatoriumService : ISanatoriumService
     public T Exec<T>(Func<IEndpointInstance?, T> func)
     {
         ArgumentNullException.ThrowIfNull(func, nameof(func));
+
+        if (!_control.Options.Enabled)
+            throw new InvalidOperationException("Service is disabled.");
 
         try
         {

@@ -1,6 +1,6 @@
 namespace SyncHms.Domain.EntityFramework.Repositories.Implement;
 
-internal class EnvironmentRepository<TEnvironment>(IDomainContextFactory domainContextFactory, ICache cache,
+internal class EnvironmentRepository<TEnvironment>(IDomainContextFactory domainContextFactory, 
     EntityFrameworkDomainOptions domainOptions) : IEnvironmentRepository<TEnvironment>
     where TEnvironment : class, new()
 {
@@ -14,24 +14,19 @@ internal class EnvironmentRepository<TEnvironment>(IDomainContextFactory domainC
 
         try
         {
-            if (await cache.GetAsync<TEnvironment>(Key) is { } environment)
-                return environment;
-
             await using var context = domainContextFactory.Create();
             if (await context.AppOptions.AsNoTracking().FirstOrDefaultAsync(o => o.Id == Key) is not
                 { } result) 
                 return null;
-            
-            if (JsonConvert.DeserializeObject<TEnvironment>(result.Value, domainOptions.JsonSerializerSettings)
-                is not {} env)
-            {
-                context.AppOptions.Remove(result);
-                await context.SaveChangesAsync();
-                return null;
-            }
 
-            await cache.PushAsync(Key, env);
-            return env;
+            if (JsonConvert.DeserializeObject<TEnvironment>(result.Value, domainOptions.JsonSerializerSettings)
+                is { } env) 
+                return env;
+            
+            context.AppOptions.Remove(result);
+            await context.SaveChangesAsync();
+            return null;
+
         }
         finally
         {
@@ -81,8 +76,6 @@ internal class EnvironmentRepository<TEnvironment>(IDomainContextFactory domainC
             }
 
             await context.SaveChangesAsync();
-            await cache.PushAsync(Key, environment);
-
             return result;
         }
         finally

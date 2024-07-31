@@ -6,6 +6,7 @@ import { getTask } from '../LogList/LogListStore';
 import { AccordionBody, AccordionHeader, Text, Loading } from '../../components';
 import { useAppDispatch } from '../../redux/hooks';
 import { useLoopRequest } from '../../hooks';
+import { dateDisplay } from '../../utils/mapper';
 import Log from '../LogInfo/Log';
 import './Task.scss';
  
@@ -20,6 +21,7 @@ const Task: FC<Readonly<TaskProps>> = ({ task }) => {
         const result = await dispatch(getTask(task.logs[0].taskId));
         return result.meta.requestStatus === 'fulfilled';
     });
+    
 
     useEffect(() => {
         if (expanded && task.loading !== false) {
@@ -55,7 +57,8 @@ const Task: FC<Readonly<TaskProps>> = ({ task }) => {
                     </div>
                     <div>
                         <div className="task-header-name">
-                            <Text>{ task.logs[0].dateTime.display() }</Text>
+                            {/* <Text>{ task.logs[0].dateTime.display() }</Text> */}
+                            <Text>{ dateDisplay(task.logs[0].dateTime) }</Text>
                             {
                                 !expanded && task.logs[0].handlerName &&
                                     <div className="task-handler task-indent-left">

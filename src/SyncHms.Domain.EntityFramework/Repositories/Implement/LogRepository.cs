@@ -5,7 +5,15 @@ internal class LogRepository(IDomainContextFactory domainContextFactory) : ILogR
     public async Task AddAsync(Log log)
     {
         await using var context = domainContextFactory.Create();
+        var logData = log.LogData;
+        log.LogData = null;
         await context.Logs.AddAsync(log);
+        if (logData != null)
+        {
+            logData.LogId = log.Id;
+            await context.LogDatas.AddAsync(logData);
+        }
+        
         await context.SaveChangesAsync();
     }
 
@@ -38,37 +46,33 @@ internal class LogRepository(IDomainContextFactory domainContextFactory) : ILogR
         var query = context.Logs
             .AsNoTracking()
             .OrderByDescending(l => l.DateTime)
-            .GroupBy(l => l.TaskId)
-            .Select(g => new
-            {
-                First = g.First(),
-                Logs = g.ToList()
-            });
+            .GroupBy(l => l.TaskId);
 
         if (filter != null)
         {
             if (filter.IsError is { } isError)
-                query = query.Where(g => g.First.IsError == isError);
+                query = query.Where(g => g.First().IsError == isError);
 
             if (filter.IsEnd is { } isEnd)
-                query = query.Where(g => g.First.IsEnd == isEnd);
+                query = query.Where(g => g.First().IsEnd == isEnd);
 
             if (filter.TaskNames?.Count is > 0)
-                query = query.Where(g => g.First.TaskName != null && filter.TaskNames.Contains(g.First.TaskName));
+                query = query.Where(g => g.First().TaskName != null &&
+                                         filter.TaskNames.Contains(g.First().TaskName!));
             
             // pattern
 
             if (filter.To is { } to)
-                query = query.Where(g => g.First.DateTime < to);
+                query = query.Where(g => g.First().DateTime < to);
             
             if (filter.To is { } from)
-                query = query.Where(g => g.First.DateTime > from);
+                query = query.Where(g => g.First().DateTime > from);
 
             if (filter.Size is { } size)
                 query = query.Take(size);
         }
 
-        var result = await query.ToListAsync();
-        return result.SelectMany(l => l.Logs);
+        var result = await query.Select(g => g.ToList()).ToListAsync();
+        return result.SelectMany(l => l);
     }
 }

@@ -39,7 +39,7 @@ public abstract class DomainContext : DbContext
                 .HasOne(l => l.LogData)
                 .WithOne(ld => ld.Log)
                 .HasForeignKey<LogData>(ld => ld.LogId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<LogData>(buildAction =>

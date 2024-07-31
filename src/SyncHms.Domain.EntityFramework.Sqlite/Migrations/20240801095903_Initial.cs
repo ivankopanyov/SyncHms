@@ -29,6 +29,7 @@ namespace SyncHms.Domain.EntityFramework.Sqlite.Migrations
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
                     LogId = table.Column<string>(type: "TEXT", nullable: false),
+                    TaskId = table.Column<string>(type: "TEXT", nullable: false),
                     Error = table.Column<string>(type: "TEXT", nullable: true),
                     StackTrace = table.Column<string>(type: "TEXT", nullable: true),
                     InputObjectJson = table.Column<string>(type: "TEXT", nullable: true)
@@ -55,7 +56,7 @@ namespace SyncHms.Domain.EntityFramework.Sqlite.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
-                    LogDataId = table.Column<string>(type: "TEXT", nullable: false),
+                    LogDataId = table.Column<string>(type: "TEXT", nullable: true),
                     TaskId = table.Column<string>(type: "TEXT", nullable: false),
                     TaskName = table.Column<string>(type: "TEXT", nullable: true),
                     HandlerName = table.Column<string>(type: "TEXT", nullable: true),

@@ -15,6 +15,7 @@ public class UpdateLogHandler(ILogRepository logRepository, IHubContext<LogHub> 
             Message = @in.Message,
             LogData = new LogData
             {
+                TaskId = @in.TaskId,
                 Error = @in.Error,
                 StackTrace = @in.StackTrace,
                 InputObjectJson = @in.InputObjectJson
@@ -22,8 +23,6 @@ public class UpdateLogHandler(ILogRepository logRepository, IHubContext<LogHub> 
         };
 
         await logRepository.AddAsync(log);
-
-        log.LogData = null;
         await hubContext.Clients.All.SendAsync("Log", log);
     }
 }

@@ -23,7 +23,7 @@ export const getTask = createAsyncThunk('logList/getTask', async (id: string) =>
 export const getLog = createAsyncThunk('logList/getLog', async (id: {
     taskId: string;
     id: string;
-}) => await api.get(`/logs/${id.taskId}/${id.id}`));
+}) => await api.get(`/logs/${id.id}/data`));
 
 const addLogs = (state: LogList, logs: LogInfo[], splice = false) => {
     let sort = false;

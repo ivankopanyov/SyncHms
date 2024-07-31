@@ -55,7 +55,7 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
                 handlerOptions.HandlerName = NServiceBusHandlerName;
             })
             .AddEventLog<TelegramMessageHandler>()
-            .AddHostedService<PostingRequestPublisher>();
+            .AddHostedService<MessageProxyService>();
 
         return this;
     }

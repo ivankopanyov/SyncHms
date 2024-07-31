@@ -2,23 +2,20 @@
 
 internal class ServiceControllerStarter : BackgroundService
 {
-    private protected readonly IServiceController _serviceController;
-    
-    private protected readonly IBusProvider _provider;
+    private readonly IServiceController _serviceController;
 
     public ServiceControllerStarter(IServiceController serviceController, IBusProvider provider)
     {
         _serviceController = serviceController;
-        _provider = provider;
 
-        serviceController.SetOptionsEvent += async options => await _provider.PublishAsync(options);
-
-        serviceController.ReloadEvent += async serviceName => await _provider.PublishAsync(new Reload
+        serviceController.SetOptionsEvent += async options => await provider.PublishAsync(options);
+        serviceController.ReloadEvent += async serviceName => await provider.PublishAsync(new Reload
         {
             ServiceName = serviceName
         });
         
-        _provider.Subscribe<UpdatedServiceInfo, ServiceControllerStarter>(UpdatedServiceInfoHandle);
+        provider
+            .Subscribe<UpdatedServiceInfo, ServiceControllerStarter>(UpdatedServiceInfoHandle);
     }
     
     private Task UpdatedServiceInfoHandle(UpdatedServiceInfo serviceInfo, IMessageContext context)
@@ -27,38 +24,20 @@ internal class ServiceControllerStarter : BackgroundService
         return Task.CompletedTask;
     }
 
-    protected sealed override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await _provider.PublishAsync(new ServiceControllerStarted());
+        return Task.CompletedTask;
     }
 }
 
 internal class ServiceControllerStarter<TEnvironment> : ServiceControllerStarter where TEnvironment : class, new()
 {
-    private TEnvironment? _environment;
-
     public ServiceControllerStarter(IServiceController<TEnvironment> serviceController, IBusProvider provider)
         : base(serviceController, provider)
     {
         serviceController.SetEnvironmentEvent += async environment =>
         {
-            _environment = environment;
-            await _provider.PublishAsync(_environment);
+            await provider.PublishAsync(environment);
         };
-        
-        _provider.Subscribe<UpdatedServiceInfoEnvironment, ServiceControllerStarter>(UpdatedServiceInfoHandleAsync);
-    }
-
-    private async Task UpdatedServiceInfoHandleAsync(UpdatedServiceInfoEnvironment serviceInfo, IMessageContext context)
-    {
-        _serviceController.ChangedOptions(serviceInfo);
-        if (serviceInfo.RequestEnvironment && _environment != null)
-        {
-            await _provider.PublishAsync(new Environment<TEnvironment>
-            {
-                ServiceName = serviceInfo.Name,
-                Value = _environment
-            });
-        }
     }
 }

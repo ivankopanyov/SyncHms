@@ -5,8 +5,9 @@ public class LogData
     [JsonIgnore]
     public string Id { get; set; }
     
-    [JsonIgnore]
     public string LogId { get; set; }
+    
+    public string TaskId { get; set; }
     
     public string? Error { get; set; }
 

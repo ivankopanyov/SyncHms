@@ -7,6 +7,7 @@ import { useLoopRequest } from '../../hooks';
 import { AccordionBody, AccordionHeader, Text } from '../../components';
 import { Loading } from '../../components';
 import { getLog } from '../LogList/LogListStore';
+import { dateDisplay } from '../../utils/mapper';
 import Error from '../../components/Error/Error';
 import AccordionBox from '../../components/AccordionBox/AccordionBox';
 import './Log.scss';
@@ -53,7 +54,8 @@ const Log: FC<Readonly<LogProps>> = ({ log }) => {
                     </div>
                     <div>
                         <div className="log-header-name">
-                            <Text>{ log.dateTime.display() }</Text>
+                            <Text>{ dateDisplay(log.dateTime) }</Text>
+                            {/* <Text>{ log.dateTime.display() }</Text> */}
                             {
                                 log.handlerName &&
                                     <div className="log-handler log-indent-left">

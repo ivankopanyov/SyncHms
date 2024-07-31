@@ -9,6 +9,4 @@ public class State
     public string? StackTrace { get; set; }
 
     public string? Info { get; set; }
-
-    public State Clone() => (State)MemberwiseClone();
 }

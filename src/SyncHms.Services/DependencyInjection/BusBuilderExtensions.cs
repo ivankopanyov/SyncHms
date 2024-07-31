@@ -10,8 +10,7 @@ public static class BusBuilderExtensions
             .AddApplicationServices();
     }
     
-    public static IApplicationServicesBuilder AddApplicationServices(this IServicesBusBuilder<ApplicationEnvironment> servicesBusBuilder,
-        Action<ServiceBusOptions>? optionsAction = null)
+    public static IApplicationServicesBuilder AddApplicationServices(this IServicesBusBuilder<ApplicationEnvironment> servicesBusBuilder)
     {
         servicesBusBuilder
             .AddSingleton<IFiasService, FiasService, FiasServiceOptions>(options =>
@@ -24,7 +23,8 @@ public static class BusBuilderExtensions
                 options.ServiceName = "CheckDB")
             .AddScoped<ITelegramBotService, TelegramBotService, TelegramBotOptions>(options =>
                 options.ServiceName = "TelegramBot")
-            .AddCacheMemory();
+            .AddCacheMemory()
+            .AddSingleton<ISocketConnectionFactory, SocketConnectionFactory>();
 
         return new ApplicationServicesBuilder(servicesBusBuilder);
     }

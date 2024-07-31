@@ -5,7 +5,7 @@ public class Log : IComparable<Log>
     public string Id { get; set; }
     
     [JsonIgnore]
-    public string LogDataId { get; set; }
+    public string? LogDataId { get; set; }
 
     public string TaskId { get; set; }
 
@@ -22,7 +22,7 @@ public class Log : IComparable<Log>
 
     public string? Message { get; set; }
 
-    public virtual LogData LogData { get; set; }
+    public virtual LogData? LogData { get; set; }
 
     public int CompareTo(Log? other) => -DateTime.Compare(DateTime, other?.DateTime ?? DateTime.MinValue);
 }

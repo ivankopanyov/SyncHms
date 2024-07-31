@@ -37,12 +37,29 @@ public class ServiceHandler : BackgroundService
         var result = await serviceRepository.UpdateAsync(service, serviceInfo.UpdateOptions);
         await hubContext.Clients.All.SendAsync("Service", result);
 
-        if (!serviceInfo.UpdateOptions && serviceInfo.JsonOptions != result.JsonOptions)
+        if (serviceInfo.ResponseRequired)
+        {
+            if (serviceInfo.JsonOptions == result.JsonOptions)
+            {
+                _serviceController.Reload(result.Name);
+            }
+            else
+            {
+                _serviceController.SetOptions(new Bus.Services.Options
+                {
+                    ServiceName = serviceInfo.Name,
+                    JsonOptions = result.JsonOptions
+                });
+            }
+        }
+        else if (!serviceInfo.UpdateOptions && serviceInfo.JsonOptions != result.JsonOptions)
+        {
             _serviceController.SetOptions(new Bus.Services.Options
             {
                 ServiceName = serviceInfo.Name,
                 JsonOptions = result.JsonOptions
             });
+        }
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -51,7 +68,12 @@ public class ServiceHandler : BackgroundService
         var environmentRepository = scope.ServiceProvider
             .GetRequiredService<IEnvironmentRepository<ApplicationEnvironment>>();
 
-        if (await environmentRepository.GetAsync() is { } environment)
-            _serviceController.SetEnvironment(environment);
+        if (await environmentRepository.GetAsync() is not { } environment)
+        {
+            environment = new ApplicationEnvironment();
+            await environmentRepository.UpdateAsync(environment);
+        }
+        
+        _serviceController.SetEnvironment(environment);
     }
 }

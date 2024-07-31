@@ -1,4 +1,9 @@
 import { Parameters } from "../features/ParameterList/data";
+    
+export const dateDisplay = (date: Date) => {
+    const value = new Date(date);
+    return `${numberDisplay(value.getDate())}.${numberDisplay(value.getMonth() + 1)}.${value.getFullYear()} ${numberDisplay(value.getHours())}:${numberDisplay(value.getMinutes())}:${numberDisplay(value.getSeconds())}`;
+};
 
 export const object = (parameters: Parameters) => Object.fromEntries([
     ...parameters.booleanParameters.map(p => [p.name, p.value]),
@@ -69,6 +74,8 @@ export const params = (obj: any) => {
 
     return parameters;
 };
+
+const numberDisplay = (value: number) => value.toString().padStart(2, '0');
 
 const getType = (value: any): 'boolean' | 'string' | 'array' | 'map' => {
     const type = typeof value;

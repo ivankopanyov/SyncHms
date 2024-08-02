@@ -1,6 +1,6 @@
 ﻿namespace SyncHms.Events.Messages;
 
-public class TransactionDetailsInfo
+internal class TransactionDetailsInfo
 {
     public int ItemKind { get; set; }
 

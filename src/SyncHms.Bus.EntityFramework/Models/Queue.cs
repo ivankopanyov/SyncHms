@@ -11,143 +11,130 @@ public class Queue
     public virtual ICollection<Message> Messages { get; set; } = [];
 }
 
-internal abstract class Queue<TExchange>() : BusEntity
+internal abstract class Queue<TExchange> : BusEntity
 {
     protected string ExchangeName { get; } = GetName(typeof(TExchange));
 
-    public abstract Task PublishAsync(string json);
+    public abstract Task<string> PublishAsync(string json, bool fast);
+
+    public abstract Task<string?> HandleAsync(string messageId);
 }
 
 internal class Queue<TExchange, T>(IBusContextFactory busContextFactory,
-    EntityFrameworkBusOptions options,
-    Func<TExchange, IMessageContext, Task> handleMessage) : Queue<TExchange>()
+    EntityFrameworkBusOptions options, Func<TExchange, IMessageContext, Task> handleMessage,
+    ILogger logger) : Queue<TExchange>
 {
-    private readonly SemaphoreSlim _semaphore = new(10);
-
     public override string Name { get; } = GetName(typeof(T));
 
-    public override async Task PublishAsync(string message)
+    public override async Task<string> PublishAsync(string message, bool fast)
     {
-        await using var context = busContextFactory.Create();
         var entity = new Message
         {
+            Fast = fast,
             Json = message,
             ExchangeName = ExchangeName,
             QueueName = Name
         };
-        await context.Messages.AddAsync(entity);
-        await context.SaveChangesAsync();
-        Handle(entity.Id);
+
+        await using (var context = busContextFactory.Create())
+        {
+            await context.Messages.AddAsync(entity);
+            await context.SaveChangesAsync();
+        }
+
+        return entity.Id;
     }
 
-    public void CreateQueue()
+    public DateTime? CreateQueue()
     {
         using var context = busContextFactory.Create();
         var query = from q in context.Queues
             where q.Name.Equals(Name) && q.ExchangeName.Equals(ExchangeName)
             select new { Max = q.Messages.OrderBy(m => m.DateTime).LastOrDefault() };
+
+        if (query.FirstOrDefault() is { } queue) 
+            return queue.Max?.DateTime;
         
-        if (query.FirstOrDefault() is not {} queue)
+        context.Queues.Add(new Queue
         {
-            context.Queues.Add(new Queue
-            {
-                Name = Name,
-                ExchangeName = ExchangeName
-            });
-        
-            context.SaveChanges();
-        }
-        else if (queue.Max?.DateTime is {} max)
-        {
-            GetNext(null, max);
-        }
+            Name = Name,
+            ExchangeName = ExchangeName
+        });
+
+        context.SaveChanges();
+        return null;
     }
 
-    private void GetNext(DateTime? min, DateTime max)
+    public async Task<List<string>> GetMessageIds(DateTime max)
     {
-        async void Start()
-        {
-            await _semaphore.WaitAsync();
-
-            try
-            {
-                await using var context = busContextFactory.Create();
-                var message = await (from m in context.Messages where m.ExchangeName.Equals(ExchangeName) && m.QueueName.Equals(Name) orderby m.DateTime where (min == null || m.DateTime > min) && m.DateTime <= max select new { m.Id, m.DateTime }).FirstOrDefaultAsync();
-
-                if (message == null) return;
-
-                Handle(message.Id);
-                GetNext(message.DateTime, max);
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
-
-        new Thread(Start).Start();
+        await using var context = busContextFactory.Create();
+        return await (from m in context.Messages
+                where m.ExchangeName.Equals(ExchangeName) && m.QueueName.Equals(Name)
+                orderby m.DateTime
+                where m.DateTime <= max
+                select m.Id).ToListAsync();
     }
 
-    private void Handle(string id)
+    public override async Task<string?> HandleAsync(string messageId)
     {
-        async void Start()
+        if (await BeginHandleAsync(messageId) is not { } result)
+            return null;
+
+        var message = result.Item1;
+        var body = result.Item2;
+
+        // if (!message.Fast)
+        //     await Task.Delay(100);
+
+        var messageContext = new MessageContext();
+        try
         {
-            await _semaphore.WaitAsync();
-
-            try
-            {
-                await using var context = busContextFactory.Create();
-                if (await (from m in context.Messages
-                        where m.Id.Equals(id)
-                        select m).FirstOrDefaultAsync() is not { } message)
-                    return;
-
-                Message? newMessage = null;
-
-                try
-                {
-                    if (JsonConvert.DeserializeObject<TExchange>(message.Json, options.JsonSerializerSettings) is not { } body)
-                    {
-                        context.Messages.Remove(message);
-                        await context.SaveChangesAsync();
-                        return;
-                    }
-
-                    var messageContext = new MessageContext();
-                    await handleMessage.Invoke(body, messageContext);
-
-                    if (messageContext.IsRequeue)
-                    {
-                        newMessage = new Message
-                        {
-                            Json = messageContext.Update
-                                ? JsonConvert.SerializeObject(body, options.JsonSerializerSettings)
-                                : message.Json,
-                            QueueName = message.QueueName,
-                            ExchangeName = message.ExchangeName
-                        };
-                        await context.Messages.AddAsync(newMessage);
-                    }
-                }
-                catch
-                {
-                    return;
-                }
-                finally
-                {
-                    context.Messages.Remove(message);
-                    await context.SaveChangesAsync();
-                }
-
-                if (newMessage != null) Handle(newMessage.Id);
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
+            await handleMessage.Invoke(body, messageContext);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message, ex);
         }
 
-        new Thread(Start).Start();
+        return await EndHandleAsync(message, body, messageContext);
+    }
+
+    private async Task<(Message, TExchange)?> BeginHandleAsync(string messageId)
+    {
+        try
+        {
+            await using var context = busContextFactory.Create();
+            return await context.Messages.AsNoTracking().FirstOrDefaultAsync(m => m.Id.Equals(messageId)) is { } message
+                   && JsonConvert.DeserializeObject<TExchange>(message.Json, options.JsonSerializerSettings) is { } body
+                ? (message, body) : null;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message, ex);
+            return null;
+        }
+    }
+    
+    private async Task<string?> EndHandleAsync(Message message, TExchange body, MessageContext messageContext)
+    {
+        Message? newMessage = null;
+        await using var context = busContextFactory.Create();
+        if (messageContext.IsRequeue)
+        {
+            newMessage = new Message
+            {
+                Json = messageContext.Update
+                    ? JsonConvert.SerializeObject(body, options.JsonSerializerSettings)
+                    : message.Json,
+                QueueName = message.QueueName,
+                ExchangeName = message.ExchangeName
+            };
+
+            await context.Messages.AddAsync(newMessage);
+        }
+        context.Messages.Remove(message);
+        await context.SaveChangesAsync();
+
+        return newMessage?.Id;
     }
 }
-

@@ -2,19 +2,16 @@ namespace SyncHms.Services;
 
 public class ApplicationEnvironment
 {
-    [Description("Синхронизировать изменения в бронированиях.")]
-    public bool UseReservation { get; set; }
-
-    [Description("Синхронизировать платежные начисления.")]
-    public bool UsePosting { get; set; }
-
-    [Description("Сохранять чеки в базу данных MICROS.")]
-    public bool UseCheckDatabase { get; set; } = true;
-
     [Required(AllowEmptyStrings = true), Description("Код отеля в базе данных OPERA.")]
     public string ResortCode { get; set; } = string.Empty;
 
     public decimal Rvc { get; set; }
+
+    [Description("Сихронизировать платежные начисления с Opera.")]
+    public bool SyncPostingOpera { get; set; } = true;
+
+    [Description("Сихронизировать платежные начисления с MICROS.")]
+    public bool SyncPostingMicros { get; set; } = true;
 
     [Required, MaxLength(10)]
     public Dictionary<string, bool> TaxCodes { get; set; } = [];
@@ -31,9 +28,8 @@ public class ApplicationEnvironment
 
     public override int GetHashCode() =>
         HashCode.Combine(
-            UseReservation,
-            UsePosting,
-            UseCheckDatabase,
+            SyncPostingOpera,
+            SyncPostingMicros,
             ResortCode,
             Rvc,
             TaxCodes,
@@ -42,9 +38,8 @@ public class ApplicationEnvironment
 
     public override bool Equals(object? obj) => 
         obj is ApplicationEnvironment other
-        && UseReservation == other.UseReservation
-        && UsePosting == other.UsePosting
-        && UseCheckDatabase == other.UseCheckDatabase
+        && SyncPostingOpera == other.SyncPostingOpera
+        && SyncPostingMicros == other.SyncPostingMicros
         && ResortCode == other.ResortCode
         && Rvc == other.Rvc
         && TaxCodes.SequenceEqual(other.TaxCodes)

@@ -22,14 +22,13 @@ internal class TelegramBotService : ITelegramBotService
         Chats = GetChats();
     }
 
-    public void Exec(Action<ITelegramBotClient> action)
+    public async Task<Message?> SendTextMessageAsync(long chatId, string message, int? messageThreadId)
     {
-        ArgumentNullException.ThrowIfNull(action, nameof(action));
-
         try
         {
-            action.Invoke(Client);
+            var result =  await Client.SendTextMessageAsync(chatId, message, messageThreadId: messageThreadId);
             _control.Active();
+            return result;
         }
         catch (Exception ex)
         {
@@ -38,15 +37,12 @@ internal class TelegramBotService : ITelegramBotService
         }
     }
 
-    public T Exec<T>(Func<ITelegramBotClient, T> func)
+    public async Task EditMessageTextAsync(long chatId, int messageId, string message)
     {
-        ArgumentNullException.ThrowIfNull(func, nameof(func));
-
         try
         {
-            var result = func.Invoke(Client);
+            await Client.EditMessageTextAsync(chatId, messageId, message);
             _control.Active();
-            return result;
         }
         catch (Exception ex)
         {
@@ -77,13 +73,13 @@ internal class TelegramBotService : ITelegramBotService
         var result = _control.Environment.TelegramChats.Select(chat =>
         {
             var split = chat.Key.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            if (!long.TryParse(split[0], out long chatId))
+            if (!long.TryParse(split[0], out var chatId))
                 return null;
 
             int? messageThreadId = null;
             if (split.Length > 1)
             {
-                if (!int.TryParse(split[1], out int threadId))
+                if (!int.TryParse(split[1], out var threadId))
                     return null;
 
                 messageThreadId = threadId;

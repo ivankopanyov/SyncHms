@@ -2,9 +2,6 @@ namespace SyncHms.Services;
 
 public interface IOperaService : IService<OperaOptions, ApplicationEnvironment>
 {
-    ApplicationEnvironment Environment { get; }
-
-    void Exec(Action<OperaDbContext> action);
-
-    T Exec<T>(Func<OperaDbContext, T> func);
+    Task<ReservationUpdatedMessage?> GetReservationUpdatedMessageAsync(decimal reservationId, string status,
+        string room, DateTime arrival, DateTime departure);
 }

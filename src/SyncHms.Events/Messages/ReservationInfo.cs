@@ -1,6 +1,6 @@
 ﻿namespace SyncHms.Events.Messages;
 
-public class ReservationInfo
+internal class ReservationInfo
 {
     public decimal ReservationNumber { get; set; }
 

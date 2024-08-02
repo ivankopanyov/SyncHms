@@ -12,9 +12,7 @@ internal class FiasService(
     
     private static int PostingSequenceNumber => int.Parse(DateTime.Now.ToString("HHmmssff"));
 
-    public bool UseCheckDatabase => control.Environment.UseCheckDatabase;
-
-    public IDictionary<string, bool> TaxCodes => control.Environment.TaxCodes;
+    public ApplicationEnvironment Environment => control.Environment;
     
     public event FiasGuestCheckInHandle? FiasGuestCheckInEvent;
     
@@ -22,7 +20,7 @@ internal class FiasService(
     
     public event FiasGuestChangeHandle? FiasGuestChangeEvent;
 
-    public async Task<FiasPostingAnswer> SendPostingAsync(FiasPostingSimple message, int timeoutSeconds = 60)
+    public async Task<FiasPostingAnswer> SendPostingAsync(FiasPostingSimple message, int timeoutSeconds = 90)
     {
         if (!control.Options.Enabled)
             throw new InvalidOperationException("Service is disabled.");
@@ -36,7 +34,7 @@ internal class FiasService(
             timeoutSeconds, _socketConnection);
     }
 
-    public async Task<FiasPostingAnswer> SendPostingAsync(FiasPostingRequest message, int timeoutSeconds = 60)
+    public async Task<FiasPostingAnswer> SendPostingAsync(FiasPostingRequest message, int timeoutSeconds = 90)
     {
         if (!control.Options.Enabled)
             throw new InvalidOperationException("Service is disabled.");
@@ -52,19 +50,16 @@ internal class FiasService(
 
     public Task ChangedOptionsHandleAsync(FiasServiceOptions options)
     {
-        var thread = new Thread(async () => await ConnectAsync(options));
-        thread.Start();
+        new Thread(ConnectAsync).Start(options);
         throw new Exception(options.Enabled
             ? "Restarting the service."
             : "Service is disabled");
     }
 
-    public async Task ChangedEnvironmentHandleAsync(ApplicationEnvironment current,
+    public Task ChangedEnvironmentHandleAsync(ApplicationEnvironment current,
         ApplicationEnvironment previous)
     {
-        if (current.UseReservation != previous.UseReservation ||
-            current.UsePosting != previous.UsePosting)
-            await ChangedOptionsHandleAsync(control.Options);
+        return Task.CompletedTask;
     }
 
     private async Task<FiasPostingAnswer> SendPostingAsync(string message,
@@ -89,8 +84,9 @@ internal class FiasService(
         }
     }
 
-    private async Task ConnectAsync(FiasServiceOptions options)
+    private async void ConnectAsync(object? fiasOptions)
     {
+        var options = (FiasServiceOptions)fiasOptions!;
         await _semaphore.WaitAsync();
 
         try
@@ -117,10 +113,11 @@ internal class FiasService(
         
         _socketConnection.ConnectedEvent += control.Active;
         _socketConnection.MessageEvent += async message => await MessageHandleAsync(message, _socketConnection);
-        _socketConnection.DisconnectedEvent += async ex =>
+        _socketConnection.DisconnectedEvent += ex =>
         {
             control.Unactive(ex);
-            await ConnectAsync(options);
+            new Thread(ConnectAsync).Start(options);
+            return Task.CompletedTask;
         };
 
         await _socketConnection.ConnectAsync();
@@ -146,7 +143,7 @@ internal class FiasService(
 
                     break;
                 case FiasLinkEnd:
-                    await ConnectAsync(control.Options);
+                    new Thread(ConnectAsync).Start(control.Options);
                     break;
                 case FiasGuestCheckIn guestCheckIn:
                     FiasGuestCheckInEvent?.Invoke(guestCheckIn);
@@ -175,13 +172,11 @@ internal class FiasService(
 
         await socketConnection.SendAsync(linkDescription);
 
-        if (control.Environment.UseReservation)
-            foreach (var fiasOptions in FiasConnectionOptions.Reservation)
-                await socketConnection.SendAsync(new FiasLinkRecord(fiasOptions).ToString());
-
-        if (control.Environment.UsePosting)
-            foreach (var fiasOptions in FiasConnectionOptions.Posting)
-                await socketConnection.SendAsync(new FiasLinkRecord(fiasOptions).ToString());
+        foreach (var fiasOptions in FiasConnectionOptions.Reservation)
+            await socketConnection.SendAsync(new FiasLinkRecord(fiasOptions).ToString());
+        
+        foreach (var fiasOptions in FiasConnectionOptions.Posting)
+            await socketConnection.SendAsync(new FiasLinkRecord(fiasOptions).ToString());
 
         var linkAlive = new FiasLinkAlive { DateTime = DateTime.Now }.ToString();
         await socketConnection.SendAsync(linkAlive);

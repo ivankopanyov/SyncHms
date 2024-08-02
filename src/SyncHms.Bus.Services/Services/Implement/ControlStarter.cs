@@ -148,7 +148,7 @@ internal class ControlStarter<TService, TOptions> : BackgroundService
             ResponseRequired = responseRequired
         };
         WriteServiceInfo(serviceInfo, updateOptions, info);
-        await _provider.PublishAsync(serviceInfo);
+        await _provider.PublishAsync(serviceInfo, true);
     }
 
     private void WriteServiceInfo(UpdatedServiceInfo serviceInfo, bool updateOptions, string? info = null)

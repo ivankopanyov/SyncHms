@@ -6,29 +6,11 @@ internal class FiscalService(IControl<CheckDbOptions, ApplicationEnvironment> co
 
     public ApplicationEnvironment Environment => control.Environment;
 
-    public void Exec(Action<CheckDBClient> action)
+    public async Task<SetCheckResponse> SetCheckAsync(FiscalCheck fiscalCheck)
     {
-        ArgumentNullException.ThrowIfNull(action, nameof(action));
-
         try
         {
-            action.Invoke(Client);
-            control.Active();
-        }
-        catch (Exception ex)
-        {
-            control.Unactive(ex);
-            throw;
-        }
-    }
-
-    public T Exec<T>(Func<CheckDBClient, T> func)
-    {
-        ArgumentNullException.ThrowIfNull(func, nameof(func));
-
-        try
-        {
-            var result = func.Invoke(Client);
+            var result = await Client.SetCheckAsync(fiscalCheck);
             control.Active();
             return result;
         }

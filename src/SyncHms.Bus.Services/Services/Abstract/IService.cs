@@ -1,12 +1,14 @@
 ﻿namespace SyncHms.Bus.Services;
 
-public interface IService<in TOptions> where TOptions : class, new()
+public interface IService<TOptions> where TOptions : class, new()
 {
     Task ChangedOptionsHandleAsync(TOptions options);
 }
 
-public interface IService<in TOptions, in TEnvironment> : IService<TOptions>
+public interface IService<TOptions, TEnvironment> : IService<TOptions>
     where TOptions : class, new() where TEnvironment : class, new()
 {
+    TEnvironment Environment { get; }
+
     Task ChangedEnvironmentHandleAsync(TEnvironment current, TEnvironment previous);
 }

@@ -18,7 +18,7 @@ public interface IServicesBusBuilder : IBusBuilder
         where TOptions : class, new();
 }
 
-public interface IServicesBusBuilder<out TEnvironment> : IBusBuilder where TEnvironment : class, new()
+public interface IServicesBusBuilder<TEnvironment> : IBusBuilder where TEnvironment : class, new()
 {
     IServicesBusBuilder<TEnvironment> AddTransient<TAbstract, TImplement, TOptions>(Action<ServiceOptions> options)
         where TAbstract : class, IService<TOptions, TEnvironment>

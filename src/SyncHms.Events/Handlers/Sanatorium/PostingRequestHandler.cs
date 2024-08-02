@@ -1,23 +1,32 @@
 ﻿namespace SyncHms.Events.Handlers.Sanatorium;
 
-internal class PostingRequestHandler(ISanatoriumService sanatoriumService) : Handler<PostingRequest>
+internal class PostingRequestHandler(ISanatoriumService sanatoriumService) : Handler<PostTransactionsRequest>
 {
-    protected override Task HandleAsync(PostingRequest @in, IEventContext context)
+    protected override Task HandleAsync(PostTransactionsRequest @in, IEventContext context)
     {
         try
         {
-            var invoiceGenericNo = @in.PostTransactionsRequest.Transactions.SelectMany(t => t.Items).Any(i => !string.IsNullOrWhiteSpace(i.ServiceItemCode))
-                ? sanatoriumService.Environment.Rvc.ToString("000.##") + @in.PostTransactionsRequest.InvoiceGenericNo
+            if (!sanatoriumService.Environment.SyncPostingOpera)
+            {
+                context.Send(new PostTransactionsResponse(@in.CorrelationId)
+                {
+                    Succeeded = true
+                });
+
+                return Task.CompletedTask;
+            }
+
+            var invoiceGenericNo = @in.Transactions.SelectMany(t => t.Items).Any(i => !string.IsNullOrWhiteSpace(i.ServiceItemCode))
+                ? sanatoriumService.Environment.Rvc.ToString("000.##") + @in.InvoiceGenericNo
                 : DateTime.Now.ToString("yyyyMMddhhmmssfffffff");
 
             context.Send(new PostRequestInfo()
             {
-                Headers = @in.Headers,
-                CorrelationId = @in.PostTransactionsRequest.CorrelationId,
-                ReservationGuestId = @in.PostTransactionsRequest.ReservationGuestId,
+                CorrelationId = @in.CorrelationId,
+                ReservationGuestId = @in.ReservationGuestId,
                 InvoiceGenericNo = invoiceGenericNo,
-                FolioGenericNo = @in.PostTransactionsRequest.FolioGenericNo,
-                Transactions = @in.PostTransactionsRequest.Transactions?.Select(t => new TransactionInfo()
+                FolioGenericNo = @in.FolioGenericNo,
+                Transactions = @in.Transactions?.Select(t => new TransactionInfo()
                 {
                     ScheduleDate = t.ScheduleDate,
                     TransactionCode = t.TransactionCode,
@@ -42,15 +51,15 @@ internal class PostingRequestHandler(ISanatoriumService sanatoriumService) : Han
         return Task.CompletedTask;
     }
 
-    protected override string? Message(PostingRequest @in)
+    protected override string? Message(PostTransactionsRequest @in)
     {
-        var result = $"Correlation ID: {@in.PostTransactionsRequest?.CorrelationId}";
+        var result = $"Correlation ID: {@in.CorrelationId}";
 
-        if (!string.IsNullOrWhiteSpace(@in.PostTransactionsRequest?.ReservationGuestId))
-            result += $", Reservation: {@in.PostTransactionsRequest?.ReservationGuestId}";
+        if (!string.IsNullOrWhiteSpace(@in.ReservationGuestId))
+            result += $", Reservation: {@in.ReservationGuestId}";
 
-        if (!string.IsNullOrWhiteSpace(@in.PostTransactionsRequest?.FolioGenericNo))
-            result = $", FolioGenericNo: {@in.PostTransactionsRequest?.FolioGenericNo}";
+        if (!string.IsNullOrWhiteSpace(@in.FolioGenericNo))
+            result = $", FolioGenericNo: {@in.FolioGenericNo}";
 
         return result;
     }

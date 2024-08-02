@@ -8,10 +8,6 @@ public delegate void FiasGuestChangeHandle(FiasGuestChange message);
 
 public interface IFiasService : IService<FiasServiceOptions, ApplicationEnvironment>
 {
-    bool UseCheckDatabase { get; }
-
-    IDictionary<string, bool> TaxCodes { get; }
-    
     event FiasGuestCheckInHandle? FiasGuestCheckInEvent;
     
     event FiasGuestCheckOutHandle? FiasGuestCheckOutEvent;

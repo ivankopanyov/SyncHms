@@ -30,7 +30,7 @@ internal class PostingHandler(IFiasService fiasService) : Handler<PostRequestInf
 
             var description = @in.Transactions.LastOrDefault()?.Name;
             var number = 0;
-            var checks = fiasService.TaxCodes
+            var checks = fiasService.Environment.TaxCodes
                 .Select(item => @in.Transactions
                     .SelectMany(t => t.Items)
                     .Where(i => i.ServiceItemCode == item.Key)
@@ -92,18 +92,15 @@ internal class PostingHandler(IFiasService fiasService) : Handler<PostRequestInf
 
             var success = answer.AnswerStatus == FiasAnswerStatuses.Successfully;
 
-            if (!success || !fiasService.UseCheckDatabase)
-                context.Send(new PostResponseInfo
+            if (!success || !fiasService.Environment.SyncPostingMicros)
+                context.Send(new PostTransactionsResponse(@in.CorrelationId)
                 {
-                    Headers = @in.Headers,
-                    CorrelationId = @in.CorrelationId,
                     Succeeded = success,
                     ErrorMessage = !success ? answer.ClearText : null
                 });
             else
                 context.Send(new Check
                 {
-                    Headers = @in.Headers,
                     CorrelationId = @in.CorrelationId,
                     DateTime = dateTime,
                     Total = total.ToString(),
@@ -112,10 +109,8 @@ internal class PostingHandler(IFiasService fiasService) : Handler<PostRequestInf
         }
         catch (Exception ex)
         {
-            context.Send(new PostResponseInfo
+            context.Send(new PostTransactionsResponse(@in.CorrelationId)
             {
-                Headers = @in.Headers,
-                CorrelationId = @in.CorrelationId,
                 Succeeded = false,
                 ErrorMessage = ex.Message
             });

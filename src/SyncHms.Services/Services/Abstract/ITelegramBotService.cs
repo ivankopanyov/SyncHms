@@ -8,7 +8,7 @@ public interface ITelegramBotService : IService<TelegramBotOptions, ApplicationE
 
     IEnumerable<TelegramChat> Chats { get; }
 
-    void Exec(Action<ITelegramBotClient> action);
+    Task<Message?> SendTextMessageAsync(long chatId, string message, int? messageThreadId);
 
-    T Exec<T>(Func<ITelegramBotClient, T> func);
+    Task EditMessageTextAsync(long chatId, int messageId, string message);
 }

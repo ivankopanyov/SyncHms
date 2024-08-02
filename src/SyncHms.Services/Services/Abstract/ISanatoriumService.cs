@@ -1,18 +1,15 @@
 namespace SyncHms.Services;
 
-public delegate void PostingRequestHandle(PostingRequest message);
+public delegate void PostingRequestHandle(PostTransactionsRequest message);
 
 public interface ISanatoriumService : IService<SanatoriumOptions, ApplicationEnvironment>
 {
-    bool UsePosting { get; }
-    
-    ApplicationEnvironment Environment { get; }
-
     event PostingRequestHandle? PostingRequestEvent;
+    
+    Task SendReservationUpdatedMessageAsync(ReservationUpdatedMessage message);
 
-    void SendPostingRequest(PostingRequest message);
+    Task SendPostTransactionsResponseAsync(PostTransactionsResponse message);
 
-    void Exec(Action<IEndpointInstance?> action);
-
-    T Exec<T>(Func<IEndpointInstance?, T> func);
+    internal Task SendPostTransactionsRequestAsync(PostTransactionsRequest message,
+        IMessageHandlerContext context, TimeSpan timeout, CancellationTokenSource cancellationTokenSource);
 }

@@ -1,6 +1,6 @@
 ﻿namespace SyncHms.Events.Messages;
 
-public class TransactionInfo
+internal class TransactionInfo
 {
     public DateTime? ScheduleDate { get; set; }
 

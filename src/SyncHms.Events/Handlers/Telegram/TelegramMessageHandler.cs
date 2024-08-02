@@ -1,6 +1,6 @@
 ﻿namespace SyncHms.Events.Handlers.Telegram;
 
-public class TelegramMessageHandler(ITelegramBotService telegramBotService, ICache cache) : LogHandler
+internal class TelegramMessageHandler(ITelegramBotService telegramBotService, ICache cache) : LogHandler
 {
     private static readonly SemaphoreSlim _semaphore = new(1);
 
@@ -9,54 +9,53 @@ public class TelegramMessageHandler(ITelegramBotService telegramBotService, ICac
         if (!telegramBotService.Enabled || !telegramBotService.Chats.Any() || (@in.Error == null && telegramBotService.OnlyError))
             return;
 
-        await telegramBotService.Exec<Task>(async client =>
+        var taskId = @in.TaskId ?? "UNKNOWN";
+        List<string> errors = [];
+
+        foreach (var chat in telegramBotService.Chats)
         {
-            var taskId = @in.TaskId ?? "UNKNOWN";
-            List<string> errors = [];
+            if (@in.Error == null && chat.OnlyError)
+                continue;
 
-            foreach (var chat in telegramBotService.Chats)
+            var key = $"{chat.Id}/{chat.MessageThreadId}/{taskId}";
+
+            await _semaphore.WaitAsync();
+
+            try
             {
-                if (@in.Error == null && chat.OnlyError)
-                    continue;
-
-                var key = $"{chat.Id}/{chat.MessageThreadId}/{taskId}";
-
-                await _semaphore.WaitAsync();
-
-                try
+                if (await cache.GetAsync<TelegramMessage>(key) is { } message)
                 {
-                    if (await cache.GetAsync<TelegramMessage>(key) is { } message)
-                    {
-                        message.Items.Add(@in);
-                        await client.EditMessageTextAsync(chat.Id, message.MessageId, message.ToString());
-                    }
-                    else
-                    {
-                        message = new TelegramMessage
-                        {
-                            ChatId = chat.Id
-                        };
-
-                        message.Items.Add(@in);
-                        var response = await client.SendTextMessageAsync(chat.Id, message.ToString(), messageThreadId: chat.MessageThreadId);
-                        message.MessageId = response.MessageId;
-                    }
-
-                    if (@in.IsEnd)
-                        await cache.PopAsync<TelegramMessage>(key);
-                    else
-                        await cache.PushAsync(key, message);
+                    message.Items.Add(@in);
+                    await telegramBotService.EditMessageTextAsync(chat.Id, message.MessageId, message.ToString());
                 }
-                catch (Exception ex)
+                else
                 {
-                    errors.Add(ex.Message);
+                    message = new TelegramMessage
+                    {
+                        ChatId = chat.Id
+                    };
+
+                    message.Items.Add(@in);
+                    var response = await telegramBotService.SendTextMessageAsync(chat.Id, message.ToString(), chat.MessageThreadId);
+                    message.MessageId = response.MessageId;
                 }
 
+                if (@in.IsEnd)
+                    await cache.PopAsync<TelegramMessage>(key);
+                else
+                    await cache.PushAsync(key, message);
+            }
+            catch (Exception ex)
+            {
+                errors.Add(ex.Message);
+            }
+            finally
+            {
                 _semaphore.Release();
             }
+        }
 
-            if (errors.Count > 0)
-                throw new Exception(string.Join(' ', errors));
-        });
+        if (errors.Count > 0)
+            throw new Exception(string.Join(' ', errors));
     }
 }

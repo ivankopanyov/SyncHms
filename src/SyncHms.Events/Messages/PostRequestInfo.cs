@@ -1,9 +1,7 @@
 ﻿namespace SyncHms.Events.Messages;
 
-public class PostRequestInfo
+internal class PostRequestInfo
 {
-    public Dictionary<string, string> Headers { get; set; }
-
     public string CorrelationId { get; set; }
 
     public string? ReservationGuestId { get; set; }

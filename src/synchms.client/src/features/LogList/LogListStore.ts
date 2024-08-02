@@ -47,7 +47,7 @@ const addLogs = (state: LogList, logs: LogInfo[], splice = false) => {
             if (a.logs[0].dateTime === b.logs[0].dateTime)
                 return 0;
 
-            return a.logs[0].dateTime > b.logs[0].dateTime ? 1 : -1;
+            return a.logs[0].dateTime > b.logs[0].dateTime ? -1 : 1;
         });
     }
     

@@ -8,7 +8,7 @@ internal class MessageProxyService : BackgroundService
         IEventPublisher<FiasGuestCheckIn> checkInPublisher,
         IEventPublisher<FiasGuestCheckOut> checkOutPublisher,
         IEventPublisher<FiasGuestChange> changePublisher,
-        IEventPublisher<PostingRequest> postingRequestPublisher)
+        IEventPublisher<PostTransactionsRequest> postingRequestPublisher)
     {
         fiasService.FiasGuestCheckInEvent += checkInPublisher.Publish;
         fiasService.FiasGuestCheckOutEvent += checkOutPublisher.Publish;

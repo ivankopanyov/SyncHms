@@ -1,6 +1,6 @@
 ﻿namespace SyncHms.Events.Handlers.Fias;
 
-public class ChangeHandler : Handler<FiasGuestChange>
+internal class ChangeHandler : Handler<FiasGuestChange>
 {
     protected override Task HandleAsync(FiasGuestChange @in, IEventContext context)
     {

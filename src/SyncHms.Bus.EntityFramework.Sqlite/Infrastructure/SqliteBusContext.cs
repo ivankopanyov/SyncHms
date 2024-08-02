@@ -4,6 +4,8 @@ public class SqliteBusContext(SqliteBusOptions options) : BusContext
 {
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite(options.ConnectionString);
+        optionsBuilder
+            .UseSqlite(options.ConnectionString)
+            .ConfigureWarnings(builder => builder.Ignore(RelationalEventId.AmbientTransactionWarning));
     }
 }

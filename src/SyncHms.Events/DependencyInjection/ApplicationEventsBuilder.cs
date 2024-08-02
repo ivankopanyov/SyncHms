@@ -40,17 +40,17 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
             {
                 handlerOptions.HandlerName = "CHECK_DB";
             })
-            .AddEvent<PostingRequestHandler, PostingRequest>(handlerOptions =>
+            .AddEvent<PostingRequestHandler, PostTransactionsRequest>(handlerOptions =>
             {
                 handlerOptions.TaskName = PostTaskName;
                 handlerOptions.HandlerName = NServiceBusHandlerName;
             })
-            .AddEvent<PostingResponseHandler, PostResponseInfo>(handlerOptions =>
+            .AddEvent<PostingResponseHandler, PostTransactionsResponse>(handlerOptions =>
             {
                 handlerOptions.TaskName = PostTaskName;
                 handlerOptions.HandlerName = NServiceBusHandlerName;
             })
-            .AddEvent<UpdateReservationHandler, ReservationUpdateInfo>(handlerOptions =>
+            .AddEvent<UpdateReservationHandler, ReservationUpdatedMessage>(handlerOptions =>
             {
                 handlerOptions.HandlerName = NServiceBusHandlerName;
             })

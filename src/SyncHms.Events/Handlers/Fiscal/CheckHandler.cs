@@ -1,6 +1,6 @@
 ﻿namespace SyncHms.Events.Handlers.Fiscal;
 
-public class CheckHandler(IFiscalService fiscalService, ICache cache) : Handler<Check>
+internal class CheckHandler(IFiscalService fiscalService, ICache cache) : Handler<Check>
 {
     private const string CheckNumberKey = "CheckNumber";
 
@@ -12,21 +12,27 @@ public class CheckHandler(IFiscalService fiscalService, ICache cache) : Handler<
 
     protected override async Task HandleAsync(Check @in, IEventContext context)
     {
+        int checkNumberValue;
+        await _semaphore.WaitAsync();
+        
         try
         {
-            await _semaphore.WaitAsync();
+            try
+            {
+                if (await cache.PopAsync<CheckNumber>(CheckNumberKey) is not { } checkNumber)
+                    checkNumber = new CheckNumber
+                    {
+                        Value = 1
+                    };
 
-            if (await cache.PopAsync<CheckNumber>(CheckNumberKey) is not { } checkNumber)
-                checkNumber = new CheckNumber
-                {
-                    Value = 1
-                };
-
-            var checkNumberValue = Math.Min(Math.Max(CheckNumberMin, checkNumber.Value), CheckNumberMax);
-            checkNumber.Value = checkNumberValue == CheckNumberMax ? CheckNumberMin : (checkNumberValue + 1);
-            await cache.PushAsync(CheckNumberKey, checkNumber);
-
-            _semaphore.Release();
+                checkNumberValue = Math.Min(Math.Max(CheckNumberMin, checkNumber.Value), CheckNumberMax);
+                checkNumber.Value = checkNumberValue == CheckNumberMax ? CheckNumberMin : (checkNumberValue + 1);
+                await cache.PushAsync(CheckNumberKey, checkNumber);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
 
             var fiscalCheck = new FiscalCheck
             {
@@ -53,22 +59,17 @@ public class CheckHandler(IFiscalService fiscalService, ICache cache) : Handler<
                 }).ToArray()
             };
 
-            var response = await fiscalService.Exec<Task<SetCheckResponse>>(async checkDb => await checkDb.SetCheckAsync(fiscalCheck));
-
-            context.Send(new PostResponseInfo
+            var response = await fiscalService.SetCheckAsync(fiscalCheck);
+            context.Send(new PostTransactionsResponse(@in.CorrelationId)
             {
-                Headers = @in.Headers,
-                CorrelationId = @in.CorrelationId,
                 Succeeded = response.SetCheckResult.success,
                 ErrorMessage = response.SetCheckResult.errtext
             });
         }
         catch (Exception ex)
         {
-            context.Send(new PostResponseInfo
+            context.Send(new PostTransactionsResponse(@in.CorrelationId)
             {
-                Headers = @in.Headers,
-                CorrelationId = @in.CorrelationId,
                 Succeeded = false,
                 ErrorMessage = ex.Message
             });

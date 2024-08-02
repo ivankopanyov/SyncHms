@@ -18,7 +18,7 @@ public class ServiceController(IServiceRepository serviceRepository, IServiceCon
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult<Service>> GetAsync([Required][FromRoute] string serviceName)
     {
-        return await serviceRepository.GetAsync(serviceName) is Service serviceInfo
+        return await serviceRepository.GetAsync(serviceName) is { } serviceInfo
             ? Ok(serviceInfo)
             : NotFound();
     }

@@ -148,11 +148,11 @@ internal class HandlerStarter<THandler, TIn> : BackgroundService where THandler 
 
     private async Task LogAsync(EventLog eventLog, Exception? ex = null)
     {
-        _logger?.LogEvent(eventLog, ex);
-
         if (!_useEventLogging)
             return;
-        
+
+        _logger?.LogEvent(eventLog, ex);
+
         await _provider.PublishAsync(new Event<EventLog>
         {
             Message = eventLog

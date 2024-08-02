@@ -8,17 +8,17 @@ public class Exchange
 }
 
 internal class Exchange<T>(IBusContextFactory busContextFactory,
-    EntityFrameworkBusOptions options) : BusEntity
+    EntityFrameworkBusOptions options, ILogger logger) : BusEntity
 {
     private readonly HashSet<Queue<T>> _queues = [];
 
     public override string Name { get; } = GetName(typeof(T));
 
-    public void Subscribe<TQueue>(Func<T, IMessageContext, Task> handleMessage)
+    public Queue<T, TQueue> Subscribe<TQueue>(Func<T, IMessageContext, Task> handleMessage)
     {
-        var queue = new Queue<T, TQueue>(busContextFactory, options, handleMessage);
-        queue.CreateQueue();
+        var queue = new Queue<T, TQueue>(busContextFactory, options, handleMessage, logger);
         _queues.Add(queue);
+        return queue;
     }
 
     public void CreateExchange()
@@ -35,12 +35,16 @@ internal class Exchange<T>(IBusContextFactory busContextFactory,
         context.SaveChanges();
     }
 
-    public async Task PublishAsync(T message)
+    public async Task<Dictionary<string, Queue<T>>> PublishAsync(T message, bool fast)
     {
         if (JsonConvert.SerializeObject(message, options.JsonSerializerSettings) is not {} json)
             throw new SerializationException();
-        
+
+        logger.LogInformation($"{typeof(T).Name}: {json}");
+        Dictionary<string, Queue<T>> queues = [];
         foreach (var queue in _queues)
-            await queue.PublishAsync(json);
+            queues.TryAdd(await queue.PublishAsync(json, fast), queue);
+
+        return queues;
     }
 }

@@ -1,28 +1,12 @@
 ﻿namespace SyncHms.Events.Handlers.Sanatorium;
 
-internal class PostingResponseHandler(ISanatoriumService sanatoriumService) : Handler<PostResponseInfo>
+internal class PostingResponseHandler(ISanatoriumService sanatoriumService) : Handler<PostTransactionsResponse>
 {
-    protected override async Task HandleAsync(PostResponseInfo @in, IEventContext context)
+    protected override async Task HandleAsync(PostTransactionsResponse @in, IEventContext context)
     {
         try
         {
-            var options = new SendOptions();
-
-            if (@in.Headers.TryGetValue(Headers.MessageId, out string? messageId))
-                options.SetHeader(Headers.RelatedTo, messageId);
-
-            if (@in.Headers.TryGetValue(Headers.ConversationId, out string? conversationId))
-                options.SetHeader(Headers.ConversationId, conversationId);
-
-            if (@in.Headers.TryGetValue(Headers.OriginatingEndpoint, out string? originatingEndpoint))
-                options.SetDestination(originatingEndpoint);
-            
-            await sanatoriumService.Exec<Task>(async endpoint => await endpoint!.Send(new PostTransactionsResponse(@in.CorrelationId)
-            {
-                Succeeded = @in.Succeeded,
-                ErrorCode = @in.ErrorCode!,
-                ErrorMessage = @in.ErrorMessage!
-            }, options));
+            await sanatoriumService.SendPostTransactionsResponseAsync(@in);
 
             if (!@in.Succeeded)
                 context.Break(@in.ErrorMessage);
@@ -33,7 +17,7 @@ internal class PostingResponseHandler(ISanatoriumService sanatoriumService) : Ha
         }
     }
 
-    protected override string? Message(PostResponseInfo @in)
+    protected override string? Message(PostTransactionsResponse @in)
     {
         var result = $"Correlation ID {@in.CorrelationId} {(@in.Succeeded ? "Succeeded" : "Error")}";
         

@@ -4,56 +4,36 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
     EventsBusBuilder(builder), IApplicationEventsBuilder
 {
     private const string ResvTaskName = "RESV";
-
-    private const string PostTaskName = "POST";
-
-    private const string NServiceBusHandlerName = "N_SERVICE_BUS";
     
-    public IApplicationEventsBuilder AddApplicationEvents(Action<EventBusOptions>? options = null)
+    public IApplicationEventsBuilder AddApplicationEvents(Action<EventBusOptions>? setupAction = null)
     {
         builder
-            .AddEvents(options)
-            .AddEvent<CheckInHandler, FiasGuestCheckIn>(handlerOptions =>
+            .AddEvents(setupAction)
+            .AddEvent<CheckInHandler, FiasGuestCheckIn>(options =>
             {
-                handlerOptions.TaskName = ResvTaskName;
-                handlerOptions.HandlerName = "CHECK_IN";
+                options.TaskName = "RESV";
+                options.HandlerName = "CHECK_IN";
             })
-            .AddEvent<CheckOutHandler, FiasGuestCheckOut>(handlerOptions =>
+            .AddEvent<CheckOutHandler, FiasGuestCheckOut>(options =>
             {
-                handlerOptions.TaskName = ResvTaskName;
-                handlerOptions.HandlerName = "CHECK_OUT";
+                options.TaskName = "RESV";
+                options.HandlerName = "CHECK_OUT";
             })
-            .AddEvent<ChangeHandler, FiasGuestChange>(handlerOptions =>
+            .AddEvent<ChangeHandler, FiasGuestChange>(options =>
             {
-                handlerOptions.TaskName = ResvTaskName;
-                handlerOptions.HandlerName = "CHANGE";
+                options.TaskName = "RESV";
+                options.HandlerName = "CHANGE";
             })
-            .AddEvent<PostingHandler, PostRequestInfo>(handlerOptions =>
+            .AddEvent<PostingRequestHandler, PostTransactionsRequest>(options =>
             {
-                handlerOptions.HandlerName = "FIAS";
+                options.TaskName = "POST";
+                options.HandlerName = "POSTING";
             })
-            .AddEvent<ReservationHandler, ReservationInfo>(handlerOptions =>
-            {
-                handlerOptions.HandlerName = "OPERA_DB";
-            })
-            .AddEvent<CheckHandler, Check>(handlerOptions =>
-            {
-                handlerOptions.HandlerName = "CHECK_DB";
-            })
-            .AddEvent<PostingRequestHandler, PostTransactionsRequest>(handlerOptions =>
-            {
-                handlerOptions.TaskName = PostTaskName;
-                handlerOptions.HandlerName = NServiceBusHandlerName;
-            })
-            .AddEvent<PostingResponseHandler, PostTransactionsResponse>(handlerOptions =>
-            {
-                handlerOptions.TaskName = PostTaskName;
-                handlerOptions.HandlerName = NServiceBusHandlerName;
-            })
-            .AddEvent<UpdateReservationHandler, ReservationUpdatedMessage>(handlerOptions =>
-            {
-                handlerOptions.HandlerName = NServiceBusHandlerName;
-            })
+            .AddEvent<PostingHandler, PostRequestInfo>(options => options.HandlerName = "FIAS")
+            .AddEvent<ReservationHandler, ReservationInfo>(options => options.HandlerName = "OPERA")
+            .AddEvent<CheckHandler, Check>(options => options.HandlerName = "MICROS")
+            .AddEvent<PostingResponseHandler, PostTransactionsResponse>(options => options.HandlerName = "SANATORIUM")
+            .AddEvent<UpdateReservationHandler, ReservationUpdatedMessage>(options => options.HandlerName = "SANATORIUM")
             .AddEventLog<TelegramMessageHandler>()
             .AddHostedService<MessageProxyService>();
 

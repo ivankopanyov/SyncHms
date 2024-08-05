@@ -20,18 +20,18 @@ internal class PostingRequestHandler(ISanatoriumService sanatoriumService) : Han
                 ? sanatoriumService.Environment.Rvc.ToString("000.##") + @in.InvoiceGenericNo
                 : DateTime.Now.ToString("yyyyMMddhhmmssfffffff");
 
-            context.Send(new PostRequestInfo()
+            context.Send(new PostRequestInfo
             {
                 CorrelationId = @in.CorrelationId,
                 ReservationGuestId = @in.ReservationGuestId,
                 InvoiceGenericNo = invoiceGenericNo,
                 FolioGenericNo = @in.FolioGenericNo,
-                Transactions = @in.Transactions?.Select(t => new TransactionInfo()
+                Transactions = @in.Transactions?.Select(t => new TransactionInfo
                 {
                     ScheduleDate = t.ScheduleDate,
                     TransactionCode = t.TransactionCode,
                     Name = t.Name,
-                    Items = t.Items?.Select(d => new TransactionDetailsInfo()
+                    Items = t.Items?.Select(d => new TransactionDetailsInfo
                     {
                         ItemKind = (int)d.ItemKind,
                         Name = d.Name,

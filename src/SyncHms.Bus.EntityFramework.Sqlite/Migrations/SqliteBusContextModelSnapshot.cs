@@ -40,9 +40,6 @@ namespace SyncHms.Bus.EntityFramework.Sqlite.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("Fast")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Json")
                         .IsRequired()
                         .HasColumnType("TEXT");

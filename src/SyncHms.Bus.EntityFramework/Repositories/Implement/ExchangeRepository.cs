@@ -35,7 +35,7 @@ internal class ExchangeRepository(IBusContextFactory busContextFactory,
             LoadMessages(queue, max);
     }
     
-    public async Task AddMessageAsync<TMessage>(TMessage message, bool fast)
+    public async Task AddMessageAsync<TMessage>(TMessage message)
     {
         ArgumentNullException.ThrowIfNull(message, nameof(message)); 
         
@@ -49,7 +49,7 @@ internal class ExchangeRepository(IBusContextFactory busContextFactory,
         if (exchange == null)
             return; 
         
-        var queues = await exchange.PublishAsync(message, fast);
+        var queues = await exchange.PublishAsync(message);
         foreach (var queue in queues)
             MessageHandle(queue.Key, queue.Value);
     }

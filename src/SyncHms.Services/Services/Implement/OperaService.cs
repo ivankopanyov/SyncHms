@@ -76,8 +76,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                             Packages = (from rp in context.ReservationProducts
                                 from rpp in context.ReservationProductPrices
                                 from ppr in context.ProductPostingRules
-                                where Environment.TrxCodes.Count > 0 &&
-                                      rp.Resort == rden.Resort && rp.ResvNameId == rden.ResvNameId &&
+                                where rp.Resort == rden.Resort && rp.ResvNameId == rden.ResvNameId &&
                                       rpp.Resort == rp.Resort && rpp.ReservationDate == rden.ReservationDate &&
                                       rpp.ReservationProductId == rp.ReservationProductId && ppr.Resort == rpp.Resort &&
                                       ppr.Product == rp.ProductId && ppr.TrxCode != null && Environment.TrxCodes.Contains(ppr.TrxCode)
@@ -112,7 +111,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                 return null;
             
             var nameInfo = await context.NameData
-                .FromSqlRaw(NameDataQuery, reservationResponse.Id)
+                .FromSqlRaw(string.Format(NameDataQuery, reservationResponse.Id))
                 .FirstOrDefaultAsync();
             
             var message = new ReservationUpdatedMessage()

@@ -2,7 +2,7 @@
 
 public interface IBusProvider
 {
-    Task PublishAsync<TMessage>(TMessage message, bool fast = false);
+    Task PublishAsync<TMessage>(TMessage message);
 
     IBusProvider Subscribe<TMessage, TConsumer>(Func<TMessage, IMessageContext, Task> handleMessage);
 }

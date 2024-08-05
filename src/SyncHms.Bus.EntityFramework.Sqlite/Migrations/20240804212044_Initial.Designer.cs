@@ -11,7 +11,7 @@ using SyncHms.Bus.EntityFramework.Sqlite.Infrastructure;
 namespace SyncHms.Bus.EntityFramework.Sqlite.Migrations
 {
     [DbContext(typeof(SqliteBusContext))]
-    [Migration("20240802195051_Initial")]
+    [Migration("20240804212044_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -42,9 +42,6 @@ namespace SyncHms.Bus.EntityFramework.Sqlite.Migrations
                     b.Property<string>("ExchangeName")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("Fast")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Json")
                         .IsRequired()

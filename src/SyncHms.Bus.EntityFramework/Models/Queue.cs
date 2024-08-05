@@ -15,7 +15,7 @@ internal abstract class Queue<TExchange> : BusEntity
 {
     protected string ExchangeName { get; } = GetName(typeof(TExchange));
 
-    public abstract Task<string> PublishAsync(string json, bool fast);
+    public abstract Task<string> PublishAsync(string json);
 
     public abstract Task<string?> HandleAsync(string messageId);
 }
@@ -26,11 +26,10 @@ internal class Queue<TExchange, T>(IBusContextFactory busContextFactory,
 {
     public override string Name { get; } = GetName(typeof(T));
 
-    public override async Task<string> PublishAsync(string message, bool fast)
+    public override async Task<string> PublishAsync(string message)
     {
         var entity = new Message
         {
-            Fast = fast,
             Json = message,
             ExchangeName = ExchangeName,
             QueueName = Name

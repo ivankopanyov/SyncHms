@@ -48,7 +48,6 @@ namespace SyncHms.Bus.EntityFramework.Sqlite.Migrations
                     ExchangeName = table.Column<string>(type: "TEXT", nullable: false),
                     QueueName = table.Column<string>(type: "TEXT", nullable: false),
                     DateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Fast = table.Column<bool>(type: "INTEGER", nullable: false),
                     Json = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>

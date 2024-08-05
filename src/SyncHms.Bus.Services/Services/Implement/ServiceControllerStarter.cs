@@ -8,11 +8,11 @@ internal class ServiceControllerStarter : BackgroundService
     {
         _serviceController = serviceController;
 
-        serviceController.SetOptionsEvent += async options => await provider.PublishAsync(options, true);
+        serviceController.SetOptionsEvent += async options => await provider.PublishAsync(options);
         serviceController.ReloadEvent += async serviceName => await provider.PublishAsync(new Reload
         {
             ServiceName = serviceName
-        }, true);
+        });
         
         provider
             .Subscribe<UpdatedServiceInfo, ServiceControllerStarter>(UpdatedServiceInfoHandle);
@@ -37,7 +37,7 @@ internal class ServiceControllerStarter<TEnvironment> : ServiceControllerStarter
     {
         serviceController.SetEnvironmentEvent += async environment =>
         {
-            await provider.PublishAsync(environment, true);
+            await provider.PublishAsync(environment);
         };
     }
 }

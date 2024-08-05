@@ -9,8 +9,6 @@ public class Message
     public string QueueName { get; set; }
 
     public DateTime DateTime { get; set; } = DateTime.Now;
-    
-    public bool Fast { get; set; }
 
     public string Json { get; set; }
 

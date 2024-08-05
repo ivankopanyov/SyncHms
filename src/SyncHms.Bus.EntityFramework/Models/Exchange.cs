@@ -35,7 +35,7 @@ internal class Exchange<T>(IBusContextFactory busContextFactory,
         context.SaveChanges();
     }
 
-    public async Task<Dictionary<string, Queue<T>>> PublishAsync(T message, bool fast)
+    public async Task<Dictionary<string, Queue<T>>> PublishAsync(T message)
     {
         if (JsonConvert.SerializeObject(message, options.JsonSerializerSettings) is not {} json)
             throw new SerializationException();
@@ -43,7 +43,7 @@ internal class Exchange<T>(IBusContextFactory busContextFactory,
         logger.LogInformation($"{typeof(T).Name}: {json}");
         Dictionary<string, Queue<T>> queues = [];
         foreach (var queue in _queues)
-            queues.TryAdd(await queue.PublishAsync(json, fast), queue);
+            queues.TryAdd(await queue.PublishAsync(json), queue);
 
         return queues;
     }

@@ -3,8 +3,8 @@
 internal class EntityFrameworkBusProvider(IExchangeRepository repository)
     : IBusProvider<EntityFrameworkBusOptions>
 {
-    public async Task PublishAsync<TMessage>(TMessage message, bool fast) =>
-        await repository.AddMessageAsync(message, fast);
+    public async Task PublishAsync<TMessage>(TMessage message) =>
+        await repository.AddMessageAsync(message);
 
     public IBusProvider Subscribe<TMessage, TConsumer>(Func<TMessage, IMessageContext, Task> handleMessage)
     {

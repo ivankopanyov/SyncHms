@@ -3,7 +3,7 @@ namespace SyncHms.Services.Options;
 public class OperaOptions
 {
     [Required(AllowEmptyStrings =  true)]
-    public string ConnectionString { get; set; } = "Data Source=localhost/opera;User Id=;Password=;";
+    public string ConnectionString { get; set; } = string.Empty;
 
     [Description("Совместимость с версией Oracle Database. Поддерживаются версии 11 и 12.")]
     [Required(AllowEmptyStrings = true), RegularExpression(@"^(11|12)?$")]

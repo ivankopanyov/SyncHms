@@ -2,6 +2,8 @@ namespace SyncHms.Services.Services.Implement;
 
 internal class SanatoriumService : ISanatoriumService
 {
+    private static readonly TimeSpan _connectionDelay = TimeSpan.FromSeconds(1);
+    
     private readonly SemaphoreSlim _semaphore = new(1);
 
     private readonly IControl<SanatoriumOptions, ApplicationEnvironment> _control;
@@ -54,10 +56,13 @@ internal class SanatoriumService : ISanatoriumService
     }
 
     public async Task SendPostTransactionsRequestAsync(PostTransactionsRequest message,
-        IMessageHandlerContext context, TimeSpan timeout, CancellationTokenSource cancellationTokenSource)
+        IMessageHandlerContext context, TimeSpan timeout)
     {
         if (!_control.Options.Enabled)
             return;
+        
+        var cancellationTokenSource = new CancellationTokenSource();
+        var cancellationToken = cancellationTokenSource.Token;
         
         await _memoryCache.PushAsync(message.CorrelationId, new MessageContextSource
         {
@@ -66,6 +71,15 @@ internal class SanatoriumService : ISanatoriumService
         }, timeout);
         
         PostingRequestEvent?.Invoke(message);
+        
+        try
+        {
+            await Task.Delay(timeout, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            // ignored
+        }
     }
 
     public async Task SendPostTransactionsResponseAsync(PostTransactionsResponse message)
@@ -118,14 +132,28 @@ internal class SanatoriumService : ISanatoriumService
                 _cancellationToken = _cancellationTokenSource.Token;
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(Math.Max(_control.Options.ConnectionDelay, 0)), _cancellationToken);
+            await Task.Delay(_connectionDelay, _cancellationToken);
 
             var endpointConfiguration = new EndpointConfiguration(options.Endpoint);
             endpointConfiguration.AssemblyScanner().ExcludeAssemblies("Logus.HMS.Messages");
-            if (!string.IsNullOrEmpty(options.License)) endpointConfiguration.License(options.License);
+            if (!string.IsNullOrEmpty(options.License))
+                endpointConfiguration.License(options.License);
             endpointConfiguration.SendFailedMessagesTo("error");
             endpointConfiguration.AuditProcessedMessagesTo("audit");
-            endpointConfiguration.UseTransport<SqlServerTransport>().ConnectionString(options.ConnectionString);
+            endpointConfiguration
+                .UseTransport<SqlServerTransport>()
+                .ConnectionString(options.ConnectionString)
+                .EnableMessageDrivenPubSubCompatibilityMode();
+            endpointConfiguration
+                .UsePersistence<NHibernatePersistence>()
+                .UseConfiguration(new Configuration
+                {
+                    Properties =
+                    {
+                        ["dialect"] = "NHibernate.Dialect.MsSql2008Dialect",
+                        ["connection.connection_string"] = options.ConnectionString
+                    }
+                });
             endpointConfiguration.PurgeOnStartup(false);
             endpointConfiguration.EnableInstallers();
             endpointConfiguration.RegisterComponents(services => services.RegisterSingleton<ISanatoriumService>(this));

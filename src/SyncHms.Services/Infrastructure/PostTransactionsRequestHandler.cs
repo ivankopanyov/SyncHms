@@ -4,18 +4,6 @@ internal class PostTransactionsRequestHandler(ISanatoriumService sanatoriumServi
 {
     public async Task Handle(PostTransactionsRequest message, IMessageHandlerContext context)
     {
-        var cancellationTokenSource = new CancellationTokenSource();
-        var cancellationToken = cancellationTokenSource.Token;
-        var timeout = TimeSpan.FromSeconds(90);
-        await sanatoriumService.SendPostTransactionsRequestAsync(message, context, timeout, cancellationTokenSource);
-
-        try
-        {
-            await Task.Delay(timeout, cancellationToken);
-        }
-        catch (OperationCanceledException)
-        {
-            // ignored
-        }
+        await sanatoriumService.SendPostTransactionsRequestAsync(message, context, TimeSpan.FromSeconds(90));
     }
 }

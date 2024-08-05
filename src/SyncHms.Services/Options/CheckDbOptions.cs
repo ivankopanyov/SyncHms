@@ -3,7 +3,7 @@ namespace SyncHms.Services;
 public class CheckDbOptions
 {
     [Required(AllowEmptyStrings = true)]
-    public string Endpoint { get; set; } = "http://localhost/FiscalService/CheckDB";
+    public string Endpoint { get; set; } = string.Empty;
 
     public override int GetHashCode() => HashCode.Combine(Endpoint);
 

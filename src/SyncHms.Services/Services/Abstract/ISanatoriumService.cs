@@ -11,5 +11,5 @@ public interface ISanatoriumService : IService<SanatoriumOptions, ApplicationEnv
     Task SendPostTransactionsResponseAsync(PostTransactionsResponse message);
 
     internal Task SendPostTransactionsRequestAsync(PostTransactionsRequest message,
-        IMessageHandlerContext context, TimeSpan timeout, CancellationTokenSource cancellationTokenSource);
+        IMessageHandlerContext context, TimeSpan timeout);
 }

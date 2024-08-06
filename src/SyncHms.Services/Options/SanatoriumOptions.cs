@@ -1,7 +1,9 @@
-namespace SyncHms.Services;
+namespace SyncHms.Services.Options;
 
 public class SanatoriumOptions
 {
+    public const string Section = "Sanatorium";
+
     public bool Enabled { get; set; }
     
     [Required(AllowEmptyStrings = true)]

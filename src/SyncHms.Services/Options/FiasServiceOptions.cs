@@ -1,9 +1,11 @@
-namespace SyncHms.Services;
+namespace SyncHms.Services.Options;
 
 public class FiasServiceOptions
 {
+    public const string Section = "Fias";
+
     public bool Enabled { get; set; }
-    
+
     [Required(AllowEmptyStrings = true)]
     public string Host { get; set; } = string.Empty;
 

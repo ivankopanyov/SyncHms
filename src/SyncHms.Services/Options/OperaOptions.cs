@@ -2,6 +2,8 @@ namespace SyncHms.Services.Options;
 
 public class OperaOptions
 {
+    public const string Section = "Opera";
+
     [Required(AllowEmptyStrings =  true)]
     public string ConnectionString { get; set; } = string.Empty;
 

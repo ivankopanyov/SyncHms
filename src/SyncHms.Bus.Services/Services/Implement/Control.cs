@@ -1,8 +1,8 @@
 ﻿namespace SyncHms.Bus.Services.Services.Implement;
 
-internal class Control<TOptions> : IControl<TOptions> where TOptions : class, new()
+internal class Control<TOptions>(IOptions<TOptions>? options) : IControl<TOptions> where TOptions : class, new()
 {
-    private TOptions _options = new();
+    private TOptions _options = options?.Value ?? new();
 
     public TOptions Options
     {
@@ -21,7 +21,7 @@ internal class Control<TOptions> : IControl<TOptions> where TOptions : class, ne
     public void Unactive(Exception ex) => UnactiveEvent?.Invoke(ex.Message, ex);
 }
 
-internal class Control<TOptions, TEnvironment> : Control<TOptions>, IControl<TOptions, TEnvironment> 
+internal class Control<TOptions, TEnvironment>(IOptions<TOptions>? options) : Control<TOptions>(options), IControl<TOptions, TEnvironment>
     where TOptions : class, new() where TEnvironment : class, new()
 {
     private TEnvironment _environment = new();

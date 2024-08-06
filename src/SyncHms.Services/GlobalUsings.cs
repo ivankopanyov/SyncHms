@@ -2,6 +2,7 @@ global using Logus.HMS.Messages.Booking;
 global using Logus.HMS.Messages.Invoice;
 global using Logus.HMS.Messages.Shared;
 global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using NHibernate.Cfg;
 global using NServiceBus;

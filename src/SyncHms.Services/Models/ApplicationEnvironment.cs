@@ -2,16 +2,18 @@ namespace SyncHms.Services;
 
 public class ApplicationEnvironment
 {
+    public const string Section = "Environment";
+
     [Required(AllowEmptyStrings = true), Description("Код отеля в базе данных OPERA.")]
     public string ResortCode { get; set; } = string.Empty;
 
     public decimal Rvc { get; set; }
 
     [Description("Сихронизировать платежные начисления с Opera.")]
-    public bool SyncPostingOpera { get; set; } = true;
+    public bool SyncPostingOpera { get; set; }
 
     [Description("Сихронизировать платежные начисления с MICROS.")]
-    public bool SyncPostingMicros { get; set; } = true;
+    public bool SyncPostingMicros { get; set; }
 
     [Required, MaxLength(10)]
     public Dictionary<string, bool> TaxCodes { get; set; } = [];

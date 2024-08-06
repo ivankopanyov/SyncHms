@@ -23,7 +23,8 @@ public static class ConfigureServices
     }
 
     public static IApplicationServicesBuilder AddServices(this IBusBuilder builder,
-        WebApplicationBuilder appBuilder, LoggerConfiguration? loggerConfiguration = null)
+        WebApplicationBuilder appBuilder, LoggerConfiguration? loggerConfiguration = null,
+        ConfigurationManager? configurationManager = null)
     {
         var options = new BusProviderOptions();
         appBuilder.Configuration.Bind(BusProviderOptions.Section, options);
@@ -31,6 +32,7 @@ public static class ConfigureServices
         return builder
             .AddApplicationServices(servicesOptions =>
             {
+                servicesOptions.ConfigurationManager = configurationManager;
                 servicesOptions.LogFileName = "logs/services_.log";
                 
                 if (loggerConfiguration != null)

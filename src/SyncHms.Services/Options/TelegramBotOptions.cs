@@ -1,7 +1,9 @@
-namespace SyncHms.Services;
+namespace SyncHms.Services.Options;
 
 public class TelegramBotOptions
 {
+    public const string Section = "Telegram";
+
     public bool Enabled { get; set; }
 
     [Required(AllowEmptyStrings = true)]

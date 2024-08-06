@@ -1,6 +1,6 @@
 namespace SyncHms.Services.Services.Implement;
 
-internal class FiscalService(IControl<CheckDbOptions, ApplicationEnvironment> control) : IFiscalService
+internal class FiscalService(IControl<MicrosOptions, ApplicationEnvironment> control) : IFiscalService
 {
     private CheckDBClient Client => new(CheckDBClient.EndpointConfiguration.BasicHttpBinding_ICheckDB, control.Options.Endpoint);
 
@@ -21,7 +21,7 @@ internal class FiscalService(IControl<CheckDbOptions, ApplicationEnvironment> co
         }
     }
 
-    public async Task ChangedOptionsHandleAsync(CheckDbOptions options)
+    public async Task ChangedOptionsHandleAsync(MicrosOptions options)
     {
         var checkDbClient = new CheckDBClient(CheckDBClient.EndpointConfiguration.BasicHttpBinding_ICheckDB, options.Endpoint);
         await checkDbClient.GetCheckAsync(new Request());

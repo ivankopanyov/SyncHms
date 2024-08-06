@@ -4,12 +4,15 @@ public class ServiceHandler : BackgroundService
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
+    private readonly IOptions<ApplicationEnvironment>? _environment;
+
     private readonly IServiceController<ApplicationEnvironment> _serviceController;
 
-    public ServiceHandler(IServiceScopeFactory serviceScopeFactory,
+    public ServiceHandler(IServiceScopeFactory serviceScopeFactory, IOptions<ApplicationEnvironment>? environment,
         IServiceController<ApplicationEnvironment> serviceController)
     {
         _serviceScopeFactory = serviceScopeFactory;
+        _environment = environment;
         _serviceController = serviceController;
 
         _serviceController.ChangedOptionsEvent += async serviceInfo => await HandleAsync(serviceInfo);
@@ -70,7 +73,7 @@ public class ServiceHandler : BackgroundService
 
         if (await environmentRepository.GetAsync() is not { } environment)
         {
-            environment = new ApplicationEnvironment();
+            environment = _environment?.Value ?? new ApplicationEnvironment();
             await environmentRepository.UpdateAsync(environment);
         }
         

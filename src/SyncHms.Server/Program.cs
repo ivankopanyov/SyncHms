@@ -10,7 +10,7 @@ builder.Services
 
 builder.Services
     .AddBus(builder)
-    .AddServices(builder, loggerConfiguration)
+    .AddServices(builder, loggerConfiguration, builder.Configuration)
     .AddCache(builder)
     .AddEvents(builder, loggerConfiguration)
     .AddDomain(builder)

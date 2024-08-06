@@ -154,6 +154,9 @@ internal class FiasService(
                 case FiasGuestChange guestChange:
                     FiasGuestChangeEvent?.Invoke(guestChange);
                     break;
+                case FiasPostingList postingList:
+                    await FiasPostingListHandleAsync(postingList);
+                    break;
                 case FiasPostingAnswer postingAnswer:
                     await FiasPostingAnswerHandleAsync(postingAnswer);
                     break;
@@ -180,6 +183,15 @@ internal class FiasService(
 
         var linkAlive = new FiasLinkAlive { DateTime = DateTime.Now }.ToString();
         await socketConnection.SendAsync(linkAlive);
+    }
+
+    private async Task FiasPostingListHandleAsync(FiasPostingList message)
+    {
+        var key = message.PostingSequenceNumber.ToString();
+        await cacheService.PushAsync(key, message, TimeSpan.FromMinutes(1));
+        var cancellationTokenSource = await cacheService.PopAsync<CancellationTokenSource>(key);
+        if (cancellationTokenSource != null)
+            await cancellationTokenSource.CancelAsync();
     }
 
     private async Task FiasPostingAnswerHandleAsync(FiasPostingAnswer message)

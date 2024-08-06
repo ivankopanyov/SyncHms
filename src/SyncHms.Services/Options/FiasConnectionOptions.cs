@@ -46,11 +46,12 @@ internal class FiasConnectionOptions
             SalesOutlet = true,
             TotalPostingAmount = true,
             PmsPaymentMethod = true,
+            PostingSequenceNumber = true,
             CheckNumber = true,
             Discounts = true,
             Subtotals = true,
             ServiceCharge = true,
-            Taxes = true
+            Taxes = true,
         },
         new FiasPostingRequestOptions
         {
@@ -71,7 +72,7 @@ internal class FiasConnectionOptions
             ServiceCharge = true,
             Taxes = true,
             Tip = true,
-            CreditLimitOverrideFlag = true
+            CreditLimitOverrideFlag = true,
         },
         new FiasPostingListOptions
         {

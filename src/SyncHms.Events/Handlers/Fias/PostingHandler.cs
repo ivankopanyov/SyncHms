@@ -44,7 +44,7 @@ internal class PostingHandler(IFiasService fiasService) : Handler<PostRequestInf
                         TaxPosting = i.ItemKind
                     }));
 
-            var subtotals = checks.Select(c => c.Select(i => i.Total).Sum()).ToArray();
+            var subtotals = checks.Select(c => c.Select(i => i.Total).Sum() * 100).ToArray();
 
             var payments = @in.Transactions
                 .Where(t => t.Items.Count > 0 && t.Items.Any(i => string.IsNullOrEmpty(i.ServiceItemCode)))

@@ -82,9 +82,6 @@ internal class Queue<TExchange, T>(IBusContextFactory busContextFactory,
         var message = result.Item1;
         var body = result.Item2;
 
-        // if (!message.Fast)
-        //     await Task.Delay(100);
-
         var messageContext = new MessageContext();
         try
         {

@@ -49,13 +49,19 @@ internal class ExchangeRepository(IBusContextFactory busContextFactory,
         if (exchange == null)
             return; 
         
-        var queues = await exchange.PublishAsync(message);
-        foreach (var queue in queues)
-            MessageHandle(queue.Key, queue.Value);
+        if (await exchange.PublishAsync(message) is { } queues)
+            foreach (var queue in queues)
+                MessageHandle(queue.Key, queue.Value);
     }
 
     private void MessageHandle<TExchange>(string id, Models.Queue<TExchange> queue)
     {
+        new Thread(StartAsync)
+        {
+            Priority = ThreadPriority.Lowest
+        }.Start();
+        return;
+
         async void StartAsync()
         {
             await _semaphore.WaitAsync();
@@ -69,15 +75,16 @@ internal class ExchangeRepository(IBusContextFactory busContextFactory,
                 _semaphore.Release();
             }
         }
-
-        new Thread(StartAsync)
-        {
-            Priority = ThreadPriority.Lowest
-        }.Start();
     }
     
     private void LoadMessages<TExchange, TQueue>(Queue<TExchange, TQueue> queue, DateTime max)
     {
+        new Thread(StartAsync)
+        {
+            Priority = ThreadPriority.Lowest
+        }.Start();
+        return;
+
         async void StartAsync()
         {
             await _semaphore.WaitAsync();
@@ -92,10 +99,5 @@ internal class ExchangeRepository(IBusContextFactory busContextFactory,
                 _semaphore.Release();
             }
         }
-
-        new Thread(StartAsync)
-        {
-            Priority = ThreadPriority.Lowest
-        }.Start();
     }
 }

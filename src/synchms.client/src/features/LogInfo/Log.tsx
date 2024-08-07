@@ -55,7 +55,6 @@ const Log: FC<Readonly<LogProps>> = ({ log }) => {
                     <div>
                         <div className="log-header-name">
                             <Text>{ dateDisplay(log.dateTime) }</Text>
-                            {/* <Text>{ log.dateTime.display() }</Text> */}
                             {
                                 log.handlerName &&
                                     <div className="log-handler log-indent-left">

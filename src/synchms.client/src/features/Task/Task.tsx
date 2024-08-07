@@ -1,6 +1,7 @@
 import { useState, FC, useEffect } from 'react';
 import { Accordion } from '@mui/material';
-import { CreditScore, CreditCard, CreditCardOff, HowToReg, Person, PersonOff, PublishedWithChanges, Sync, SyncDisabled } from '@mui/icons-material'
+import { CreditCardOutlined, CreditCardOffOutlined, Person, PersonOff,
+    Sync, SyncDisabled, Lock, NoEncryption, Done, DoneOutline } from '@mui/icons-material'
 import { TaskInfo } from '../LogList/data';
 import { getTask } from '../LogList/LogListStore';
 import { AccordionBody, AccordionHeader, Text, Loading } from '../../components';
@@ -15,13 +16,16 @@ interface TaskProps {
 }
 
 const Task: FC<Readonly<TaskProps>> = ({ task }) => {
+    const failed = task.logs[0].isEnd && task.logs[0].isError;
+    const style = task.logs[0].isError ? 'task-icon-fail'
+        : (task.logs[0].isEnd ? 'task-icon-success' : 'task-icon');
+
     const dispatch = useAppDispatch();
     const [expanded, setExpanded] = useState<boolean>(false);
     const loopRequest = useLoopRequest(async () => {
         const result = await dispatch(getTask(task.logs[0].taskId));
         return result.meta.requestStatus === 'fulfilled';
     });
-    
 
     useEffect(() => {
         if (expanded && task.loading !== false) {
@@ -44,20 +48,29 @@ const Task: FC<Readonly<TaskProps>> = ({ task }) => {
                     <div className="task-indent-right">
                         {
                             {
-                                'RESV': task.logs[0].isEnd
-                                    ? (task.logs[0].isError ? <PersonOff className='task-icon-fail' /> : <HowToReg className='task-icon-success' />)
-                                    : <Person className={task.logs[0].isError ? 'task-icon-fail' : 'task-icon'} />,
-                                'POST': task.logs[0].isEnd
-                                    ? (task.logs[0].isError ? <CreditCardOff className='task-icon-fail' /> : <CreditScore className='task-icon-success' />)
-                                    : <CreditCard className={task.logs[0].isError ? 'task-icon-fail' : 'task-icon'} />
-                            } [task.logs[0].taskName ?? ''] || (task.logs[0].isEnd
-                                ? (task.logs[0].isError ? <SyncDisabled className='task-icon-fail' /> : <PublishedWithChanges className='task-icon-success' />)
-                                : <Sync className={task.logs[0].isError ? 'task-icon-fail' : 'task-icon'} />)
+                                'RESV': failed
+                                    ? <PersonOff className={style} />
+                                    : <Person className={style} />,
+                                'POST': failed
+                                    ? <CreditCardOffOutlined className={style} />
+                                    : <CreditCardOutlined className={style} />,
+                                'LOCK': failed
+                                    ? <NoEncryption className={style} />
+                                    : <Lock className={style} />
+                            } [task.logs[0].taskName ?? ''] || (failed
+                                ? <SyncDisabled className={style} />
+                                : <Sync className={style} />)
+                        }
+                        {
+                            task.logs[0].isEnd && !task.logs[0].isError && 
+                                <div>
+                                    <DoneOutline className="task-icon-outlined task-icon-done" />
+                                    <Done className="task-icon-success task-icon-done" />
+                                </div>
                         }
                     </div>
                     <div>
                         <div className="task-header-name">
-                            {/* <Text>{ task.logs[0].dateTime.display() }</Text> */}
                             <Text>{ dateDisplay(task.logs[0].dateTime) }</Text>
                             {
                                 !expanded && task.logs[0].handlerName &&

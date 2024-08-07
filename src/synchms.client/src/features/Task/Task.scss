@@ -32,10 +32,22 @@ $task-progress-size: 12px;
     color: $color-error;
 }
 
+.task-icon-outlined {
+    color: $color-background;
+}
+
+.task-icon-done {
+    position: absolute;
+    left: 14px;
+    top: 6px;
+    width: 14px !important;
+}
+
 .task-indent-left {
     margin-left: 10px;
 }
 
 .task-indent-right {
+    position: relative;
     margin-right: 10px;
 }

@@ -14,6 +14,8 @@ global using SyncHms.Events.Handlers.Sanatorium;
 global using SyncHms.Events.Handlers.Telegram;
 global using SyncHms.Events.Infrastructure;
 global using SyncHms.Events.Messages;
+global using SyncHms.Events.Services.Abstract;
+global using SyncHms.Events.Services.Implement;
 global using SyncHms.Fias.Entities;
 global using SyncHms.Services;
 global using System.Text;

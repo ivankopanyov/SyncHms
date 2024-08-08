@@ -81,7 +81,8 @@ internal class FiasConnectionOptions
             GuestArrivalDate = true,
             GuestDepartureDate = true,
             GuestFirstName = true,
-            PmsPaymentMethod = true
+            PmsPaymentMethod = true,
+            NoPostStatus = true
         },
         new FiasPostingAnswerOptions
         {

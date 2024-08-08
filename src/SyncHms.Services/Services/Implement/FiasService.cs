@@ -20,7 +20,7 @@ internal class FiasService(
     
     public event FiasGuestChangeHandle? FiasGuestChangeEvent;
 
-    public async Task<FiasPostingAnswer> SendPostingAsync(FiasPostingSimple message, int timeoutSeconds = 90)
+    public async Task<FiasPostingAnswer> SendPostingAsync(FiasPostingSimple message, int timeoutSeconds = 60)
     {
         if (!control.Options.Enabled)
             throw new InvalidOperationException("Service is disabled.");
@@ -30,11 +30,11 @@ internal class FiasService(
         
         var postingSequenceNumber = PostingSequenceNumber;
         message.PostingSequenceNumber = postingSequenceNumber;
-        return await SendPostingAsync(message.ToString(), postingSequenceNumber,
+        return await SendAsync<FiasPostingAnswer>(message.ToString(), postingSequenceNumber,
             timeoutSeconds, _socketConnection);
     }
 
-    public async Task<FiasPostingAnswer> SendPostingAsync(FiasPostingRequest message, int timeoutSeconds = 90)
+    public async Task<FiasPostingAnswer> SendPostingAsync(FiasPostingRequest message, int timeoutSeconds = 60)
     {
         if (!control.Options.Enabled)
             throw new InvalidOperationException("Service is disabled.");
@@ -43,8 +43,42 @@ internal class FiasService(
             throw new InvalidOperationException("Service not connected.");
 
         var postingSequenceNumber = PostingSequenceNumber;
-        message.PostingSequenceNumber = postingSequenceNumber;
-        return await SendPostingAsync(message.ToString(), postingSequenceNumber,
+        var request = new FiasPostingRequest
+        {
+            SalesOutlet = 1,
+            PostingInquiry = message.RoomNumber,
+            PostingSequenceNumber = postingSequenceNumber,
+            DateTime = message.DateTime,
+            PmsPaymentMethod = "ROOM",
+            WorkStationId = "1",
+            MaximumGuests = 1,
+            UserId = "0"
+        };
+
+        try
+        {
+            var fiasPostingList = await SendAsync<List<FiasPostingList>>(request.ToString(), postingSequenceNumber,
+                timeoutSeconds, _socketConnection);
+
+            if (fiasPostingList.FirstOrDefault(l => l.ReservationNumber == message.ReservationNumber)
+                is not { } posting)
+                throw new KeyNotFoundException();
+
+            if (posting.NoPostStatus == true)
+                throw new Exception($"No Post status for reservation {message.ReservationNumber}.");
+        }
+        catch (KeyNotFoundException)
+        {
+            throw new Exception($"Reservation {message.ReservationNumber} not found.");
+        }
+
+        message.SalesOutlet = request.SalesOutlet;
+        message.PmsPaymentMethod = request.PmsPaymentMethod;
+        message.WorkStationId = request.WorkStationId;
+        message.UserId = request.UserId;
+        message.DateTime = DateTime.Now;
+        
+        return await SendAsync<FiasPostingAnswer>(message.ToString(), postingSequenceNumber,
             timeoutSeconds, _socketConnection);
     }
 
@@ -62,25 +96,25 @@ internal class FiasService(
         return Task.CompletedTask;
     }
 
-    private async Task<FiasPostingAnswer> SendPostingAsync(string message,
-        int postingSequenceNumber, int timeout, ISocketConnection socketConnection)
+    private async Task<T> SendAsync<T>(string message, int key, int timeout,
+        ISocketConnection socketConnection) where T : class
     {
         var cancellationTokenSource = new CancellationTokenSource();
         var timeSpan = TimeSpan.FromSeconds(Math.Min(Math.Max(timeout, 0), 3600));
-        var key = postingSequenceNumber.ToString();
-        await cacheService.PushAsync(key, cancellationTokenSource, timeSpan);
+        var sequenceKey = key.ToString();
+        await cacheService.PushAsync(sequenceKey, cancellationTokenSource, timeSpan);
 
         try
         {
             await socketConnection.SendAsync(message);
             await Task.Delay(timeSpan, cancellationTokenSource.Token);
-            return await cacheService.PopAsync<FiasPostingAnswer>(key)
-                ?? throw new TimeoutException($"No response from FIAS. PostingSequenceNumber: {key}.");
+            return await cacheService.PopAsync<T>(sequenceKey)
+                ?? throw new TimeoutException($"No response from FIAS. Key: {key}.");
         }
         catch (TaskCanceledException)
         {
-            return await cacheService.PopAsync<FiasPostingAnswer>(key)
-                ?? throw new KeyNotFoundException($"Not found response from FIAS. PostingSequenceNumber: {key}.");
+            return await cacheService.PopAsync<T>(sequenceKey)
+                ?? throw new KeyNotFoundException($"Not found response from FIAS. Key: {key}.");
         }
     }
 
@@ -125,11 +159,10 @@ internal class FiasService(
 
     private async Task MessageHandleAsync(string message, ISocketConnection socketConnection)
     {
-        var commonMessage = FiasCommonMessage.FromString(message);
-
-        if (commonMessage.ToFiasMessageFromPmsObject() is { } fiasMessage)
+        List<FiasPostingList> fiasPostingList = [];
+        foreach (var commonMessage in FiasCommonMessage.FromString(message))
         {
-            switch (fiasMessage)
+            switch (commonMessage.ToFiasMessageFromPmsObject())
             {
                 case FiasLinkStart:
                     try
@@ -141,27 +174,29 @@ internal class FiasService(
                         // ignored
                     }
 
-                    break;
+                    return;
                 case FiasLinkEnd:
                     new Thread(ConnectAsync).Start(control.Options);
-                    break;
+                    return;
                 case FiasGuestCheckIn guestCheckIn:
                     FiasGuestCheckInEvent?.Invoke(guestCheckIn);
-                    break;
+                    return;
                 case FiasGuestCheckOut guestCheckOut:
                     FiasGuestCheckOutEvent?.Invoke(guestCheckOut);
-                    break;
+                    return;
                 case FiasGuestChange guestChange:
                     FiasGuestChangeEvent?.Invoke(guestChange);
-                    break;
+                    return;
                 case FiasPostingList postingList:
-                    await FiasPostingListHandleAsync(postingList);
+                    fiasPostingList.Add(postingList);
                     break;
                 case FiasPostingAnswer postingAnswer:
                     await FiasPostingAnswerHandleAsync(postingAnswer);
-                    break;
+                    return;
             }
         }
+
+        await FiasPostingListHandleAsync(fiasPostingList);
     }
 
     private async Task SendOptionsAsync(ISocketConnection socketConnection)
@@ -185,10 +220,10 @@ internal class FiasService(
         await socketConnection.SendAsync(linkAlive);
     }
 
-    private async Task FiasPostingListHandleAsync(FiasPostingList message)
+    private async Task FiasPostingListHandleAsync(List<FiasPostingList> messages)
     {
-        var key = message.PostingSequenceNumber.ToString();
-        await cacheService.PushAsync(key, message, TimeSpan.FromMinutes(1));
+        var key = messages[0].PostingSequenceNumber.ToString();
+        await cacheService.PushAsync(key, messages, TimeSpan.FromMinutes(1));
         var cancellationTokenSource = await cacheService.PopAsync<CancellationTokenSource>(key);
         if (cancellationTokenSource != null)
             await cancellationTokenSource.CancelAsync();

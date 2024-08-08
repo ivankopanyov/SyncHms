@@ -244,7 +244,7 @@ public sealed partial class FiasCommonMessage
 
         try
         {
-            FiasJsonWriter writer = new FiasJsonWriter(stringWriter, Indicator);
+            var writer = new FiasJsonWriter(stringWriter, Indicator);
             serializer.Serialize(writer, this);
 
             return stringWriter.ToString();
@@ -255,36 +255,94 @@ public sealed partial class FiasCommonMessage
         }
     }
 
-    public static FiasCommonMessage FromString(string source)
+    public static IEnumerable<FiasCommonMessage> FromString(string source)
     {
-        if (string.IsNullOrWhiteSpace(source))
-            return new FiasCommonMessage(source);
-
-        var items = source
-            .TrimStart(FiasEnvironment.Head)
-            .TrimEnd(FiasEnvironment.Tail)
-            .Split(new[] { FiasEnvironment.Separator }, StringSplitOptions.RemoveEmptyEntries);
-
-        if (items.Length == 0)
-            return new FiasCommonMessage(source);
-
-        var json = items.Length > 1
-            ? string.Join(",", items.Skip(1).Select(item => item.Length <= 2 ? $"\"{item}\":\"\"" : $"\"{item[..2]}\":\"{item[2..].Replace("\"", "\\\"")}\""))
-            : string.Empty;
-
-        try
+        if (!string.IsNullOrWhiteSpace(source))
         {
-            var fiasCommonMessage = JsonConvert.DeserializeObject<FiasCommonMessage>('{' + json + '}', _jsonSerializerSettings)
-                ?? new FiasCommonMessage();
+            var items = source
+                .TrimStart(FiasEnvironment.Head)
+                .TrimEnd(FiasEnvironment.Tail)
+                .Split(new[] { FiasEnvironment.Separator }, StringSplitOptions.RemoveEmptyEntries);
 
-            fiasCommonMessage.Source = source;
-            fiasCommonMessage.Indicator = items[0];
-            return fiasCommonMessage;
+            var indicator = items[0];
+            items = items[1..];
+            
+            if (items.Length > 0)
+            {
+                var keyValue = items
+                    .Select(i => i.Length <= 2
+                        ? new KeyValuePair<string, string>(i, string.Empty)
+                        : new KeyValuePair<string, string>(i[..2], i[2..]))
+                    .ToList();
+
+                IEnumerable<List<KeyValuePair<string, string>>> result;
+                
+                if (FiasEnvironment.FromPmsIndicatorType.TryGetValue(indicator, out var type) &&
+                    type.GetCustomAttribute<FiasListAttribute>() != null &&
+                    GetIndexes(keyValue.Select(i => i.Key).ToList()) is { Count: > 0 } indexes)
+                {
+                    result = indexes
+                        .Select((i, j) => new List<KeyValuePair<string, string>>([
+                            ..keyValue[..indexes[0]],
+                            ..j == indexes.Count - 1 ? keyValue[i..] : keyValue[i..indexes[j + 1]]
+                        ]));
+                }
+                else
+                {
+                    result = [keyValue];
+                }
+
+                foreach (var itemList in result)
+                {
+                    var json = string.Join(",",
+                        itemList.Select(item => $"\"{item.Key}\":\"{item.Value.Replace("\"", "\\\"")}\""));
+
+                    FiasCommonMessage? fiasCommonMessage;
+                    
+                    try
+                    {
+                        fiasCommonMessage =
+                            JsonConvert.DeserializeObject<FiasCommonMessage>('{' + json + '}', _jsonSerializerSettings);
+                        
+                        if (fiasCommonMessage == null)
+                            continue;
+
+                        fiasCommonMessage.Source = source;
+                        fiasCommonMessage.Indicator = indicator;
+                    }
+                    catch
+                    {
+                        fiasCommonMessage = null;
+                    }
+                    
+                    if (fiasCommonMessage != null)
+                        yield return fiasCommonMessage;
+                }
+            }
         }
-        catch
+    }
+    
+    private static List<int>? GetIndexes(IReadOnlyList<string> items)
+    {
+        for (var i = 0; i < items.Count - 1; i++)
         {
-            return new FiasCommonMessage(source, items[0]);
+            for (var j = i + 1; j < items.Count; j++)
+            {
+                if (items[i].Equals(items[j]))
+                {
+                    List<int> result = [i, j++];
+                    if (j < items.Count)
+                    {
+                        for (var k = j + 1; k < items.Count; k++)
+                            if (items[k].Equals(items[i]))
+                                result.Add(k);
+                    }
+                    return result;
+                }
+            }
         }
+
+        return null;
     }
 }
 

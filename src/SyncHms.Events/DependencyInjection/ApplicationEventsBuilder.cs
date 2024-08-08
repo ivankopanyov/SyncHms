@@ -3,8 +3,6 @@ namespace SyncHms.Events.DependencyInjection;
 internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
     EventsBusBuilder(builder), IApplicationEventsBuilder
 {
-    private const string ResvTaskName = "RESV";
-    
     public IApplicationEventsBuilder AddApplicationEvents(Action<EventBusOptions>? setupAction = null)
     {
         builder
@@ -29,12 +27,15 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
                 options.TaskName = "POST";
                 options.HandlerName = "POSTING";
             })
-            .AddEvent<PostingHandler, PostRequestInfo>(options => options.HandlerName = "FIAS")
+            .AddEvent<FiasPostingSimpleHandler, FiasPostSimple>(options => options.HandlerName = "FIAS_SIMPLE")
+            .AddEvent<FiasPostingRequestHandler, FiasPostRequest>(options => options.HandlerName = "FIAS_REQUEST")
             .AddEvent<ReservationHandler, ReservationInfo>(options => options.HandlerName = "OPERA")
+            .AddEvent<RoomNumberHandler, RoomNumberRequest>(options => options.HandlerName = "OPERA")
             .AddEvent<CheckHandler, Check>(options => options.HandlerName = "MICROS")
             .AddEvent<PostingResponseHandler, PostTransactionsResponse>(options => options.HandlerName = "SANATORIUM")
             .AddEvent<UpdateReservationHandler, ReservationUpdatedMessage>(options => options.HandlerName = "SANATORIUM")
             .AddEventLog<TelegramMessageHandler>()
+            .AddSingleton<ICheckNumberService, CheckNumberService>()
             .AddHostedService<MessageProxyService>();
 
         return this;

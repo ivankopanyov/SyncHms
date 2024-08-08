@@ -11,4 +11,6 @@ internal class ReservationInfo
     public DateTime? ArrivalDate { get; set; }
 
     public DateTime? DepartureDate { get; set; }
+
+    public bool? NoPost {  get; set; }
 }

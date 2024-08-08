@@ -15,6 +15,9 @@ public class ApplicationEnvironment
     [Description("Сихронизировать платежные начисления с MICROS.")]
     public bool SyncPostingMicros { get; set; }
 
+    [Required(AllowEmptyStrings = true)]
+    public string SanatoriumCustomField { get; set; } = string.Empty;
+
     [Required, MaxLength(10)]
     public Dictionary<string, bool> TaxCodes { get; set; } = [];
 

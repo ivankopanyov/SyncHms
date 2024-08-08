@@ -25,121 +25,122 @@ public partial class FiasWakeupClear { }
 #region FromPms
 
 [FiasMessage("LC", FiasMessageDirections.FromPms)]
-public partial class FiasLinkConfiguration { }
+public partial class FiasLinkConfiguration;
 
 [FiasMessage("DS", FiasMessageDirections.FromPms)]
-public partial class FiasDatabaseResyncStart { }
+public partial class FiasDatabaseResyncStart;
 
 [FiasMessage("DE", FiasMessageDirections.FromPms)]
-public partial class FiasDatabaseResyncEnd { }
+public partial class FiasDatabaseResyncEnd;
 
 [FiasMessage("NS", FiasMessageDirections.FromPms)]
-public partial class FiasNightAuditStart { }
+public partial class FiasNightAuditStart;
 
 [FiasMessage("NE", FiasMessageDirections.FromPms)]
-public partial class FiasNightAuditEnd { }
+public partial class FiasNightAuditEnd;
 
 [FiasMessage("GI", FiasMessageDirections.FromPms)]
-public partial class FiasGuestCheckIn { }
+public partial class FiasGuestCheckIn;
 
 [FiasMessage("GO", FiasMessageDirections.FromPms)]
-public partial class FiasGuestCheckOut { }
+public partial class FiasGuestCheckOut;
 
 [FiasMessage("GC", FiasMessageDirections.FromPms)]
-public partial class FiasGuestChange { }
+public partial class FiasGuestChange;
 
 [FiasMessage("XL", FiasMessageDirections.FromPms)]
-public partial class FiasMessageTextOnlineResponse { }
+public partial class FiasMessageTextOnlineResponse;
 
 [FiasMessage("XT", FiasMessageDirections.FromPms)]
-public partial class FiasMessageText { }
+public partial class FiasMessageText;
 
 [FiasMessage("XI", FiasMessageDirections.FromPms)]
-public partial class FiasGuestBillItem { }
+public partial class FiasGuestBillItem;
 
 [FiasMessage("XB", FiasMessageDirections.FromPms)]
-public partial class FiasGuestBillBalance { }
+public partial class FiasGuestBillBalance;
 
 [FiasMessage("XC", FiasMessageDirections.FromPms)]
-public partial class FiasRemoteCheckOutResponse { }
+public partial class FiasRemoteCheckOutResponse;
 
 [FiasMessage("LP", FiasMessageDirections.FromPms)]
-public partial class FiasLocatorRetrieveResponse { }
+public partial class FiasLocatorRetrieveResponse;
 
 [FiasMessage("RE", FiasMessageDirections.FromPms)]
-public partial class FiasRoomEquipmentStatusResponse { }
+public partial class FiasRoomEquipmentStatusResponse;
 
 [FiasMessage("KR", FiasMessageDirections.FromPms)]
-public partial class FiasKeyRequest { }
+public partial class FiasKeyRequest;
 
 [FiasMessage("KM", FiasMessageDirections.FromPms)]
-public partial class FiasKeyDataChange { }
+public partial class FiasKeyDataChange;
 
 [FiasMessage("KD", FiasMessageDirections.FromPms)]
-public partial class FiasKeyDelete { }
+public partial class FiasKeyDelete;
 
 [FiasMessage("KZ", FiasMessageDirections.FromPms)]
-public partial class FiasKeyReadResponse { }
+public partial class FiasKeyReadResponse;
 
+[FiasList]
 [FiasMessage("PL", FiasMessageDirections.FromPms)]
-public partial class FiasPostingList { }
+public partial class FiasPostingList;
 
 [FiasMessage("PA", FiasMessageDirections.FromPms)]
-public partial class FiasPostingAnswer { }
+public partial class FiasPostingAnswer;
 
 #endregion
 
 #region ToPms
 
 [FiasMessage("LD", FiasMessageDirections.ToPms)]
-public partial class FiasLinkDescription { }
+public partial class FiasLinkDescription;
 
 [FiasMessage("LR", FiasMessageDirections.ToPms)]
-public partial class FiasLinkRecord { }
+public partial class FiasLinkRecord;
 
 [FiasMessage("DR", FiasMessageDirections.ToPms)]
-public partial class FiasDatabaseResyncRequest { }
+public partial class FiasDatabaseResyncRequest;
 
 [FiasMessage("VA", FiasMessageDirections.ToPms)]
-public partial class FiasVirtualNumberNotification { }
+public partial class FiasVirtualNumberNotification;
 
 [FiasMessage("XL", FiasMessageDirections.ToPms)]
-public partial class FiasMessageTextOnlineRequest { }
+public partial class FiasMessageTextOnlineRequest;
 
 [FiasMessage("XM", FiasMessageDirections.ToPms)]
-public partial class FiasMessageRequest { }
+public partial class FiasMessageRequest;
 
 [FiasMessage("XR", FiasMessageDirections.ToPms)]
-public partial class FiasGuestBillRequest { }
+public partial class FiasGuestBillRequest;
 
 [FiasMessage("XC", FiasMessageDirections.ToPms)]
-public partial class FiasRemoteCheckOutRequest { }
+public partial class FiasRemoteCheckOutRequest;
 
 [FiasMessage("LO", FiasMessageDirections.ToPms)]
-public partial class FiasLocatorOn { }
+public partial class FiasLocatorOn;
 
 [FiasMessage("LF", FiasMessageDirections.ToPms)]
-public partial class FiasLocatorOff { }
+public partial class FiasLocatorOff;
 
 [FiasMessage("LP", FiasMessageDirections.ToPms)]
-public partial class FiasLocatorRetrieveRequest { }
+public partial class FiasLocatorRetrieveRequest;
 
 [FiasMessage("RE", FiasMessageDirections.ToPms)]
-public partial class FiasRoomEquipmentStatusRequest { }
+public partial class FiasRoomEquipmentStatusRequest;
 
 [FiasMessage("WA", FiasMessageDirections.ToPms)]
-public partial class FiasWakeupAnswer { }
+public partial class FiasWakeupAnswer;
 
 [FiasMessage("KA", FiasMessageDirections.ToPms)]
-public partial class FiasKeyAnswer { }
+public partial class FiasKeyAnswer;
 
 [FiasMessage("KZ", FiasMessageDirections.ToPms)]
-public partial class FiasKeyReadRequest { }
+public partial class FiasKeyReadRequest;
 
 [FiasMessage("PS", FiasMessageDirections.ToPms)]
-public partial class FiasPostingSimple { }
+public partial class FiasPostingSimple;
 
 [FiasMessage("PR", FiasMessageDirections.ToPms)]
-public partial class FiasPostingRequest { }
+public partial class FiasPostingRequest;
 
 #endregion

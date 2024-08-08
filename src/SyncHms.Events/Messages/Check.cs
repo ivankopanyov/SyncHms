@@ -8,5 +8,7 @@ internal class Check
     
     public string Total { get; set; }
     
+    public int CheckNumber { get; set; }
+    
     public IEnumerable<FiscalCheckItem> Details { get; set; }
 }

@@ -1,44 +1,16 @@
 ﻿namespace SyncHms.Events.Handlers.Fiscal;
 
-internal class CheckHandler(IFiscalService fiscalService, ICache cache) : Handler<Check>
+internal class CheckHandler(IFiscalService fiscalService) : Handler<Check>
 {
-    private const string CheckNumberKey = "CheckNumber";
-
-    private const int CheckNumberMin = 1;
-
-    private const int CheckNumberMax = 9999;
-
-    private static readonly SemaphoreSlim _semaphore = new(1);
-
     protected override async Task HandleAsync(Check @in, IEventContext context)
     {
-        int checkNumberValue;
-        await _semaphore.WaitAsync();
-        
         try
         {
-            try
-            {
-                if (await cache.PopAsync<CheckNumber>(CheckNumberKey) is not { } checkNumber)
-                    checkNumber = new CheckNumber
-                    {
-                        Value = 1
-                    };
-
-                checkNumberValue = Math.Min(Math.Max(CheckNumberMin, checkNumber.Value), CheckNumberMax);
-                checkNumber.Value = checkNumberValue == CheckNumberMax ? CheckNumberMin : (checkNumberValue + 1);
-                await cache.PushAsync(CheckNumberKey, checkNumber);
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-
             var fiscalCheck = new FiscalCheck
             {
                 uws = 1,
                 rvc = (int)fiscalService.Environment.Rvc,
-                cknum = checkNumberValue,
+                cknum = @in.CheckNumber,
                 open_time = @in.DateTime,
                 close_time = @in.DateTime,
                 total = @in.Total,
@@ -77,5 +49,5 @@ internal class CheckHandler(IFiscalService fiscalService, ICache cache) : Handle
     }
 
     protected override string Message(Check @in) =>
-        $"Correlation ID: {@in.CorrelationId}, Date: {@in.DateTime:dd.MM.yyyy HH:mm:ss}, Total: {@in.Total}";
+        $"CheckNumber: {@in.CheckNumber}, Date: {@in.DateTime:dd.MM.yyyy HH:mm:ss}, Total: {@in.Total}";
 }

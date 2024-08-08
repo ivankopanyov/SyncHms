@@ -12,10 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Handlers\Fias\" />
       <Folder Include="Handlers\Fiscal\" />
-      <Folder Include="Handlers\Opera\" />
-      <Folder Include="Handlers\Sanatorium\" />
       <Folder Include="Handlers\Telegram\" />
     </ItemGroup>
 

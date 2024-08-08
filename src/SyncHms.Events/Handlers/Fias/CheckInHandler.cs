@@ -22,7 +22,8 @@ internal class CheckInHandler : Handler<FiasGuestCheckIn>
             Room = @in.RoomNumber,
             Status = "IN",
             ArrivalDate = arrivalDate,
-            DepartureDate = departureDate
+            DepartureDate = departureDate,
+            NoPost = @in.NoPostStatus
         });
 
         return Task.CompletedTask;

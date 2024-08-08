@@ -22,7 +22,8 @@ internal class ChangeHandler : Handler<FiasGuestChange>
             Room = @in.RoomNumber,
             Status = "IN",
             ArrivalDate = arrivalDate,
-            DepartureDate = departureDate
+            DepartureDate = departureDate,
+            NoPost = @in.NoPostStatus
         });
 
         return Task.CompletedTask;

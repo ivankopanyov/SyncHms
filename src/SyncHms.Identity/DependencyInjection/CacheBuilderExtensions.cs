@@ -6,6 +6,7 @@ public static class CacheBuilderExtensions
         Action<IdentityOptions>? setupAction = null) where TContext : IdentityContext
     {
         var options = new IdentityOptions();
+        setupAction?.Invoke(options);
         
         cacheBuilder
             .AddScoped<IConnectionRepository, ConnectionRepository>()
@@ -14,13 +15,14 @@ public static class CacheBuilderExtensions
             .AddSingleton<IPostConfigureOptions<JwtBearerOptions>, Infrastructure.JwtBearerPostConfigureOptions>()
             .AddSingleton<IUserIdProvider, UserIdProvider>()
             .AddSingleton<IIdentityContextFactory, IdentityContextFactory<TContext>>()
-            .AddDbContext<TContext>()
-            .AddIdentity<User, Role>(identityOptions =>
-            {
-                options.Options = identityOptions;
-                setupAction?.Invoke(options);
-            })
-            .AddEntityFrameworkStores<TContext>();
+            .AddHostedService<InitialService>()
+            .AddDbContext<TContext>();
+        
+        var identityBuilder = options.SetupAction != null 
+            ? cacheBuilder.AddIdentity<User, Role>(options.SetupAction)
+            : cacheBuilder.AddIdentity<User, Role>();
+            
+        identityBuilder.AddEntityFrameworkStores<TContext>();
         
         cacheBuilder
             .AddSingleton(options)

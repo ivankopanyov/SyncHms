@@ -77,6 +77,7 @@ internal class FiasService(
         message.WorkStationId = request.WorkStationId;
         message.UserId = request.UserId;
         message.DateTime = DateTime.Now;
+        message.PostingSequenceNumber = postingSequenceNumber;
         
         return await SendAsync<FiasPostingAnswer>(message.ToString(), postingSequenceNumber,
             timeoutSeconds, _socketConnection);

@@ -1,6 +1,6 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
-WORKDIR /app
+WORKDIR /synchms
 EXPOSE 8080
 EXPOSE 8081
 
@@ -29,13 +29,17 @@ COPY ["src/SyncHms.Bus.EntityFramework.Sqlite/SyncHms.Bus.EntityFramework.Sqlite
 RUN dotnet restore "src/SyncHms.Server/SyncHms.Server.csproj"
 COPY . .
 WORKDIR "/src/src/SyncHms.Server"
-RUN dotnet build "SyncHms.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "SyncHms.Server.csproj" -c $BUILD_CONFIGURATION -o /synchms/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "SyncHms.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "SyncHms.Server.csproj" -c $BUILD_CONFIGURATION -o /synchms/publish /p:UseAppHost=false
 
 FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
+ENV TZ=Europe/Moscow
+ENV LANG=ru_RU.UTF-8
+ENV LANGUAGE=ru_RU.UTF-8
+ENV LC_ALL=ru_RU.UTF-8
+WORKDIR /synchms
+COPY --from=publish /synchms/publish .
 ENTRYPOINT ["dotnet", "SyncHms.Server.dll"]

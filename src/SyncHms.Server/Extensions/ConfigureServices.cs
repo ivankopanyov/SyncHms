@@ -2,6 +2,10 @@ namespace SyncHms.Server.Extensions;
 
 public static class ConfigureServices
 {
+    private const string _dateDirectory = "data";
+
+    private static readonly object _lock = new();
+    
     public static IBusBuilder AddBus(this IServiceCollection services,
         WebApplicationBuilder appBuilder)
     {
@@ -13,8 +17,10 @@ public static class ConfigureServices
             _ => services.AddSqliteBus(busOptions =>
             {
                 busOptions.UseMigrations = true;
-                
-                if (options.Sql?.ConnectionString != null)
+
+                if (options.Provider == BusProvider.Sqlite)
+                    busOptions.ConnectionString = GetConnectionString("bus");
+                else if (options.Sql?.ConnectionString != null)
                     busOptions.ConnectionString = options.Sql.ConnectionString;
                 
                 busOptions.ContractResolver = new DescriptionContractResolver();
@@ -84,7 +90,9 @@ public static class ConfigureServices
                 domainOptions.UseMigrations = true;
                 domainOptions.ContractResolver = new DescriptionContractResolver();
                 
-                if (options.Sql?.ConnectionString != null)
+                if (options.Provider == DomainProvider.Sqlite)
+                    domainOptions.ConnectionString = GetConnectionString("domain");
+                else if (options.Sql?.ConnectionString != null)
                     domainOptions.ConnectionString = options.Sql.ConnectionString;
             })
         };
@@ -103,13 +111,18 @@ public static class ConfigureServices
                 identityOptions.UseMigrations = true;
                 identityOptions.AccessTokenExpirationMinutes = 1;
                 identityOptions.RefreshTokenExpirationDays = 7;
-                identityOptions.Options.Password.RequiredUniqueChars = 0;
-                identityOptions.Options.Password.RequireNonAlphanumeric = false;
-                identityOptions.Options.Password.RequireLowercase = false;
-                identityOptions.Options.Password.RequireUppercase = false;
-                identityOptions.Options.Password.RequireDigit = false;
+                identityOptions.SetupAction = setupOptions =>
+                {
+                    setupOptions.Password.RequiredUniqueChars = 0;
+                    setupOptions.Password.RequireNonAlphanumeric = false;
+                    setupOptions.Password.RequireLowercase = false;
+                    setupOptions.Password.RequireUppercase = false;
+                    setupOptions.Password.RequireDigit = false;
+                };
                 
-                if (options.Sql?.ConnectionString != null)
+                if (options.Provider == IdentityProvider.Sqlite)
+                    identityOptions.ConnectionString = GetConnectionString("identity");
+                else if (options.Sql?.ConnectionString != null)
                     identityOptions.ConnectionString = options.Sql.ConnectionString;
             })
         };
@@ -121,5 +134,20 @@ public static class ConfigureServices
         app.MapHub<ServiceHub>("/hub/services");
         app.MapHub<EnvironmentHub>("/hub/environment");
         return app;
+    }
+
+    private static string GetConnectionString(string dbName)
+    {
+        lock (_lock)
+        {
+            if (!Directory.Exists(_dateDirectory))
+                Directory.CreateDirectory(_dateDirectory);
+
+            var dateDirectory = Path.Combine(_dateDirectory, dbName);
+            if (!Directory.Exists(dateDirectory))
+                Directory.CreateDirectory(dateDirectory);
+
+            return $"Data Source={Path.Combine(dateDirectory, $"{dbName}.db")}";
+        }
     }
 }

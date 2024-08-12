@@ -53,10 +53,13 @@ internal class FiasPostingRequestHandler(IFiasService fiasService,
 
     protected override string? Message(FiasPostRequest @in)
     {
-        var result = $"Reservation: {@in.ReservationNumber}, Room: {@in.RoomNumber}";
+        var result = $"Reservation: {@in.ReservationNumber}";
+
+        if (!string.IsNullOrEmpty(@in.RoomNumber))
+            result += $", Room: {@in.RoomNumber}";
 
         if (@in.ProfileNumber != null)
-            result = $", Profile: {@in.ProfileNumber}";
+            result += $", Profile: {@in.ProfileNumber}";
 
         return result;
     }

@@ -9,14 +9,32 @@ internal class UpdateReservationHandler(ISanatoriumService sanatoriumService) : 
 
     protected override string? Message(ReservationUpdatedMessage @in)
     {
-        var result = $"GenericNo: {@in.GenericNo}, Id: {@in.Id}";
+        string? result = null;
 
-        var name = @in.ReservationGuests?.FirstOrDefault() is { } guest
-            ? string.Join(' ', guest.LastName, guest.FirstName, guest.MiddleName)
-            : null;
+        if (@in.ReservationGuests?.FirstOrDefault() is { } guest)
+        {
+            if (!string.IsNullOrEmpty(guest.Id))
+                result = $"Id: {guest.Id}, {string.Join(' ', guest.LastName, guest.FirstName, guest.MiddleName)}";
+        }
 
-        if (!string.IsNullOrWhiteSpace(name))
-            result += $", {name}";
+        if (@in.CurrentTimeline is { } timeline)
+        {
+            if (!string.IsNullOrEmpty(timeline.RoomCode))
+            {
+                if (result == null)
+                    result = $"Room: {timeline.RoomCode}";
+                else 
+                    result += $", Room: {timeline.RoomCode}";
+            }
+
+            if (!string.IsNullOrEmpty(timeline.RateCode))
+            {
+                if (result == null)
+                    result = $"Rate: {timeline.RateCode}";
+                else
+                    result += $", Rate: {timeline.RateCode}";
+            }
+        }
 
         return result;
     }

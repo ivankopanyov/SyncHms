@@ -19,7 +19,7 @@ internal class PostingResponseHandler(ISanatoriumService sanatoriumService) : Ha
 
     protected override string? Message(PostTransactionsResponse @in)
     {
-        var result = $"Correlation ID {@in.CorrelationId} {(@in.Succeeded ? "Succeeded" : "Error")}";
+        var result = @in.Succeeded ? "Succeeded" : "Error";
         
         if (!string.IsNullOrWhiteSpace(@in.ErrorMessage))
             result += $": {@in.ErrorMessage}";

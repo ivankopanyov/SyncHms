@@ -68,16 +68,5 @@ internal class PostingRequestHandler(ISanatoriumService sanatoriumService) : Han
         return Task.CompletedTask;
     }
 
-    protected override string? Message(PostTransactionsRequest @in)
-    {
-        var result = $"Correlation ID: {@in.CorrelationId}";
-
-        if (!string.IsNullOrWhiteSpace(@in.ReservationGuestId))
-            result += $", Reservation: {@in.ReservationGuestId}";
-
-        if (!string.IsNullOrWhiteSpace(@in.FolioGenericNo))
-            result = $", FolioGenericNo: {@in.FolioGenericNo}";
-
-        return result;
-    }
+    protected override string? Message(PostTransactionsRequest @in) => $"Reservation: {@in.ReservationGuestId}";
 }

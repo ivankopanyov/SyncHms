@@ -63,26 +63,5 @@ internal class RoomNumberHandler(IOperaService operaService) : Handler<RoomNumbe
         }
     }
 
-    protected override string? Message(RoomNumberRequest @in)
-    {
-        string? result = null;
-        
-        if (!string.IsNullOrWhiteSpace(@in.ReservationGuestId))
-        {
-            if (result == null)
-                result = $"ReservationGuestId: {@in.ReservationGuestId}";
-            else
-                result += $", ReservationGuestId: {@in.ReservationGuestId}";
-        }
-        
-        if (!string.IsNullOrWhiteSpace(@in.FolioGenericNo))
-        {
-            if (result == null)
-                result = $"FolioGenericNo: {@in.FolioGenericNo}";
-            else
-                result += $", FolioGenericNo: {@in.FolioGenericNo}";
-        }
-
-        return result;
-    }
+    protected override string? Message(RoomNumberRequest @in) => $"Reservation: {@in.ReservationGuestId}";
 }

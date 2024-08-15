@@ -1,5 +1,11 @@
 import { SERVER_HOST } from "../environment";
 
+const refreshRequests: {
+    items?: TimerHandler[];
+} = {};
+
+const wait = () => new Promise(resolve => refreshRequests.items?.push(resolve));
+
 class HttpError extends Error {
     readonly code: string = '0';
   
@@ -40,7 +46,15 @@ export const api = {
         
         if (response.status === 401) {
           if (refresh) {
-            await api.refresh();
+            if (!refreshRequests.items) {
+                refreshRequests.items = [];
+                await api.refresh();
+                refreshRequests.items.forEach(i => setTimeout(i, 0));
+                refreshRequests.items = undefined;
+            } else {
+                await wait();
+            }
+            
             return api.respond(method, endpoint, options, false);
           } else {
             throw new HttpError('Authentication failed.', 401);

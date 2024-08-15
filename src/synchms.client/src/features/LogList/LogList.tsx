@@ -53,14 +53,7 @@ const LogList: FC = () => {
     const [search, setSearch] = useState('');
 
     useEffect(() => {
-        if (loadingInView) {
-            downRef.current?.scrollIntoView();
-            if (logList.tasks.length > 0 && !logList.isEnd) {
-                request.start();
-            }
-        } else {
-            request.stop();
-        }
+        loadingInView && downRef.current?.scrollIntoView();
     }, [loadingInView]);
 
     useEffect(() => {
@@ -94,7 +87,9 @@ const LogList: FC = () => {
                 }}
                 onBottomChanged={async value => {
                     if (!logList.isEnd && value && !logList.bottomLoading && logList.tasks.length > 0)
-                        await dispatch(getTasks(new Date(logList.tasks[logList.tasks.length - 1].logs[0].dateTime)));
+                        request.start();
+                    else if (!value)
+                        request.stop();
                 }}
                 fab
             >

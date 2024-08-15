@@ -2,19 +2,25 @@ namespace SyncHms.Domain.EntityFramework.Repositories.Implement;
 
 internal class LogRepository(IDomainContextFactory domainContextFactory) : ILogRepository
 {
+    private const string SelectRaw = "SELECT * FROM (" +
+        "SELECT Id, LogDataId, TaskId, TaskName, HandlerName, MAX(DateTime) as DateTime, IsError, IsEnd, Message " +
+        "FROM Logs GROUP BY TaskId ORDER BY DateTime DESC)";
+    
     public async Task AddAsync(Log log)
     {
         await using var context = domainContextFactory.Create();
         var logData = log.LogData;
         log.LogData = null;
         await context.Logs.AddAsync(log);
+        await context.SaveChangesAsync();
+        
         if (logData != null)
         {
+            log.LogDataId = logData.Id;
             logData.LogId = log.Id;
             await context.LogDatas.AddAsync(logData);
+            await context.SaveChangesAsync();
         }
-        
-        await context.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<Log>?> GetAsync(string taskId)
@@ -42,37 +48,32 @@ internal class LogRepository(IDomainContextFactory domainContextFactory) : ILogR
             return [];
 
         await using var context = domainContextFactory.Create();
-
-        var query = context.Logs
-            .AsNoTracking()
-            .OrderByDescending(l => l.DateTime)
-            .GroupBy(l => l.TaskId);
+        var query = context.Logs.FromSqlRaw(string.Format(SelectRaw));
 
         if (filter != null)
         {
             if (filter.IsError is { } isError)
-                query = query.Where(g => g.First().IsError == isError);
+                query = query.Where(l => l.IsError == isError);
 
             if (filter.IsEnd is { } isEnd)
-                query = query.Where(g => g.First().IsEnd == isEnd);
+                query = query.Where(l => l.IsEnd == isEnd);
 
             if (filter.TaskNames?.Count is > 0)
-                query = query.Where(g => g.First().TaskName != null &&
-                                         filter.TaskNames.Contains(g.First().TaskName!));
+                query = query.Where(l => l.TaskName != null &&
+                                         filter.TaskNames.Contains(l.TaskName!));
             
             // pattern
 
             if (filter.To is { } to)
-                query = query.Where(g => g.First().DateTime < to);
+                query = query.Where(l => l.DateTime < to);
             
-            if (filter.To is { } from)
-                query = query.Where(g => g.First().DateTime > from);
+            if (filter.From is { } from)
+                query = query.Where(l => l.DateTime > from);
 
             if (filter.Size is { } size)
                 query = query.Take(size);
         }
 
-        var result = await query.Select(g => g.ToList()).ToListAsync();
-        return result.SelectMany(l => l);
+        return await query.ToListAsync();
     }
 }

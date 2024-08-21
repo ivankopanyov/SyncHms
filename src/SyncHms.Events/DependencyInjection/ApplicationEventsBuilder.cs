@@ -1,8 +1,16 @@
 namespace SyncHms.Events.DependencyInjection;
 
+/// <summary>
+/// Класс, описывающий построитель, регистрирующий обработчики событий в контейнере зависимостей.
+/// Унаследован от класса <see cref="EventsBusBuilder"/><br/>
+/// Реализует интерфейс <see cref="IApplicationEventsBuilder"/>
+/// </summary>
+/// <param name="builder">Экземпляр построителя сервисов приложения.</param>
 internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
     EventsBusBuilder(builder), IApplicationEventsBuilder
 {
+    /// <summary>Метод, регистрирующий обработчики событий в контейнере зависимостей.</summary>
+    /// <param name="setupAction">Инициализация опций сервиса обработки событий.</param>
     public IApplicationEventsBuilder AddApplicationEvents(Action<EventBusOptions>? setupAction = null)
     {
         builder
@@ -36,7 +44,7 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
             .AddEvent<UpdateReservationHandler, ReservationUpdatedMessage>(options => options.HandlerName = "SANATORIUM")
             .AddEventLog<TelegramMessageHandler>()
             .AddSingleton<ICheckNumberService, CheckNumberService>()
-            .AddHostedService<MessageProxyService>();
+            .AddHostedService<MessageProxyWorker>();
 
         return this;
     }

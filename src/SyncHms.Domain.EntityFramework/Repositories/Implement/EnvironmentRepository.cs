@@ -1,16 +1,30 @@
 namespace SyncHms.Domain.EntityFramework.Repositories.Implement;
 
+/// <summary>
+/// Класс, описывающий репозиторий для работы с окружением.<br/>
+/// Реализует интерфейс <see cref="IEnvironmentRepository{TEnvironment}"/>
+/// </summary>
+/// <typeparam name="TEnvironment">
+/// Тип окружения. Должен иметь открытый конструктор без параметров.
+/// </typeparam>
+/// <param name="domainContextFactory">
+/// Экземпляр фабрики, создающей контекст подключения к базе данных домена.
+/// </param>
+/// <param name="domainOptions">Экземпляр опций домена.</param>
 internal class EnvironmentRepository<TEnvironment>(IDomainContextFactory domainContextFactory, 
     EntityFrameworkDomainOptions domainOptions) : IEnvironmentRepository<TEnvironment>
     where TEnvironment : class, new()
 {
+    /// <summary>Ключ сущности окружения, хранящейся в базе данных.</summary>
     private const string Key = "environment";
 
-    private static readonly SemaphoreSlim _semaphore = new(1);
+    private static readonly SemaphoreSlim Semaphore = new(1);
 
+    /// <summary>Метод, возвращающий экземпляр текущего окружения.</summary>
+    /// <returns>Текущее окружение.</returns>
     public async Task<TEnvironment?> GetAsync()
     {
-        await _semaphore.WaitAsync();
+        await Semaphore.WaitAsync();
 
         try
         {
@@ -30,15 +44,21 @@ internal class EnvironmentRepository<TEnvironment>(IDomainContextFactory domainC
         }
         finally
         {
-            _semaphore.Release();
+            Semaphore.Release();
         }
     }
-
+    
+    /// <summary>Метод, обновляющий текущее окружение.</summary>
+    /// <param name="environment">Экземпляр обновленного окружения.</param>
+    /// <returns>
+    /// Флаг, указывающий, удалось ли применить новое окружение.
+    /// Вернет значение <c>false</c>, если значения переменных текущего окружения идентичны обновленным.
+    /// </returns>
     public async Task<bool> UpdateAsync(TEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(environment);
 
-        await _semaphore.WaitAsync();
+        await Semaphore.WaitAsync();
 
         try
         {
@@ -80,7 +100,7 @@ internal class EnvironmentRepository<TEnvironment>(IDomainContextFactory domainC
         }
         finally
         {
-            _semaphore.Release();
+            Semaphore.Release();
         }
     }
 }

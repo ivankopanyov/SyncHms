@@ -1,7 +1,20 @@
 ﻿namespace SyncHms.Events.Handlers.Fiscal;
 
+/// <summary>
+/// Класс, описывающий обработчик события <see cref="Check"/>,
+/// оповещающего о совершении денежного платежа или начислении платежа на номер.<br/>
+/// Унаследован от класса <see cref="Handler{TIn}"/>
+/// </summary>
 internal class CheckHandler(IFiscalService fiscalService) : Handler<Check>
 {
+    /// <summary>
+    /// Метод, обрабатывающий событие <see cref="Check"/>.
+    /// Проводит попытку сохранения чека платежа в базе данных <c>MICROS</c>.<br/>
+    /// Отправляет в шину данных событие <see cref="PostTransactionsResponse"/>.<br/>
+    /// Переопределяет метод <see cref="Handler{TIn}.HandleAsync"/>
+    /// </summary>
+    /// <param name="in">Экземпляр обрабатываемого события.</param>
+    /// <param name="context">Контекст обработки события.</param>
     protected override async Task HandleAsync(Check @in, IEventContext context)
     {
         try
@@ -48,6 +61,12 @@ internal class CheckHandler(IFiscalService fiscalService) : Handler<Check>
         }
     }
 
+    /// <summary>
+    /// Метод, возвращающий краткое описание события <see cref="Check"/><br/>
+    /// Переопределяет метод <see cref="Handler{TIn}.Message"/>
+    /// </summary>
+    /// <param name="in">Экземпляр обрабатываемого события.</param>
+    /// <returns>Краткое описание события.</returns>
     protected override string Message(Check @in) =>
         $"CheckNumber: {@in.CheckNumber}, Date: {@in.DateTime:dd.MM.yyyy HH:mm:ss}, Total: {@in.Total}";
 }

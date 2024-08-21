@@ -1,7 +1,14 @@
 namespace SyncHms.Bus.EntityFramework.Sqlite.Infrastructure;
 
+/// <summary>
+/// Класс, описывающий контекст подключения к базе данных шины.<br/>
+/// Унаследован от <see cref="BusContext"/>
+/// </summary>
+/// <param name="options">Экземпляр опций контекста.</param>
+/// <param name="logger">Экземпляр логгера.</param>
 public class SqliteBusContext(SqliteBusOptions options, ILogger<SqliteBusContext> logger) : BusContext
 {
+    /// <summary>Время задержки в миллисекундах перед повторной попыткой запроса в случае неудачи.</summary>
     private const int MillisecondsDelay = 1000;
 
     public override int SaveChanges()
@@ -32,6 +39,7 @@ public class SqliteBusContext(SqliteBusOptions options, ILogger<SqliteBusContext
             .ConfigureWarnings(builder => builder.Ignore(RelationalEventId.AmbientTransactionWarning));
     }
 
+    /// <summary>Метод делает повторные попытки запроса в случае блокировки базы данных.</summary>
     private int TrySaveChanges(bool? acceptAllChangesOnSuccess = null)
     {
         for (var i = 1; ; i++)
@@ -53,6 +61,7 @@ public class SqliteBusContext(SqliteBusOptions options, ILogger<SqliteBusContext
         }
     }
 
+    /// <summary>Метод делает повторные попытки запроса в случае блокировки базы данных.</summary>
     private async Task<int> TrySaveChangesAsync(CancellationToken cancellationToken,
         bool? acceptAllChangesOnSuccess = null)
     {

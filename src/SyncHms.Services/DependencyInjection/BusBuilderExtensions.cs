@@ -1,7 +1,13 @@
 namespace SyncHms.Services;
 
+/// <summary>
+/// Статический класс, который содержит методы расширения для интерфейса <see cref="IBusBuilder"/>
+/// </summary>
 public static class BusBuilderExtensions
 {
+    /// <summary>Метод, регистрирующий сервисы приложения в контейнере зависимостей.</summary>
+    /// <param name="setupAction">Инициализация свойств сервисов.</param>
+    /// <returns>Экземпляр построителя, регистрирующего сервисы.</returns>
     public static IApplicationServicesBuilder AddApplicationServices(this IBusBuilder servicesBusBuilder,
         Action<ServicesOptions>? setupAction = null)
     {
@@ -17,6 +23,9 @@ public static class BusBuilderExtensions
             .AddApplicationServices(options => options.ConfigurationManager = servicesOptions.ConfigurationManager);
     }
     
+    /// <summary>Метод, регистрирующий сервисы приложения в контейнере зависимостей.</summary>
+    /// <param name="setupAction">Инициализация свойств сервисов.</param>
+    /// <returns>Экземпляр построителя, регистрирующего сервисы.</returns>
     public static IApplicationServicesBuilder AddApplicationServices(this IServicesBusBuilder<ApplicationEnvironment> servicesBusBuilder,
          Action<ApplicationServicesOptions>? setupAction = null)
     {

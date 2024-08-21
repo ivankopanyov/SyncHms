@@ -1,7 +1,22 @@
 ﻿namespace SyncHms.Events.Handlers.Sanatorium;
 
+/// <summary>
+/// Класс, описывающий обработчик события <see cref="PostTransactionsRequest"/>,
+/// оповещающего о совершении денежного платежа или начислении платежа на номер.<br/>
+/// Унаследован от класса <see cref="Handler{TIn}"/>
+/// </summary>
 internal class PostingRequestHandler(ISanatoriumService sanatoriumService) : Handler<PostTransactionsRequest>
 {
+    /// <summary>
+    /// Метод, обрабатывающий событие <see cref="PostTransactionsRequest"/>.<br/>
+    /// В случае, если параметр окружения <see cref="ApplicationEnvironment.SyncPostingOpera"/>
+    /// равен <c>false</c>, отправляет в шину данных событие <see cref="PostTransactionsResponse"/>.<br/>
+    /// В случае начисления платежа на номер, отправляет в шину данных событие <see cref="RoomNumberRequest"/>.<br/>
+    /// В случае совершения денежного платежа, отправляет в шину данных событие <see cref="FiasPostSimple"/>.<br/>
+    /// Переопределяет метод <see cref="Handler{TIn}.HandleAsync"/>
+    /// </summary>
+    /// <param name="in">Экземпляр обрабатываемого события.</param>
+    /// <param name="context">Контекст обработки события.</param>
     protected override Task HandleAsync(PostTransactionsRequest @in, IEventContext context)
     {
         try
@@ -67,6 +82,12 @@ internal class PostingRequestHandler(ISanatoriumService sanatoriumService) : Han
 
         return Task.CompletedTask;
     }
-
+    
+    /// <summary>
+    /// Метод, возвращающий краткое описание события <see cref="PostTransactionsRequest"/><br/>
+    /// Переопределяет метод <see cref="Handler{TIn}.Message"/>
+    /// </summary>
+    /// <param name="in">Экземпляр обрабатываемого события.</param>
+    /// <returns>Краткое описание события.</returns>
     protected override string? Message(PostTransactionsRequest @in) => $"Reservation: {@in.ReservationGuestId}";
 }

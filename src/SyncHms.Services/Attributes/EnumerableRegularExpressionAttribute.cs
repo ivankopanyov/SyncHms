@@ -1,5 +1,9 @@
 namespace SyncHms.Services.Attributes;
 
+/// <summary>
+/// Класс, описывающий аттрибут валидации строковых элементов коллекции по указанному регулярному выражению.
+/// </summary>
+/// <param name="pattern">Шаблон регулярного выражения.</param>
 internal class EnumerableRegularExpressionAttribute([StringSyntax(StringSyntaxAttribute.Regex)] string pattern)
     : RegularExpressionAttribute(pattern)
 {

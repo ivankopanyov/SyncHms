@@ -1,9 +1,20 @@
 ﻿namespace SyncHms.Events.Handlers.Telegram;
 
+/// <summary>
+/// Класс, описывающий обработчик логов обработки событий.<br/>
+/// Унаследован от класса <see cref="LogHandler"/>
+/// </summary>
 internal class TelegramMessageHandler(ITelegramBotService telegramBotService, ICache cache) : LogHandler
 {
-    private static readonly SemaphoreSlim _semaphore = new(1);
+    private static readonly SemaphoreSlim Semaphore = new(1);
 
+    /// <summary>
+    /// Метод, обрабатывающий лог обработки события.<br/>
+    /// Отправляет информацию о событии в чаты, указанные в параметре окружения
+    /// <see cref="ApplicationEnvironment.TelegramChats"/> бота <c>Telegram</c>.<br/>
+    /// Переопределяет метод <see cref="Handler{TIn}.HandleAsync"/>
+    /// </summary>
+    /// <param name="in">Экземпляр лога обработки события.</param>
     protected override async Task HandleAsync(EventLog @in)
     {
         if (!telegramBotService.Enabled || !telegramBotService.Chats.Any() || (@in.Error == null && telegramBotService.OnlyError))
@@ -19,7 +30,7 @@ internal class TelegramMessageHandler(ITelegramBotService telegramBotService, IC
 
             var key = $"{chat.Id}/{chat.MessageThreadId}/{taskId}";
 
-            await _semaphore.WaitAsync();
+            await Semaphore.WaitAsync();
 
             try
             {
@@ -51,7 +62,7 @@ internal class TelegramMessageHandler(ITelegramBotService telegramBotService, IC
             }
             finally
             {
-                _semaphore.Release();
+                Semaphore.Release();
             }
         }
 

@@ -1,8 +1,24 @@
 namespace SyncHms.Events.Handlers.Fias;
 
+/// <summary>
+/// Класс, описывающий обработчик события <see cref="FiasPostRequest"/>,
+/// оповещающего о начисления платежа на номер.<br/>
+/// Унаследован от класса <see cref="Handler{TIn}"/>
+/// </summary>
 internal class FiasPostingRequestHandler(IFiasService fiasService,
     ICheckNumberService checkNumberService) : Handler<FiasPostRequest>
 {
+    /// <summary>
+    /// Метод, обрабатывающий событие <see cref="FiasPostRequest"/>.
+    /// Проводит попытку начисления платежа на номер через интерфейс <c>FIAS</c>.<br/>
+    /// В случае неудачного начисления или если параметр окружения
+    /// <see cref="ApplicationEnvironment.SyncPostingMicros"/> равен <c>false</c>,
+    /// отправляет в шину данных событие <see cref="PostTransactionsResponse"/>.<br/>
+    /// В противном случае отправляет в шину данных событие <see cref="Check"/>.<br/>
+    /// Переопределяет метод <see cref="Handler{TIn}.HandleAsync"/>
+    /// </summary>
+    /// <param name="in">Экземпляр обрабатываемого события.</param>
+    /// <param name="context">Контекст обработки события.</param>
     protected override async Task HandleAsync(FiasPostRequest @in, IEventContext context)
     {
         try
@@ -51,6 +67,12 @@ internal class FiasPostingRequestHandler(IFiasService fiasService,
         }
     }
 
+    /// <summary>
+    /// Метод, возвращающий краткое описание события <see cref="FiasPostRequest"/><br/>
+    /// Переопределяет метод <see cref="Handler{TIn}.Message"/>
+    /// </summary>
+    /// <param name="in">Экземпляр обрабатываемого события.</param>
+    /// <returns>Краткое описание события.</returns>
     protected override string? Message(FiasPostRequest @in)
     {
         var result = $"Reservation: {@in.ReservationNumber}";

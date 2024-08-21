@@ -1,9 +1,15 @@
 namespace SyncHms.Services;
 
+/// <summary>
+/// Класс, описывающий контекст подключения к базе данных <c>OPERA</c><br/>
+/// Унаследован от класса <see cref="OperaDbContextBase"/>
+/// </summary>
 public class OperaDbContext : OperaDbContextBase
 {
+    /// <summary>Строка подключения к базе данных.</summary>
     private readonly string _connectionString;
 
+    /// <summary>Версия базы данных <c>ORACLE</c>, поддерживаемая контекстом.</summary>
     private readonly string? _oracleSqlCompatibility;
     
     public virtual DbSet<ReservationName> ReservationNames { get; set; }

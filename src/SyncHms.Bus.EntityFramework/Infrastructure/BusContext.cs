@@ -1,13 +1,21 @@
 ﻿namespace SyncHms.Bus.EntityFramework;
 
+/// <summary>
+/// Класс, описывающий контекст подключения к базе данных шины.<br/>
+/// Унаследован от <see cref="DbContext"/>
+/// </summary>
 public abstract class BusContext : DbContext
 {
     internal IServiceScope? ServiceScope { private get; set; }
 
+    /// <summary>Коллекция хранилищ сообщений шины данных.</summary>
     public virtual DbSet<Exchange> Exchanges { get; set; }
 
+    /// <summary>Коллекция очередей сообщений шины данных.</summary>
     public virtual DbSet<Queue> Queues { get; set; }
 
+
+    /// <summary>Коллекция сообщений шины данных.</summary>
     public virtual DbSet<Message> Messages { get; set; }
 
     protected abstract override void OnConfiguring(DbContextOptionsBuilder optionsBuilder);

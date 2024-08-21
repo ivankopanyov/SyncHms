@@ -1,9 +1,13 @@
 namespace SyncHms.Domain.EntityFramework.Infrastructure;
 
+/// <summary>
+/// Класс, описывающий контекст подключения к базе данных.<br/>
+/// Унаследован от класса <see cref="DbContext"/>
+/// </summary>
 public abstract class DomainContext : DbContext
 {
     internal IServiceScope? ServiceScope { private get; set; }
-
+    
     public virtual DbSet<Service> Services { get; set; }
     
     public virtual DbSet<AppOptions> AppOptions { get; set; }

@@ -1,11 +1,21 @@
 namespace SyncHms.Domain.EntityFramework.Repositories.Implement;
 
+/// <summary>
+/// Класс, описывающий репозиторий для работы с логами.<br/>
+/// Реализует интерфейс <see cref="ILogRepository"/>
+/// </summary>
+/// <param name="domainContextFactory">
+/// Экземпляр фабрики, создающей контекст подключения к базе данных домена.
+/// </param>
 internal class LogRepository(IDomainContextFactory domainContextFactory) : ILogRepository
 {
+    /// <summary>Запрос поиска логов в базе данных.</summary>
     private const string SelectRaw = "SELECT * FROM (" +
         "SELECT Id, LogDataId, TaskId, TaskName, HandlerName, MAX(DateTime) as DateTime, IsError, IsEnd, Message " +
         "FROM Logs GROUP BY TaskId ORDER BY DateTime DESC)";
     
+    /// <summary>Метод, сохраняющий лог.</summary>
+    /// <param name="log">Лог для сохранения.</param>
     public async Task AddAsync(Log log)
     {
         await using var context = domainContextFactory.Create();
@@ -22,7 +32,10 @@ internal class LogRepository(IDomainContextFactory domainContextFactory) : ILogR
             await context.SaveChangesAsync();
         }
     }
-
+    
+    /// <summary>Метод, возвращающий логи, относящиес к задаче с указанным идентификатором.</summary>
+    /// <param name="taskId">Идентификатор задачи.</param>
+    /// <returns>Если не найдено логов, относящихся к указанной задаче, вернет <c>null</c></returns>
     public async Task<IEnumerable<Log>?> GetAsync(string taskId)
     {
         await using var context = domainContextFactory.Create();
@@ -34,6 +47,9 @@ internal class LogRepository(IDomainContextFactory domainContextFactory) : ILogR
         return logs.Count == 0 ? null : logs;
     }
 
+    /// <summary>Метод, возвращающий данные лога с указанным идентификатором.</summary>
+    /// <param name="logId">Идентификатор лога.</param>
+    /// <returns>Данные указанного лога.</returns>
     public async Task<LogData?> GetDataAsync(string logId)
     {
         await using var context = domainContextFactory.Create();
@@ -42,6 +58,12 @@ internal class LogRepository(IDomainContextFactory domainContextFactory) : ILogR
             .FirstOrDefaultAsync(ld => ld.LogId == logId);
     }
 
+    /// <summary>Метод, осуществляющий поиск по логам.</summary>
+    /// <param name="filter">Фильтр поиска.</param>
+    /// <returns>
+    /// Найденные логи, удовлетворяющие условиям фильтра.
+    /// Если значение фильтра <c>null</c>, будут возвращены все логи.
+    /// </returns>
     public async Task<IEnumerable<Log>> FindAsync(SearchFilter? filter = null)
     {
         if (filter?.Size is <= 0)

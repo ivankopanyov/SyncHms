@@ -1,5 +1,10 @@
 namespace SyncHms.DependencyInjection;
 
+/// <summary>
+/// Класс, описывающий построитель приложения.
+/// Реализует интрефейс <see cref="IServiceCollection"/>
+/// </summary>
+/// <param name="services">Коллекция сервисов приложения.</param>
 public abstract class ApplicationBuilder(IServiceCollection services) : IServiceCollection
 {
     public int Count => services.Count;

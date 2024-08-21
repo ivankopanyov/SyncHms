@@ -7,6 +7,7 @@ global using Newtonsoft.Json.Serialization;
 global using Serilog;
 global using SyncHms.Bus.Services.Extensions;
 global using SyncHms.Bus.Services.Services.Implement;
+global using SyncHms.Bus.Services.Workers;
 global using SyncHms.DependencyInjection;
 global using System.ComponentModel.DataAnnotations;
 global using System.Reflection;

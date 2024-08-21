@@ -1,7 +1,11 @@
-namespace SyncHms.Services.Options;
+namespace SyncHms.Services.Infrastructure;
 
+/// <summary>
+/// Класс, описывающий модель опций для установления подключения с удаленным сервисом <c>FIAS</c>
+/// </summary>
 internal class FiasConnectionOptions
 {
+    /// <summary>Поле, хранящее опции, определяющие модели сообщений бронирования.</summary>
     private static readonly HashSet<FiasOptions> _reservation = [
         new FiasGuestCheckInOptions
         {
@@ -40,6 +44,7 @@ internal class FiasConnectionOptions
         }
     ];
 
+    /// <summary>Поле, хранящее опции, определяющие модели сообщений денежных начислений.</summary>
     private static readonly HashSet<FiasOptions> _posting = [
         new FiasPostingSimpleOptions
         {
@@ -90,7 +95,9 @@ internal class FiasConnectionOptions
         }
     ];
 
+    /// <summary>Опции, определяющие модели сообщений бронирования.</summary>
     public static ISet<FiasOptions> Reservation => _reservation;
 
+    /// <summary>Опции, определяющие модели сообщений денежных начислений.</summary>
     public static ISet<FiasOptions> Posting => _posting;
 }

@@ -1,7 +1,18 @@
 ﻿namespace SyncHms.Server.Handlers;
 
+/// <summary>
+/// Класс, описывающий обработчик логов обработки событий.<br/>
+/// Унаследован от класса <see cref="LogHandler"/>
+/// </summary>
+/// <param name="logRepository">Экземпляр репозитория для работы с логами.</param>
+/// <param name="hubContext">Контекст концентратора логов <c>SignalR</c></param>
 public class UpdateLogHandler(ILogRepository logRepository, IHubContext<LogHub> hubContext) : LogHandler
 {
+    /// <summary>
+    /// Метод, обрабатывающий лог обработки события.<br/>
+    /// Отправляет информацию о событии клиентам приложения с помощью <c>SignalR</c>
+    /// </summary>
+    /// <param name="in">Экземпляр лога обработки события.</param>
     protected override async Task HandleAsync(EventLog @in)
     {
         var log = new Log

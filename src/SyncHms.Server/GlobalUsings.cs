@@ -22,6 +22,7 @@ global using SyncHms.Server.Handlers;
 global using SyncHms.Server.Hubs;
 global using SyncHms.Server.Options;
 global using SyncHms.Server.Options.Enums;
+global using SyncHms.Server.Workers;
 global using SyncHms.Services;
 global using System.ComponentModel.DataAnnotations;
 global using System.Net;

@@ -1,14 +1,20 @@
 namespace SyncHms.Bus.Events;
 
+/// <summary>Статический класс, который содержит методы расширения для интерфейса <see cref="IBusBuilder"/>.</summary>
 public static class BusBuilderExtensions
 {
+    /// <summary>Шаблон логов, выводимых в консоль.</summary>
     private const string OutputConsoleTemplate = 
-        "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {"
+        "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {"
         + Extensions.LoggerExtensions.Queue + "} {" + Extensions.LoggerExtensions.Handler + "} {"
-        + Extensions.LoggerExtensions.Task + "} {Message}{NewLine}";
+        + Extensions.LoggerExtensions.Task + "} {Message}";
 
-    private const string OutputFileTemplate = OutputConsoleTemplate + "{Exception}{NewLine}";
+    /// <summary>Шаблон логов, записываемых в файл.</summary>
+    private const string OutputFileTemplate = OutputConsoleTemplate + "{NewLine}{Exception}";
     
+    /// <summary>Метод, регистрирующий сервисы обработки событий из шины данных.</summary>
+    /// <param name="options">Инициализация опций обработчиков событий.</param>
+    /// <returns>Экземпляр построителя обработки событий для регистрации обработчиков в контейнере зависимостей.</returns>
     public static IEventsBusBuilder AddEvents(this IBusBuilder busBuilder, Action<EventBusOptions>? options = null)
     {
         if (options == null)

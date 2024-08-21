@@ -1,37 +1,68 @@
 namespace SyncHms.Services.Infrastructure.Services.Implement;
 
+/// <summary>
+/// Класс, описывающий объект подключения к сокету.<br/>
+/// Реализует интерфейс <see cref="ISocketConnection"/>
+/// </summary>
 internal class SocketConnection : ISocketConnection
 {
+    /// <summary>Имя или адрес хоста для подключения.</summary>
     private readonly string _host;
     
+    /// <summary>Номер порта для подключения.</summary>
     private readonly int _port;
     
+    /// <summary>Символ, определяющий начало сообщения.</summary>
     private readonly char _head;
     
+    /// <summary>Символ, определяющий конец сообщения.</summary>
     private readonly char _tail;
     
+    /// <summary>
+    /// Строка, определяющая место разделения сообщений.<br/>
+    /// Образована в результате объединения значений полей
+    /// <see cref="_head"/> и <see cref="_tail"/>
+    /// </summary>
     private readonly string _separator;
     
+    /// <summary>Время задержки перед попыткой усановления соединения с сокетом.</summary>
     private readonly TimeSpan _connectionDelay;
     
+    /// <summary>Максимальное время для попытки усановления соединения с сокетом.</summary>
     private readonly TimeSpan _connectionTimeout;
     
     private readonly CancellationTokenSource _cancellationTokenSource;
-
+    
     private readonly CancellationToken _cancellationToken;
 
     private readonly object _lock = new();
 
+    /// <summary>Экземпляр сокета.</summary>
     private Socket? _socket;
 
+    /// <summary>Текущее состояние соединения с сокетом.</summary>
     private SocketState _state;
     
+    /// <summary>Событие, вызываемое при установлении соединения с сокетом.</summary>
     public event ConnectedHandle? ConnectedEvent;
     
+    /// <summary>Событие, вызывемое при разрыве соединения с сокетом.</summary>
     public event DisconnectedHandleAsync? DisconnectedEvent;
 
+    /// <summary>Событие, вызываемое при получении сообщения от сокета.</summary>
     public event MessageHandleAsync? MessageEvent;
 
+    /// <summary>Инициализация объекта поключения к сокету.</summary>
+    /// <param name="host">Имя или адрес хоста для подключения.</param>
+    /// <param name="port">Номер порта для подключения.</param>
+    /// <param name="head">Символ, определяющий начало сообщения.</param>
+    /// <param name="tail">Символ, определяющий конец сообщения.</param>
+    /// <param name="connectionDelay">
+    /// Время задержки в секундах перед попыткой усановления соединения с сокетом.
+    /// </param>
+    /// <param name="connectionTimeout">
+    /// Максимальное время в секундах для попытки усановления соединения с сокетом.
+    /// </param>
     public SocketConnection(string host, int port, char head, char tail, int connectionDelay, int connectionTimeout)
     {
         _host = host;
@@ -45,6 +76,13 @@ internal class SocketConnection : ISocketConnection
         _cancellationToken = _cancellationTokenSource.Token;
     }
     
+    /// <summary>Метод, инициирующий попытку установления соединения с сокетом.</summary>
+    /// <exception cref="ArgumentException">
+    /// Исключение, возбуждаемое в случае, если указанный хост не был найден.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Исключение, возбуждаемое в случае, если не удалось установить соединение с сокетом.
+    /// </exception>
     public async Task ConnectAsync()
     {
         lock (_lock)
@@ -105,6 +143,20 @@ internal class SocketConnection : ISocketConnection
         }).Start();
     }
 
+    /// <summary>Метод, инициирующий разрыв соединения с сокетом.</summary>
+    public async Task DisconnectAsync()
+    {
+        await _cancellationTokenSource.CancelAsync();
+    }
+
+    /// <summary>Метод, отправляющий сообщение сокету.</summary>
+    /// <param name="message">Тело сообщения.</param>
+    /// <exception cref="InvalidOperationException">
+    /// Исключение, возбуждаемое в случае, если соединение с сокетом было разорвано.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Исключение, возбуждаемое в случае, если параметр <c>message</c> не инициализирован.
+    /// </exception>
     public async Task SendAsync(string message)
     {
         if (_socket == null || _state != SocketState.Connected)
@@ -132,11 +184,7 @@ internal class SocketConnection : ISocketConnection
         }
     }
 
-    public async Task DisconnectAsync()
-    {
-        await _cancellationTokenSource.CancelAsync();
-    }
-
+    /// <summary>Метод, инициирующий разрыв соединения с сокетом.</summary>
     private async Task StopAsync()
     {
         if (_socket == null)
@@ -153,6 +201,9 @@ internal class SocketConnection : ISocketConnection
         }
     }
     
+    /// <summary>Метод, обрабатывающий сообщения, полученные от сокета.</summary>
+    /// <param name="socket">Экземпляр сокета.</param>
+    /// <param name="stringBuilder">Экземпляр <see cref="StringBuilder"/> для записи сообщения.</param>
     private async Task ReadAsync(Socket socket, StringBuilder stringBuilder)
     {
         var buffer = new byte[8192];

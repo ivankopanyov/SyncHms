@@ -15,6 +15,7 @@ global using SyncHms.Fias.Entities;
 global using SyncHms.Opera.Entities.Tables;
 global using SyncHms.Services.Attributes;
 global using SyncHms.Services.DependencyInjection;
+global using SyncHms.Services.Infrastructure;
 global using SyncHms.Services.Infrastructure.Services.Abstract;
 global using SyncHms.Services.Infrastructure.Services.Enums;
 global using SyncHms.Services.Infrastructure.Services.Implement;

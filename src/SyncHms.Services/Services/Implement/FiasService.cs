@@ -1,5 +1,12 @@
 namespace SyncHms.Services.Services.Implement;
 
+/// <summary>
+/// Класс, описывающий сервис интеграции с удаленным сервисом <c>FIAS</c><br/>
+/// Реализует интерфейс <see cref="IFiasService"/>
+/// </summary>
+/// <param name="control">Экземпляр контроллера, управляющего состоянием сервиса.</param>
+/// <param name="cacheService">Экземпляр сервис кеширования данных.</param>
+/// <param name="socketConnectionFactory">Экземпляр фабрики, создающей подключения к сокету.</param>
 internal class FiasService(
     IControl<FiasServiceOptions, ApplicationEnvironment> control,
     IMemoryCache cacheService,
@@ -8,18 +15,48 @@ internal class FiasService(
 {
     private readonly SemaphoreSlim _semaphore = new(1);
     
+    /// <summary>Экземпляр объекта для подключения к сокету.</summary>
     private ISocketConnection? _socketConnection;
     
+    /// <summary>
+    /// Свойство, определяющее уникальный номер сообщения, по которому определяется ответное сообщение.
+    /// </summary>
     private static int PostingSequenceNumber => int.Parse(DateTime.Now.ToString("HHmmssff"));
 
+    /// <summary>Экземпляр окружения.</summary>
     public ApplicationEnvironment Environment => control.Environment;
     
+    /// <summary>
+    /// Событие, вызываемое при получении сервисом сообщения типа <see cref="FiasGuestCheckIn"/>,
+    /// указывающее на изменение статуса бронирования на <c>CHECK_IN</c>
+    /// </summary>
     public event FiasGuestCheckInHandle? FiasGuestCheckInEvent;
     
+    /// <summary>
+    /// Событие, вызываемое при получении сервисом сообщения типа <see cref="FiasGuestCheckOut"/>,
+    /// указывающее на изменение статуса бронирования на <c>CHECK_OUT</c>
+    /// </summary>
     public event FiasGuestCheckOutHandle? FiasGuestCheckOutEvent;
     
+    /// <summary>
+    /// Событие, вызываемое при получении сервисом сообщения типа <see cref="FiasGuestChange"/>,
+    /// указывающее на изменение данных бронирования.
+    /// </summary>
     public event FiasGuestChangeHandle? FiasGuestChangeEvent;
 
+    /// <summary>
+    /// Метод, отправляющий сообщение типа <see cref="FiasPostingSimple"/> 
+    /// для синхронизации платежа с системой <c>OPERA</c>
+    /// </summary>
+    /// <param name="message">Тело сообщения.</param>
+    /// <param name="timeoutSeconds">Время ожидания ответа в секундах.</param>
+    /// <returns>Ответ от удаленного сервиса.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Исключение возбуждается, если сервис находится в остановленном состоянии, исходя из значения свойства
+    /// <see cref="FiasServiceOptions.Enabled"/> в значении свойства
+    /// <see cref="IControl{FiasServiceOptions, ApplicationEnvironment}.Options"/> параметра <c>control</c>,
+    /// или нет соединения с удаленным сервисом.
+    /// </exception>
     public async Task<FiasPostingAnswer> SendPostingAsync(FiasPostingSimple message, int timeoutSeconds = 60)
     {
         if (!control.Options.Enabled)
@@ -34,6 +71,22 @@ internal class FiasService(
             timeoutSeconds, _socketConnection);
     }
 
+    /// <summary>
+    /// Метод, отправляющий сообщение типа <see cref="FiasPostingRequest"/> 
+    /// для начисления платежа на комнату в системе <c>OPERA</c>
+    /// </summary>
+    /// <param name="message">Тело сообщения.</param>
+    /// <param name="timeoutSeconds">Время ожидания ответа в секундах.</param>
+    /// <returns>Ответ от удаленного сервиса.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Исключение возбуждается, если сервис находится в остановленном состоянии, исходя из значения свойства
+    /// <see cref="FiasServiceOptions.Enabled"/> в значении свойства
+    /// <see cref="IControl{FiasServiceOptions, ApplicationEnvironment}.Options"/> параметра <c>control</c>,
+    /// или нет соединения с удаленным сервисом.
+    /// </exception>
+    /// <exception cref="Exception">
+    /// Исключение возбуждается, если бронирование не было найдено или имеет статус <c>NoPost</c>
+    /// </exception>
     public async Task<FiasPostingAnswer> SendPostingAsync(FiasPostingRequest message, int timeoutSeconds = 60)
     {
         if (!control.Options.Enabled)
@@ -83,6 +136,15 @@ internal class FiasService(
             timeoutSeconds, _socketConnection);
     }
 
+    /// <summary>Метод, обрабатывающий изменение опций сервиса.</summary>
+    /// <param name="options">Экземпляр опций сервиса.</param>
+    /// <exception cref="Exception">
+    /// Исключение возбуждается всегда.
+    /// Служит для отправки контроллеру сервисов сообщения о инициализации нового подключения,
+    /// или о том, что сервис находится в остановленном состоянии, исходя из значения свойства
+    /// <see cref="FiasServiceOptions.Enabled"/> в значении свойства
+    /// <see cref="IControl{FiasServiceOptions, ApplicationEnvironment}.Options"/> параметра <c>control</c>
+    /// </exception>
     public Task ChangedOptionsHandleAsync(FiasServiceOptions options)
     {
         new Thread(ConnectAsync).Start(options);
@@ -91,12 +153,28 @@ internal class FiasService(
             : "Service is disabled");
     }
 
+    /// <summary>Метод, обрабатывающий изменение значений переменных окружения.</summary>
+    /// <param name="current">Текущее окружение.</param>
+    /// <param name="previous">Измененное окружение.</param>
     public Task ChangedEnvironmentHandleAsync(ApplicationEnvironment current,
         ApplicationEnvironment previous)
     {
         return Task.CompletedTask;
     }
 
+    /// <summary>Метод отправки сообщений удаленному сервису <c>FIAS</c></summary>
+    /// <typeparam name="T">Тип ожидаемого ответа.</typeparam>
+    /// <param name="message">Тело сообщения.</param>
+    /// <param name="key">Уникальный ключ сообщения.</param>
+    /// <param name="timeout">Время ожидания ответа в секундах.</param>
+    /// <param name="socketConnection">Экземпляр объекта подключения к сокету.</param>
+    /// <returns>Ответное сообщение.</returns>
+    /// <exception cref="TimeoutException">
+    /// Исключение, возбуждаемое, если ответ не был получен за отведенное время.
+    /// </exception>
+    /// <exception cref="KeyNotFoundException">
+    /// Исключение, возбуждаемое, если не было найдено исходное сообщение, на которое пришел ответ.
+    /// </exception>
     private async Task<T> SendAsync<T>(string message, int key, int timeout,
         ISocketConnection socketConnection) where T : class
     {
@@ -119,6 +197,8 @@ internal class FiasService(
         }
     }
 
+    /// <summary>Метод, устанавливающий подключение к удаленному сервису.</summary>
+    /// <param name="fiasOptions">Экземпляр опций сервиса.</param>
     private async void ConnectAsync(object? fiasOptions)
     {
         var options = (FiasServiceOptions)fiasOptions!;
@@ -158,6 +238,9 @@ internal class FiasService(
         await _socketConnection.ConnectAsync();
     }
 
+    /// <summary>Метод, обрабатывающий полученное сообщение.</summary>
+    /// <param name="message">Обрабатываемое сообщение.</param>
+    /// <param name="socketConnection">Экземпляр объекта подключения к сокету.</param>
     private async Task MessageHandleAsync(string message, ISocketConnection socketConnection)
     {
         List<FiasPostingList> fiasPostingList = [];
@@ -200,6 +283,8 @@ internal class FiasService(
         await FiasPostingListHandleAsync(fiasPostingList);
     }
 
+    /// <summary>Метод, отправляющий опции для определения моделей сообщений удаленному сервису.</summary>
+    /// <param name="socketConnection">Экземпляр объекта подключения к сокету.</param>
     private async Task SendOptionsAsync(ISocketConnection socketConnection)
     {
         var linkDescription = new FiasLinkDescription
@@ -221,6 +306,12 @@ internal class FiasService(
         await socketConnection.SendAsync(linkAlive);
     }
 
+    /// <summary>
+    /// Метод, обрабатывающий коллекцию сообщений типа <see cref="FiasPostingList"/><br/>
+    /// Возвращает ответ на сообщения типа <see cref="FiasPostingRequest"/> с указанным свойством
+    /// <see cref="FiasPostingRequest.PostingInquiry"/>
+    /// </summary>
+    /// <param name="messages">Коллекция обрабатываемых сообщений.</param>
     private async Task FiasPostingListHandleAsync(List<FiasPostingList> messages)
     {
         var key = messages[0].PostingSequenceNumber.ToString();
@@ -230,6 +321,12 @@ internal class FiasService(
             await cancellationTokenSource.CancelAsync();
     }
 
+    /// <summary>
+    /// Метод, обрабатывающий сообщение типа <see cref="FiasPostingAnswer"/><br/>
+    /// Возвращает ответ на сообщения типа <see cref="FiasPostingSimple"/> и <see cref="FiasPostingRequest"/>
+    /// с нулевым свойством <see cref="FiasPostingRequest.PostingInquiry"/>
+    /// </summary>
+    /// <param name="message">Обрабатывемое сообщение.</param>
     private async Task FiasPostingAnswerHandleAsync(FiasPostingAnswer message)
     {
         var key = message.PostingSequenceNumber.ToString();

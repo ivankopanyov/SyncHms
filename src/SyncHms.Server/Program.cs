@@ -15,7 +15,7 @@ builder.Services
     .AddEvents(builder, loggerConfiguration)
     .AddDomain(builder)
     .AddIdentity(builder)
-    .AddHostedService<ServiceHandler>();
+    .AddHostedService<ServiceWorker>();
 
 builder.Services
     .AddSerilog(loggerConfiguration.CreateLogger())
@@ -62,7 +62,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors(builder => builder
+app.UseCors(configurePolicy => configurePolicy
     .AllowAnyMethod()
     .AllowAnyHeader()
     .SetIsOriginAllowed(origin => true)

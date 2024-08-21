@@ -15,7 +15,7 @@ global using SyncHms.Identity.Infrastructure.Factories.Implement;
 global using SyncHms.Identity.Repositories.Abstract;
 global using SyncHms.Identity.Repositories.Implement;
 global using SyncHms.Identity.Services.Abstract;
-global using SyncHms.Identity.Services.Hosted;
 global using SyncHms.Identity.Services.Implement;
+global using SyncHms.Identity.Workers;
 global using System.IdentityModel.Tokens.Jwt;
 global using System.Security.Claims;

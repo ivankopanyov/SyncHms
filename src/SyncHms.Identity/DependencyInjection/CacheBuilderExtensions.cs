@@ -1,7 +1,13 @@
 namespace SyncHms.Identity;
 
+/// <summary>
+/// Статический класс, который содержит методы расширения для интерфейса <see cref="ICacheBuilder"/>
+/// </summary>
 public static class CacheBuilderExtensions
 {
+    /// <summary>Метод регистрирует сервисы идентификации пользователей в контейнере зависимостей.</summary>
+    /// <typeparam name="TContext">Тип контекста базы данных.</typeparam>
+    /// <param name="setupAction">Инициализация опций сервиса идентификации.</param>
     public static ICacheBuilder AddIdentity<TContext>(this ICacheBuilder cacheBuilder,
         Action<IdentityOptions>? setupAction = null) where TContext : IdentityContext
     {
@@ -15,7 +21,7 @@ public static class CacheBuilderExtensions
             .AddSingleton<IPostConfigureOptions<JwtBearerOptions>, Infrastructure.JwtBearerPostConfigureOptions>()
             .AddSingleton<IUserIdProvider, UserIdProvider>()
             .AddSingleton<IIdentityContextFactory, IdentityContextFactory<TContext>>()
-            .AddHostedService<InitialService>()
+            .AddHostedService<InitialWorker>()
             .AddDbContext<TContext>();
         
         var identityBuilder = options.SetupAction != null 

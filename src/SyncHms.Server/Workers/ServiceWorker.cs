@@ -1,14 +1,28 @@
-namespace SyncHms.Server.Handlers;
+namespace SyncHms.Server.Workers;
 
-public class ServiceHandler : BackgroundService
+/// <summary>
+/// Класс, описывающий фоновый сервис, отправляющий в шину данных
+/// экземпляры опций сервисов и экземпляр окружения из базы данных.<br/>
+/// Унаследован от класса <see cref="BackgroundService"/>
+/// </summary>
+public class ServiceWorker : BackgroundService
 {
+    /// <summary>Экземпляр фабрики, создающей объекты, реализующие интерфейс <see cref="IServiceScopeFactory"/></summary>
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
+    /// <summary>Экземпляр окружения.</summary>
     private readonly IOptions<ApplicationEnvironment>? _environment;
 
+    /// <summary>Экземпляр контроллера сервисов.</summary>
     private readonly IServiceController<ApplicationEnvironment> _serviceController;
 
-    public ServiceHandler(IServiceScopeFactory serviceScopeFactory, IOptions<ApplicationEnvironment>? environment,
+    /// <summary>Инициализация сервиса.</summary>
+    /// <param name="serviceScopeFactory">
+    /// Экземпляр фабрики, создающей объекты, реализующие интерфейс <see cref="IServiceScopeFactory"/>
+    /// </param>
+    /// <param name="environment">Экземпляр окружения.</param>
+    /// <param name="serviceController">Экземпляр контроллера сервисов.</param>
+    public ServiceWorker(IServiceScopeFactory serviceScopeFactory, IOptions<ApplicationEnvironment>? environment,
         IServiceController<ApplicationEnvironment> serviceController)
     {
         _serviceScopeFactory = serviceScopeFactory;
@@ -18,6 +32,11 @@ public class ServiceHandler : BackgroundService
         _serviceController.ChangedOptionsEvent += async serviceInfo => await HandleAsync(serviceInfo);
     }
 
+    /// <summary>
+    /// Метод, обрабатывающий сообщения типа <see cref="UpdatedServiceInfo"/>,
+    /// отправленные сервисами приложения, хранящие текущее состояние и опции сервиса.
+    /// </summary>
+    /// <param name="serviceInfo">Экземпляр сообщения.</param>
     private async Task HandleAsync(UpdatedServiceInfo serviceInfo)
     {
         using var scope = _serviceScopeFactory.CreateScope();
@@ -65,6 +84,10 @@ public class ServiceHandler : BackgroundService
         }
     }
 
+    /// <summary>
+    /// Метод, переопределяющий базовый метод <see cref="BackgroundService.ExecuteAsync"/><br/>
+    /// Отправляет сервисам приложения экземпляр окружения.
+    /// </summary>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using var scope = _serviceScopeFactory.CreateScope();

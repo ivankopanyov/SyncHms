@@ -1,9 +1,19 @@
 namespace SyncHms.Domain.EntityFramework.Repositories.Implement;
 
+/// <summary>
+/// Класс, описывающий репозиторий для работы с состояниями сервисов.<br/>
+/// Реализует интерфейс <see cref="IServiceRepository"/>
+/// </summary>
+/// <param name="domainContextFactory">
+/// Экземпляр фабрики, создающей контекст подключения к базе данных домена.
+/// </param>
+/// <param name="cache">Экземпляр сервиса кеширования.</param>
 internal class ServiceRepository(IDomainContextFactory domainContextFactory, ICache cache) : IServiceRepository
 {
-    private static readonly SemaphoreSlim _semaphore = new(1);
+    private static readonly SemaphoreSlim Semaphore = new(1);
     
+    /// <summary>Метод, возвращающий информацию о всех сервисах.</summary>
+    /// <returns>Информация о всех сервисах.</returns>
     public async Task<IEnumerable<Service>> GetAllAsync()
     {
         await using var context = domainContextFactory.Create();
@@ -17,6 +27,9 @@ internal class ServiceRepository(IDomainContextFactory domainContextFactory, ICa
         return services;
     }
 
+    /// <summary>Метод, возвращающий информацию о сервисе с указанным именем.</summary>
+    /// <param name="serviceName">Имя сервиса.</param>
+    /// <returns>Информация о сервисе.</returns>
     public async Task<Service?> GetAsync(string serviceName)
     {
         ArgumentNullException.ThrowIfNull(serviceName, nameof(serviceName));
@@ -32,11 +45,20 @@ internal class ServiceRepository(IDomainContextFactory domainContextFactory, ICa
         return service;
     }
 
+    /// <summary>Метод, обновляющий информацию о сервисе.</summary>
+    /// <param name="service">Информация о сервисе.</param>
+    /// <param name="updateOptions">
+    /// Флаг, указывающий, нужно ли обновить опции сервиса в базе данных.<br/>
+    /// Если <c>true</c> - опции будут обновлены.<br/>
+    /// Если <c>false</c> - опции будут обновлены только в случае, если опции отсутствуют в репозитории.<br/>
+    /// Если в передаваемом объекте занчение опций <c>null</c>, они не будет применены к объекту в репозитории.
+    /// </param>
+    /// <returns>Обновленная информация о сервисе.</returns>
     public async Task<Service> UpdateAsync(Service service, bool updateOptions)
     {
         ArgumentNullException.ThrowIfNull(service?.Name, nameof(service.Name));
 
-        await _semaphore.WaitAsync();
+        await Semaphore.WaitAsync();
 
         try
         {
@@ -65,13 +87,16 @@ internal class ServiceRepository(IDomainContextFactory domainContextFactory, ICa
         }
         finally
         {
-            _semaphore.Release();
+            Semaphore.Release();
         }
     }
 
+    /// <summary>Метод, удаляющий информацию о сервисе по его имени.</summary>
+    /// <param name="serviceName">Имя сервиса.</param>
+    /// <returns>Удаленный объект.</returns>
     public async Task<Service?> RemoveAsync(string serviceName)
     {
-        await _semaphore.WaitAsync();
+        await Semaphore.WaitAsync();
         
         try
         {
@@ -90,7 +115,7 @@ internal class ServiceRepository(IDomainContextFactory domainContextFactory, ICa
         }
         finally
         {
-            _semaphore.Release();
+            Semaphore.Release();
         }
     }
 }

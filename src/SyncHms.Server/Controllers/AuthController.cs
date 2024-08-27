@@ -112,8 +112,8 @@ public class AuthController(IIdentityService identityService) : ControllerBase
     {
         var cookieExpiration = token.Expiration.TotalSeconds;
 
-        Response.Headers.Append("Set-Cookie", $"Authorization={token.AccessToken}; Max-Age={cookieExpiration}; Path=/; HttpOnly");
-        Response.Headers.Append("Set-Cookie", $"Refresh={token.RefreshToken}; Max-Age={cookieExpiration}; Path=/api/v1.0/auth/refresh; HttpOnly");
+        Response.Headers.Append("Set-Cookie", $"Authorization={token.AccessToken}; Max-Age={cookieExpiration}; Path=/api/v1.0; HttpOnly");
+        Response.Headers.Append("Set-Cookie", $"Refresh={token.RefreshToken}; Max-Age={cookieExpiration}; Path=/api/v1.0/auth; HttpOnly");
 
         return Ok();
     }
@@ -121,7 +121,7 @@ public class AuthController(IIdentityService identityService) : ControllerBase
     /// <summary>Метод, формирующий заголовки для удаления токена доступа в клиентском приложении.</summary>
     private void RemoveCookie()
     {
-        Response.Headers.Append("Set-Cookie", "Authorization=; Max-Age=-1; Path=/; HttpOnly");
-        Response.Headers.Append("Set-Cookie", "Refresh=; Max-Age=-1; Path=/api/v1.0/auth/refresh; HttpOnly");
+        Response.Headers.Append("Set-Cookie", "Authorization=; Max-Age=-1; Path=/api/v1.0 HttpOnly");
+        Response.Headers.Append("Set-Cookie", "Refresh=; Max-Age=-1; Path=/api/v1.0/auth; HttpOnly");
     }
 }

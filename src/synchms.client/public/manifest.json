@@ -1,6 +1,6 @@
 {
-  "short_name": "Bridge",
-  "name": "Bridge Integration Services",
+  "short_name": "SyncHms",
+  "name": "SyncHms Integration Service",
   "icons": [
     {
       "src": "favicon.ico",

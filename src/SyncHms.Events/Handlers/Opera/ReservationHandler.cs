@@ -1,4 +1,6 @@
-﻿namespace SyncHms.Events.Handlers.Opera;
+﻿using Microsoft.Extensions.Primitives;
+
+namespace SyncHms.Events.Handlers.Opera;
 
 /// <summary>
 /// Класс, описывающий обработчик события <see cref="ReservationInfo"/>,
@@ -40,11 +42,12 @@ internal class ReservationHandler(IOperaService operaService) : Handler<Reservat
     /// <returns>Краткое описание события.</returns>
     protected override string Message(ReservationInfo @in)
     {
-        var result = $"Reservation: {@in.ReservationNumber:0}";
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append($"Reservation: {@in.ReservationNumber:0}");
 
         if (!string.IsNullOrWhiteSpace(@in.Room))
-            result += $", Room: {@in.Room}";
+            stringBuilder.Append($", Room: {@in.Room}");
 
-        return result;
+        return stringBuilder.ToString();
     }
 }

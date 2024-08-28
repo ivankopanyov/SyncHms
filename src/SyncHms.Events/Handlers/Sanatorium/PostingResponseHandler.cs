@@ -1,4 +1,6 @@
-﻿namespace SyncHms.Events.Handlers.Sanatorium;
+﻿using Microsoft.Extensions.Primitives;
+
+namespace SyncHms.Events.Handlers.Sanatorium;
 
 /// <summary>
 /// Класс, описывающий обработчик события <see cref="PostTransactionsResponse"/>,
@@ -38,11 +40,12 @@ internal class PostingResponseHandler(ISanatoriumService sanatoriumService) : Ha
     /// <returns>Краткое описание события.</returns>
     protected override string? Message(PostTransactionsResponse @in)
     {
-        var result = @in.Succeeded ? "Succeeded" : "Error";
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append(@in.Succeeded ? "Succeeded" : "Error");
         
         if (!string.IsNullOrWhiteSpace(@in.ErrorMessage))
-            result += $": {@in.ErrorMessage}";
+            stringBuilder.Append($": {@in.ErrorMessage}");
 
-        return result;
+        return stringBuilder.ToString();
     }
 }

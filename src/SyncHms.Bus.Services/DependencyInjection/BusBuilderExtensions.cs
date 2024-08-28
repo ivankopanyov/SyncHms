@@ -6,10 +6,10 @@ public static class BusBuilderExtensions
     /// <summary>Шаблон логов, выводимых в консоль.</summary>
     private const string OutputConsoleTemplate = 
         "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {"
-        + LoggerExtensions.Service + "} {Message}";
+        + LoggerExtensions.Service + "} {Message}{NewLine}";
 
     /// <summary>Шаблон логов, записываемых в файл.</summary>
-    private const string OutputFileTemplate = OutputConsoleTemplate + "{NewLine}{Exception}";
+    private const string OutputFileTemplate = OutputConsoleTemplate + "{Exception}{NewLine}";
 
     /// <summary>Метод, регистрирующий контроллер сервисов в контейнере зависимостей.</summary>
     /// <param name="setupAction">Инициализация опций сервисов.</param>

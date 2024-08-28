@@ -1,4 +1,6 @@
-﻿namespace SyncHms.Events.Handlers.Fias;
+﻿using Microsoft.Extensions.Primitives;
+
+namespace SyncHms.Events.Handlers.Fias;
 
 /// <summary>
 /// Класс, описывающий обработчик события <see cref="FiasGuestCheckIn"/>,
@@ -49,14 +51,15 @@ internal class CheckInHandler : Handler<FiasGuestCheckIn>
     /// <returns>Краткое описание события.</returns>
     protected override string Message(FiasGuestCheckIn @in)
     {
-        var result = $"Reservation: {@in.ReservationNumber}";
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append($"Reservation: {@in.ReservationNumber}");
 
         if (!string.IsNullOrWhiteSpace(@in.RoomNumber))
-            result += $", Room: {@in.RoomNumber}";
+            stringBuilder.Append($", Room: {@in.RoomNumber}");
 
         if (!string.IsNullOrWhiteSpace(@in.GuestName))
-            result += $" {@in.GuestName}";
+            stringBuilder.Append($" {@in.GuestName}");
 
-        return result;
+        return stringBuilder.ToString();
     }
 }

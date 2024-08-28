@@ -1,4 +1,6 @@
-﻿namespace SyncHms.Events.Handlers.Sanatorium;
+﻿using Microsoft.Extensions.Primitives;
+
+namespace SyncHms.Events.Handlers.Sanatorium;
 
 /// <summary>
 /// Класс, описывающий обработчик события <see cref="ReservationUpdatedMessage"/>,
@@ -28,33 +30,32 @@ internal class UpdateReservationHandler(ISanatoriumService sanatoriumService) : 
     /// <returns>Краткое описание события.</returns>
     protected override string? Message(ReservationUpdatedMessage @in)
     {
-        string? result = null;
-
+        var stringBuilder = new StringBuilder();
         if (@in.ReservationGuests?.FirstOrDefault() is { } guest)
         {
             if (!string.IsNullOrEmpty(guest.Id))
-                result = $"Id: {guest.Id}, {string.Join(' ', guest.LastName, guest.FirstName, guest.MiddleName)}";
+                stringBuilder.Append($"Id: {guest.Id}, {string.Join(' ', guest.LastName, guest.FirstName, guest.MiddleName)}");
         }
 
         if (@in.CurrentTimeline is { } timeline)
         {
             if (!string.IsNullOrEmpty(timeline.RoomCode))
             {
-                if (result == null)
-                    result = $"Room: {timeline.RoomCode}";
-                else 
-                    result += $", Room: {timeline.RoomCode}";
+                if (stringBuilder.Length > 0)
+                    stringBuilder.Append(", ");
+
+                stringBuilder.Append($"Room: {timeline.RoomCode}");
             }
 
             if (!string.IsNullOrEmpty(timeline.RateCode))
             {
-                if (result == null)
-                    result = $"Rate: {timeline.RateCode}";
-                else
-                    result += $", Rate: {timeline.RateCode}";
+                if (stringBuilder.Length > 0)
+                    stringBuilder.Append(", ");
+
+                stringBuilder.Append($"Rate: {timeline.RateCode}");
             }
         }
 
-        return result;
+        return stringBuilder.ToString();
     }
 }

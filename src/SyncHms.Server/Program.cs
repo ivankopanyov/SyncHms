@@ -1,8 +1,11 @@
+const string outputConsoleTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message}{NewLine}";
+const string outputFileTemplate = outputConsoleTemplate + "{Exception}{NewLine}";
+
 var builder = WebApplication.CreateBuilder(args);
 
 var loggerConfiguration = new LoggerConfiguration()
-    .WriteTo.Console()
-    .WriteTo.File("logs/all_logs_.log", rollingInterval: RollingInterval.Day);
+    .WriteTo.Console(outputTemplate: outputConsoleTemplate)
+    .WriteTo.File("logs/all_logs_.log", outputTemplate: outputFileTemplate, rollingInterval: RollingInterval.Day);
 
 builder.Services
     .AddCors()

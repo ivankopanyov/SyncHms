@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Primitives;
+
 namespace SyncHms.Events.Handlers.Fias;
 
 /// <summary>
@@ -75,14 +77,15 @@ internal class FiasPostingRequestHandler(IFiasService fiasService,
     /// <returns>Краткое описание события.</returns>
     protected override string? Message(FiasPostRequest @in)
     {
-        var result = $"Reservation: {@in.ReservationNumber}";
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append($"Reservation: {@in.ReservationNumber}");
 
         if (!string.IsNullOrEmpty(@in.RoomNumber))
-            result += $", Room: {@in.RoomNumber}";
+            stringBuilder.Append($", Room: {@in.RoomNumber}");
 
         if (@in.ProfileNumber != null)
-            result += $", Profile: {@in.ProfileNumber}";
+            stringBuilder.Append($", Profile: {@in.ProfileNumber}");
 
-        return result;
+        return stringBuilder.ToString();
     }
 }

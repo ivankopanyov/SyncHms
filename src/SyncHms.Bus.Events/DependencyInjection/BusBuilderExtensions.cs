@@ -7,10 +7,10 @@ public static class BusBuilderExtensions
     private const string OutputConsoleTemplate = 
         "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {"
         + Extensions.LoggerExtensions.Queue + "} {" + Extensions.LoggerExtensions.Handler + "} {"
-        + Extensions.LoggerExtensions.Task + "} {Message}";
+        + Extensions.LoggerExtensions.Task + "} {Message}{NewLine}";
 
     /// <summary>Шаблон логов, записываемых в файл.</summary>
-    private const string OutputFileTemplate = OutputConsoleTemplate + "{NewLine}{Exception}";
+    private const string OutputFileTemplate = OutputConsoleTemplate + "{Exception}{NewLine}";
     
     /// <summary>Метод, регистрирующий сервисы обработки событий из шины данных.</summary>
     /// <param name="options">Инициализация опций обработчиков событий.</param>

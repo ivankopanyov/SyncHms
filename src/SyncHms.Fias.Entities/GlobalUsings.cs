@@ -1,0 +1,12 @@
+﻿global using AutoMapper;
+global using Newtonsoft.Json;
+global using Newtonsoft.Json.Converters;
+global using SyncHms.Fias.Entities.Attributes;
+global using SyncHms.Fias.Entities.Base;
+global using SyncHms.Fias.Entities.Json.Converters;
+global using SyncHms.Fias.Entities.Json.Writers;
+global using SyncHms.Fias.Entities.Services.Mapping;
+global using System.ComponentModel.DataAnnotations;
+global using System.Globalization;
+global using System.Reflection;
+global using System.Runtime.Serialization;

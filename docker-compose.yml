@@ -1,0 +1,11 @@
+﻿services:
+  synchms:
+    image: synchms
+    build:
+      context: .
+      dockerfile: src/SyncHms.Server/Dockerfile
+    ports:
+      - 8080:8080
+    volumes:
+      - ./data:/synchms/data
+      - ./logs:/synchms/logs

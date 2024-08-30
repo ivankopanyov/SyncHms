@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SyncHms.Bus.Events\SyncHms.Bus.Events.csproj" />
+      <ProjectReference Include="..\SyncHms.Services\SyncHms.Services.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Handlers\Fiscal\" />
+      <Folder Include="Handlers\Telegram\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="SyncHms.Events.UnitTests" />
+    </ItemGroup>
+
+</Project>

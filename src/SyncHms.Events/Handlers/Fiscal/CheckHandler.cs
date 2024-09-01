@@ -48,7 +48,9 @@ internal class CheckHandler(IFiscalService fiscalService) : Handler<Check>
             context.Send(new PostTransactionsResponse(@in.CorrelationId)
             {
                 Succeeded = response.SetCheckResult.success,
-                ErrorMessage = response.SetCheckResult.errtext
+                ErrorMessage = response.SetCheckResult.success
+                    ? Message(@in)
+                    : response.SetCheckResult.errtext
             });
         }
         catch (Exception ex)
@@ -68,5 +70,5 @@ internal class CheckHandler(IFiscalService fiscalService) : Handler<Check>
     /// <param name="in">Экземпляр обрабатываемого события.</param>
     /// <returns>Краткое описание события.</returns>
     protected override string Message(Check @in) =>
-        $"CheckNumber: {@in.CheckNumber}, Date: {@in.DateTime:dd.MM.yyyy HH:mm:ss}, Total: {@in.Total}";
+        $"CheckNumber: {@in.CheckNumber}, Date: {@in.DateTime:dd.MM.yyyy HH:mm:ss}, Total: {@in.Details?.Select(i => i.Total).Sum():0.00}";
 }

@@ -77,5 +77,5 @@ internal class FiasPostingSimpleHandler(IFiasService fiasService,
     /// <param name="in">Экземпляр обрабатываемого события.</param>
     /// <returns>Краткое описание события.</returns>
     protected override string Message(FiasPostSimple @in) =>
-        $"CheckNumber: {@in.CheckNumber}, Total: {@in.Total / 100:#.##}, PaymentMethod: {@in.PmsPaymentMethod}";
+        $"CheckNumber: {@in.CheckNumber}, Total: {@in.Total / 100:0.00}, PaymentMethod: {@in.PmsPaymentMethod}";
 }

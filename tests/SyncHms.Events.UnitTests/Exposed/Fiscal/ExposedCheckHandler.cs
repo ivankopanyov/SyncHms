@@ -6,4 +6,9 @@ internal class ExposedCheckHandler(IFiscalService fiscalService) : CheckHandler(
     {
         return base.HandleAsync(@in, context);
     }
+
+    public string? ExposedMessage(Check @in)
+    {
+        return base.Message(@in);
+    }
 }

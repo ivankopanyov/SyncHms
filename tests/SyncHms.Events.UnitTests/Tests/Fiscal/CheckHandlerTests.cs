@@ -9,13 +9,14 @@ public class CheckHandlerTests : PostTransactionsResponseHandlerTestsBase
         var fiscalService = GetFiscalService(true);
         var handler = new ExposedCheckHandler(fiscalService);
         var correlationId = default(int).ToString();
-        await handler.ExposedHandleAsync(new Check
+        var check = new Check
         {
             CorrelationId = correlationId,
             Details = []
-        }, context);
-        
-        CheckPostTransactionsResponse(true, correlationId, context);
+        };
+
+        await handler.ExposedHandleAsync(check, context);
+        CheckPostTransactionsResponse(true, correlationId, context, handler.ExposedMessage(check));
     }
     
     [Fact]

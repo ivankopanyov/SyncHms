@@ -7,5 +7,5 @@
     ports:
       - 8080:8080
     volumes:
-      - ./data:/synchms/data
-      - ./logs:/synchms/logs
+      - ./data:/synchms/data:rw
+      - ./logs:/synchms/logs:rw

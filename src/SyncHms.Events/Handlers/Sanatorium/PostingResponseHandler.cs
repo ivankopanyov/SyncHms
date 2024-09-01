@@ -21,6 +21,9 @@ internal class PostingResponseHandler(ISanatoriumService sanatoriumService) : Ha
     {
         try
         {
+            if (@in.Succeeded)
+                @in.ErrorMessage = null;
+            
             await sanatoriumService.SendPostTransactionsResponseAsync(@in);
 
             if (!@in.Succeeded)

@@ -148,7 +148,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                                                       RoomTypeCode = (from rrc in context.ResortRoomCategories
                                                                                       where rrc.Resort == rde.Resort && rrc.RoomCategory == rde.RoomCategory
                                                                                       select rrc.Label).FirstOrDefault(),
-                                                                      RateName = rden.RateCode,
+                                                                      rden.RateCode,
                                                                       RoomCode = rde.Room,
                                                                       Packages = (from rp in context.ReservationProducts
                                                                                   from rpp in context.ReservationProductPrices
@@ -272,7 +272,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                             EffectiveDate = t.EffectiveDate,
                             StayPriceLocalCurrencyAmount = t.StayPriceLocalCurrencyAmount,
                             RoomTypeCode = t.RoomTypeCode,
-                            RateName = t.RateName,
+                            RateCode = t.RateCode,
                             RoomCode = t.RoomCode,
                             Packages = t.Packages.Select(p => new Package
                             {

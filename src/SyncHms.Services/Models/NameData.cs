@@ -10,13 +10,13 @@ public class NameData
     /// Дата рождения.<br/>
     /// Результат вызова процедуры <c>hrs_dev.hrs_sh_sens.dob</c>
     /// </summary>
-    public string BirthDay { get; set; }
+    public string? BirthDay { get; set; }
 
     /// <summary>
     /// Номер паспорта.<br/>
     /// Результат вызова процедуры <c>hrs_dev.hrs_sh_sens.pass_id</c>
     /// </summary>
-    public string PassId { get; set; }
+    public string? PassId { get; set; }
 
     /// <summary>
     /// Метод, описывающий логику построения модели.<br/>

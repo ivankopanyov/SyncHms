@@ -187,7 +187,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                 if (reservationResponse != null)
                 {
                     var nameInfo = await context.NameData
-                        .FromSqlRaw(string.Format(NameDataQuery, reservationResponse.Id))
+                        .FromSqlRaw(string.Format(NameDataQuery, reservationResponse.GuestGenericNo))
                         .FirstOrDefaultAsync();
 
                     var notes = GetNote(reservationResponse.Timelines.SelectMany(t => t.Packages).Select(p => p.Code).ToHashSet(), noPost);
@@ -224,6 +224,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                 City = reservationResponse.Address?.City,
                                 Street = reservationResponse.Address?.Street,
                                 Notes = notes,
+                                NoPost = noPost ?? false,
                                 Phones = reservationResponse.Phones.Select(p => new GuestPhone
                                 {
                                     PhoneNumber = p.PhoneNumber,

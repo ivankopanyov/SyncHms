@@ -94,10 +94,22 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                 inputObjectJson = ex.Message;
             }
         }
+        
+        var context = new EventContext();
+        string? message;
 
         try
         {
-            var context = new EventContext();
+            message = handler.Message(@event.Message);
+        }
+        catch (Exception ex)
+        {
+            message = null;
+            _logger?.LogError(ex, ex.Message);
+        }
+
+        try
+        {
             await handler.ProcessHandleAsync(@event.Message, context);
 
             if (_useLogging)
@@ -107,7 +119,7 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                     TaskId = @event.TaskId,
                     TaskName = @event.TaskName,
                     HandlerName = _handlerName,
-                    Message = handler.Message(@event.Message),
+                    Message = message,
                     IsEnd = !context.Events.Any(),
                     InputObjectJson = inputObjectJson
                 });
@@ -129,7 +141,7 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                     TaskId = @event.TaskId,
                     TaskName = @event.TaskName,
                     HandlerName = _handlerName,
-                    Message = handler.Message(@event.Message),
+                    Message = message,
                     IsEnd = true,
                     Error = ex.Message,
                     StackTrace = ex.StackTrace,
@@ -151,7 +163,7 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                         TaskName = @event.TaskName,
                         HandlerName = _handlerName,
                         TaskId = @event.TaskId,
-                        Message = handler.Message(@event.Message),
+                        Message = message,
                         Error = @event.Error,
                         StackTrace = @event.StackTrace,
                         InputObjectJson = inputObjectJson

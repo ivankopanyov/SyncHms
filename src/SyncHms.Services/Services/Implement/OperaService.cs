@@ -224,6 +224,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                 City = reservationResponse.Address?.City,
                                 Street = reservationResponse.Address?.Street,
                                 Notes = notes,
+                                NoPost = noPost ?? false,
                                 Phones = reservationResponse.Phones.Select(p => new GuestPhone
                                 {
                                     PhoneNumber = p.PhoneNumber,

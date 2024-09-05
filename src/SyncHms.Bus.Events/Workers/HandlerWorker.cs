@@ -189,10 +189,17 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
 
         _logger?.LogEvent(eventLog, ex);
 
-        await _provider.PublishAsync(new Event<EventLog>
+        try
         {
-            Message = eventLog
-        });
+            await _provider.PublishAsync(new Event<EventLog>
+            {
+                Message = eventLog
+            });
+        }
+        catch (Exception e)
+        {
+            _logger?.LogError(e, e.Message);
+        }
     }
 
     protected sealed override Task ExecuteAsync(CancellationToken stoppingToken) => Task.CompletedTask;

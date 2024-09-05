@@ -65,6 +65,7 @@ internal class RoomNumberHandler(IOperaService operaService) : Handler<RoomNumbe
                 ReservationNumber = (long)reservation,
                 ProfileNumber = profileNumber,
                 RoomNumber = room,
+                CheckNumber = @in.CheckNumber,
                 Checks = @in.Checks
             });
         }

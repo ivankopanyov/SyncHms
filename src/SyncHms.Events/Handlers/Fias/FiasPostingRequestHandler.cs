@@ -56,6 +56,7 @@ internal class FiasPostingRequestHandler(IFiasService fiasService,
                     DateTime = dateTime,
                     Total = total.ToString(),
                     CheckNumber = checkNumber,
+                    ExternalCheckNumber = @in.CheckNumber,
                     Details = @in.Checks.SelectMany(c => c)
                 });
         }

@@ -12,6 +12,9 @@ internal class RoomNumberRequest
     /// <summary>Идентификатор фолио.</summary>
     public string? FolioGenericNo { get; set; }
     
+    /// <summary>Номер чека.</summary>
+    public string CheckNumber { get; set; }
+
     /// <summary>Позиции в чеке платежа.</summary>
     public IEnumerable<IEnumerable<FiscalCheckItem>> Checks { get; set; }
 }

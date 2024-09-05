@@ -71,6 +71,7 @@ internal class PostingRequestHandler(ISanatoriumService sanatoriumService) : Han
                     CorrelationId = @in.CorrelationId,
                     ReservationGuestId = @in.ReservationGuestId,
                     FolioGenericNo = @in.FolioGenericNo,
+                    CheckNumber = @in.Transactions?.FirstOrDefault()?.Name ?? string.Empty,
                     Checks = checks
                 });
             }

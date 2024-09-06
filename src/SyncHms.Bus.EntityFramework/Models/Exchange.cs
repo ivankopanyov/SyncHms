@@ -82,7 +82,10 @@ internal class Exchange<T>(IBusContextFactory busContextFactory,
         logger.LogInformation($"{typeof(T).Name}: {json}");
         Dictionary<string, Queue<T>> queues = [];
         foreach (var queue in _queues)
-            queues.TryAdd(await queue.PublishAsync(json), queue);
+        {
+            if (await queue.PublishAsync(json) is { } id)
+                queues.TryAdd(id, queue);
+        }
 
         return queues;
     }

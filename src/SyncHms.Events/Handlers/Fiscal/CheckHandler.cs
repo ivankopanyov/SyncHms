@@ -70,5 +70,5 @@ internal class CheckHandler(IFiscalService fiscalService) : Handler<Check>
     /// <param name="in">Экземпляр обрабатываемого события.</param>
     /// <returns>Краткое описание события.</returns>
     protected override string Message(Check @in) =>
-        $"CheckNumber: {@in.CheckNumber}, Date: {@in.DateTime:dd.MM.yyyy HH:mm:ss}, Total: {@in.Details?.Select(i => i.Total).Sum():0.00}";
+        $"CheckNumber: {@in.ExternalCheckNumber} ({@in.CheckNumber}), Date: {@in.DateTime:dd.MM.yyyy HH:mm:ss}, Total: {@in.Details?.Select(i => i.Total).Sum():0.00}";
 }

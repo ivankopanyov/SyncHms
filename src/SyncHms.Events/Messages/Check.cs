@@ -15,6 +15,9 @@ internal class Check
     /// <summary>Номер чека.</summary>
     public int CheckNumber { get; set; }
     
+    /// <summary>Внешний номер чека.</summary>
+    public string ExternalCheckNumber { get; set; }
+
     /// <summary>Позиции в чеке.</summary>
     public IEnumerable<FiscalCheckItem> Details { get; set; }
 }

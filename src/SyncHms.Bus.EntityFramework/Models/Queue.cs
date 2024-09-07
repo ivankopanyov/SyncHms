@@ -28,8 +28,11 @@ internal abstract class Queue<TExchange> : BusEntity
 
     /// <summary>Абстрактный метод, публикующий сообщения в очереди.</summary>
     /// <param name="json">Тело сообщения в формате <c>JSON</c>.</param>
-    /// <returns>Идентификатор опубликованного сообщения.</returns>
-    public abstract Task<string> PublishAsync(string json);
+    /// <returns>
+    /// Идентификатор опубликованного сообщения.<br/>
+    /// Если сообщение не было опубликовано - вернет <c>null</c>
+    /// </returns>
+    public abstract Task<string?> PublishAsync(string json);
 
     /// <summary>Абстрактный метод, вызывающий метод обработки сообщения.</summary>
     /// <param name="messageId">Идентификатор сообщения, которое должно быть обработано.</param>
@@ -51,6 +54,12 @@ internal class Queue<TExchange, T>(IBusContextFactory busContextFactory,
     EntityFrameworkBusOptions options, Func<TExchange, IMessageContext, Task> handleMessage,
     ILogger logger) : Queue<TExchange>
 {
+    /// <summary>Колличество попыток публикации события в очередь.</summary>
+    private const int MaxTryRequest = 5;
+    
+    /// <summary>Время задержки в миллисекундах перед повторной попыткой запроса в случае неудачи.</summary>
+    private const int MillisecondsDelay = 1000;
+    
     /// <summary>
     /// Имя очереди сообщений.<br/>
     /// Определяется вызовом метода <see cref="BusEntity.GetName"/> с параметром <see cref="T"/>
@@ -59,8 +68,11 @@ internal class Queue<TExchange, T>(IBusContextFactory busContextFactory,
 
     /// <summary>Абстрактный метод, публикующий сообщения в очереди.</summary>
     /// <param name="json">Тело сообщения в формате <c>JSON</c>.</param>
-    /// <returns>Идентификатор опубликованного сообщения.</returns>
-    public override async Task<string> PublishAsync(string json)
+    /// <returns>
+    /// Идентификатор опубликованного сообщения.<br/>
+    /// Если сообщение не было опубликовано - вернет <c>null</c>
+    /// </returns>
+    public override async Task<string?> PublishAsync(string json)
     {
         var entity = new Message
         {
@@ -69,10 +81,23 @@ internal class Queue<TExchange, T>(IBusContextFactory busContextFactory,
             QueueName = Name
         };
 
-        await using (var context = busContextFactory.Create())
+        for (var i = 1; i <= MaxTryRequest; i++)
         {
-            await context.Messages.AddAsync(entity);
-            await context.SaveChangesAsync();
+            try
+            {
+                await using var context = busContextFactory.Create();
+                await context.Messages.AddAsync(entity);
+                await context.SaveChangesAsync();
+                break;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Try #{i}: {ex.Message}");
+                if (i == MaxTryRequest)
+                    return null;
+                
+                await Task.Delay(MillisecondsDelay);
+            }
         }
 
         return entity.Id;

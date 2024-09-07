@@ -31,10 +31,23 @@ internal class PostingRequestHandler(ISanatoriumService sanatoriumService) : Han
                 return Task.CompletedTask;
             }
 
+            var items = @in.Transactions.SelectMany(i => i.Items);
+            var codes = sanatoriumService.Environment.TaxCodes.Keys.ToArray();
+            
+            if (items.FirstOrDefault(i => !string.IsNullOrEmpty(i.ServiceItemCode) && !codes.Contains(i.ServiceItemCode)) is { } item)
+            {
+                context.Send(new PostTransactionsResponse(@in.CorrelationId)
+                {
+                    Succeeded = false,
+                    ErrorMessage = $"{item.Name} uses unsupported External ID {item.ServiceItemCode}."
+                });
+
+                return Task.CompletedTask;
+            }
+
             var number = 0;
             var checks = sanatoriumService.Environment.TaxCodes
-                .Select(item => @in.Transactions
-                    .SelectMany(t => t.Items)
+                .Select(item => items
                     .Where(i => i.ServiceItemCode == item.Key)
                     .Select(i => new FiscalCheckItem
                     {
@@ -46,6 +59,18 @@ internal class PostingRequestHandler(ISanatoriumService sanatoriumService) : Han
                         Tax = (byte)(item.Value ? 128 : 0),
                         TaxPosting = (int)i.ItemKind
                     }));
+            
+            
+            if (!checks.Any(c => c.Any()))
+            {
+                context.Send(new PostTransactionsResponse(@in.CorrelationId)
+                {
+                    Succeeded = false,
+                    ErrorMessage = "External ID is required."
+                });
+
+                return Task.CompletedTask;
+            }
             
             var payments = @in.Transactions
                 .Where(t => t.Items.Length > 0 && t.Items.Any(i => string.IsNullOrEmpty(i.ServiceItemCode)))
@@ -71,6 +96,7 @@ internal class PostingRequestHandler(ISanatoriumService sanatoriumService) : Han
                     CorrelationId = @in.CorrelationId,
                     ReservationGuestId = @in.ReservationGuestId,
                     FolioGenericNo = @in.FolioGenericNo,
+                    CheckNumber = @in.Transactions?.FirstOrDefault()?.Name ?? string.Empty,
                     Checks = checks
                 });
             }

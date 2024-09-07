@@ -1,0 +1,32 @@
+name: Docker Image Latest
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
+    - name: Build and Push the Docker image
+      run: |
+        TAG=$((echo $GITHUB_REF_NAME | awk -F 'v' '{print $2}') | awk -F '.' '{printf "%s.%s", $1, $2}')
+        docker build . -f src/SyncHms.Server/Dockerfile -t ivankopanyov/synchms:${TAG}
+        docker image tag ivankopanyov/synchms:${TAG} ivankopanyov/synchms:latest
+        docker push ivankopanyov/synchms:${TAG}
+        docker push ivankopanyov/synchms:latest

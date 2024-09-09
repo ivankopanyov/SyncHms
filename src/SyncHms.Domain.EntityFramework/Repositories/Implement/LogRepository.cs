@@ -112,7 +112,7 @@ internal class LogRepository(IDomainContextFactory domainContextFactory) : ILogR
 
         if (isPattern)
             stringBuilder
-                .Append($" WHERE InputObjectJson LIKE '%")
+                .Append(" WHERE InputObjectJson LIKE '%")
                 .Append(pattern)
                 .Append("%'");
 

@@ -1,5 +1,5 @@
 export const SERVER_HOST = import.meta.env.MODE === "development"
-    ? "http://localhost:5137" : window.location.origin;
+    ? "http://localhost:8080" : window.location.origin;
 
 export const NAME_MIN = 4;
 

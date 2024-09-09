@@ -9,7 +9,7 @@ var loggerConfiguration = new LoggerConfiguration()
 
 builder.Services
     .AddCors()
-    .AddSignalR();
+    .AddSignalR().AddNewtonsoftJsonProtocol();
 
 builder.Services
     .AddBus(builder)

@@ -13,7 +13,7 @@ public class EventLog
     public string? HandlerName { get; set; }
 
     /// <summary>Дата и время публикации события.</summary>
-    public DateTime DateTime { get; set; } = DateTime.Now.Trim(TimeSpan.TicksPerMillisecond);
+    public DateTime DateTime { get; set; } = DateTime.Now.ToUniversalTime().Trim(TimeSpan.TicksPerMillisecond);
 
     /// <summary>Свойство, указывающее, было ли завершено выполнение задачи.</summary>
     public bool IsEnd { get; set; }

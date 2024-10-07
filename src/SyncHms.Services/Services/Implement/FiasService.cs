@@ -104,7 +104,7 @@ internal class FiasService(
             DateTime = message.DateTime,
             PmsPaymentMethod = "ROOM",
             WorkStationId = "1",
-            MaximumGuests = 1,
+            MaximumGuests = 10,
             UserId = "0"
         };
 

@@ -8,3 +8,4 @@ global using SyncHms.Domain.EntityFramework.Infrastructure;
 global using SyncHms.Domain.EntityFramework.Infrastructure.Factories.Abstract;
 global using SyncHms.Domain.EntityFramework.Infrastructure.Factories.Implement;
 global using SyncHms.Domain.EntityFramework.Models;
+global using System.Text;

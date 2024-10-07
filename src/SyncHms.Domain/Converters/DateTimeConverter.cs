@@ -8,7 +8,7 @@ internal class DateTimeConverter : IsoDateTimeConverter
 {
     /// <summary>
     /// Инициализация конвертера.
-    /// Задает свойству <see cref="DateTimeConverter.DateTimeFormat"/> занчение <c>yyyy-MM-ddTHH:mm:ss.fffzzz</c>
+    /// Задает свойству <see cref="DateTimeConverter.DateTimeFormat"/> значение <c>yyyy-MM-ddTHH:mm:ss.fffZ</c>
     /// </summary>
-    public DateTimeConverter() => DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffzzz";
+    public DateTimeConverter() => DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
 }

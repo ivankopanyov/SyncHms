@@ -24,7 +24,7 @@ internal class ReservationHandler(IOperaService operaService) : Handler<Reservat
         ArgumentException.ThrowIfNullOrWhiteSpace(operaService.Environment.ResortCode, nameof(operaService.Environment.ResortCode));
 
         if (await operaService.GetReservationUpdatedMessageAsync(@in.ReservationNumber, @in.Status, @in.Room,
-                @in.ArrivalDate ?? default, @in.DepartureDate ?? default, @in.NoPost) is { } reservationResponse)
+                @in.ArrivalDate, @in.DepartureDate, @in.NoPost) is { } reservationResponse)
         {
             context.Send(reservationResponse);
         }

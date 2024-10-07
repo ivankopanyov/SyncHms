@@ -96,7 +96,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
     /// </param>
     /// <returns>Данные бронирования.</returns>
     public async Task<ReservationUpdatedMessage?> GetReservationUpdatedMessageAsync(decimal reservationId, string status,
-        string? room, DateTime arrival, DateTime departure, bool? noPost)
+        string? room, DateTime? arrival, DateTime? departure, bool? noPost)
     {
         ReservationUpdatedMessage? message = null;
 
@@ -121,6 +121,10 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                                      BirthDateStr = string.Empty,
                                                      BirthDate = DateTime.Now,
                                                      //Notes = 
+                                                     rn.ArrivalDateTime,
+                                                     rn.DepartureDateTime,
+                                                     rn.ActualCheckInDate,
+                                                     rn.ActualCheckOutDate,
                                                      rn.TruncBeginDate,
                                                      rn.TruncEndDate,
                                                      DocumentTypeCode = (from nd in context.NameDocuments
@@ -201,12 +205,15 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                             }]
                         : null;
 
+                    var arrivalDate = arrival ?? reservationResponse.ArrivalDateTime ?? reservationResponse.ActualCheckInDate ?? default;
+                    var departureDate = departure ?? reservationResponse.DepartureDateTime ?? reservationResponse.ActualCheckOutDate ?? default;
+
                     message = new ReservationUpdatedMessage()
                     {
                         GenericNo = reservationId.ToString("0"),
                         Status = status,
-                        ArrivalDate = arrival,
-                        DepartureDate = departure,
+                        ArrivalDate = arrivalDate,
+                        DepartureDate = departureDate,
                         CustomFieldValues = customFields!,
                         ReservationGuests =
                         [
@@ -251,10 +258,10 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                         {
                             DateRange = new DateRange
                             {
-                                DateTimeFrom = arrival,
-                                DateTimeTo = departure
+                                DateTimeFrom = arrivalDate,
+                                DateTimeTo = departureDate
                             },
-                            EffectiveDate = arrival,
+                            EffectiveDate = arrivalDate,
                             RoomCode = room
                         };
 

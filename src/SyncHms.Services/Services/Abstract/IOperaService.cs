@@ -23,5 +23,5 @@ public interface IOperaService : IService<OperaOptions, ApplicationEnvironment>
     /// </param>
     /// <returns>Данные бронирования.</returns>
     Task<ReservationUpdatedMessage?> GetReservationUpdatedMessageAsync(decimal reservationId, string status,
-        string room, DateTime arrival, DateTime departure, bool? noPost);
+        string room, DateTime? arrival, DateTime? departure, bool? noPost);
 }

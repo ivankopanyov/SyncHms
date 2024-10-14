@@ -26,6 +26,11 @@ public class ApplicationEnvironment
     [Description("Сихронизировать платежные начисления с MICROS.")]
     public bool SyncPostingMicros { get; set; }
 
+    /// <summary>Номер следующего чека в системе <c>MICROS</c>.</summary>
+    [Description("Номер следующего чека в системе MICROS.\nЗначение в диапазоне от 1 до 9999 включительно.")]
+    [Range(1, 9999)]
+    public int NextMicrosCheckNumber { get; set; } = 1;
+
     /// <summary>
     /// Имя кастомного поля сервиса Sanatorium, значение которого отображается в комментарии к истории болезни.
     /// </summary>

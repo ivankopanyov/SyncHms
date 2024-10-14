@@ -3,11 +3,19 @@ namespace SyncHms.Events.UnitTests.Tests.Base;
 public abstract class PostTransactionsResponseHandlerTestsBase
 {
     private protected static void CheckPostTransactionsResponse(bool succeeded, string correlationId,
-        MockEventContext context, string? errorMessage = null)
+        MockEventContext context, int sendCount, string? errorMessage = null)
     {
-        Assert.Single(context.SendMessages);
+        Assert.Equal(sendCount, context.SendMessages.Count);
         Assert.Empty(context.Breaks);
-        Assert.Equivalent(context.SendMessages[0], new PostTransactionsResponse(correlationId)
+
+        int index = 0;
+        if (sendCount == 2)
+        {
+            Assert.IsType<ApplicationEnvironment>(context.SendMessages[0]);
+            index = 1;
+        }
+
+        Assert.Equivalent(context.SendMessages[index], new PostTransactionsResponse(correlationId)
         {
             Succeeded = succeeded,
             ErrorMessage = errorMessage

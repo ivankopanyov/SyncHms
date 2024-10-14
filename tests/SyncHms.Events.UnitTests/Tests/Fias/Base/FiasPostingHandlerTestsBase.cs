@@ -4,9 +4,10 @@ public abstract class FiasPostingHandlerTestsBase : PostTransactionsResponseHand
 {
     private protected static void CheckType(MockEventContext context)
     {
-        Assert.Single(context.SendMessages);
+        Assert.Equal(2, context.SendMessages.Count);
         Assert.Empty(context.Breaks);
-        Assert.IsType<Check>(context.SendMessages[0]);
+        Assert.IsType<ApplicationEnvironment>(context.SendMessages[0]);
+        Assert.IsType<Check>(context.SendMessages[1]);
     }
     
     private protected static IFiasService GetFiasService(bool syncPostingMicros, FiasAnswerStatuses status)
@@ -16,7 +17,8 @@ public abstract class FiasPostingHandlerTestsBase : PostTransactionsResponseHand
         fiasService.SetupGet(fs => fs.Environment).Returns(new ApplicationEnvironment
         {
             SyncPostingMicros = syncPostingMicros,
-            Rvc = 99
+            Rvc = 99,
+            NextMicrosCheckNumber = default
         });
 
         var answer = new FiasPostingAnswer

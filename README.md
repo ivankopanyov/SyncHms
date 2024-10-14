@@ -211,6 +211,7 @@ Cервис интеграции систем [OPERA Hotel Property Management S
 	+ `Rvc` *(int)* - Номер кассира, указанный в чека платежа.<br/>*По умолчанию* `0`.
 	+ `SyncPostingOpera` *(bool)* - Флаг, указывающий, нужно ли синхронизировать платежи с системой OPERA.<br/>*По умолчанию* `false`.
 	+ `SyncPostingMicros` *(bool)* - Флаг, указывающий, нужно ли синхронизировать платежи с системой MICROS.<br/>*Если* `SyncPostingOpera` *равен* `false` *- значение переменной будет проигнорировано.*<br/>*По умолчанию* `false`.
+	+ `NextMicrosCheckNumber` *(int)* - Номер следующего чека в системе MICROS.<br/>*Значение в диапазоне от 1 до 9999 включительно.*<br/>*По умолчанию* `1`.
 	+ `SanatoriumCustomField` *(string)* - Имя кастомного поля в системе Sanatorium, в котором будет сохранен переданный комментарий.<br/>*По умолчанию* `пустая строка`.
 	+ `TrxCodes` *(ISet\<string>)* - Коды пакетов в системе OPERA, которые должны быть синхронизированы с системой Sanatorium.<br/>*Пакеты в системе Sanatorium долнжы иметь соответствующее значение поля* `ExternalId`*.*<br/>*По умолчанию* `пустой список`.
 	+ `TaxCodes` *(IDictionary<string, bool>)* - Платежные коды.<br/>*По умолчанию* `пустой список`.
@@ -223,6 +224,7 @@ Cервис интеграции систем [OPERA Hotel Property Management S
   "Rvc": 99,
   "SyncPostingOpera": true,
   "SyncPostingMicros": true,
+  "NextMicrosCheckNumber": 1,
   "SanatoriumCustomField": "",
   "TrxCodes": [
     "CODE_1",

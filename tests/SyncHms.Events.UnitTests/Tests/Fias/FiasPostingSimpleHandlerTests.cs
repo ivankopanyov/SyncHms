@@ -7,8 +7,7 @@ public class FiasPostingSimpleHandlerTests : FiasPostingHandlerTestsBase
     {
         var context = new MockEventContext();
         var fiasService = GetFiasService(true, FiasAnswerStatuses.Successfully);
-        var checkNumberService = new MockCheckNumberService();
-        var handler = new ExposedFiasPostingSimpleHandler(fiasService, checkNumberService);
+        var handler = new ExposedFiasPostingSimpleHandler(fiasService);
         await handler.ExposedHandleAsync(new FiasPostSimple
         {
             Checks = []
@@ -22,8 +21,7 @@ public class FiasPostingSimpleHandlerTests : FiasPostingHandlerTestsBase
     {
         var context = new MockEventContext();
         var fiasService = GetFiasService(false, FiasAnswerStatuses.Successfully);
-        var checkNumberService = new MockCheckNumberService();
-        var handler = new ExposedFiasPostingSimpleHandler(fiasService, checkNumberService);
+        var handler = new ExposedFiasPostingSimpleHandler(fiasService);
         var correlationId = default(int).ToString();
         await handler.ExposedHandleAsync(new FiasPostSimple
         {
@@ -31,7 +29,7 @@ public class FiasPostingSimpleHandlerTests : FiasPostingHandlerTestsBase
             Checks = []
         }, context);
 
-        CheckPostTransactionsResponse(true, correlationId, context);
+        CheckPostTransactionsResponse(true, correlationId, context, 1);
     }
     
     [Fact]
@@ -40,8 +38,7 @@ public class FiasPostingSimpleHandlerTests : FiasPostingHandlerTestsBase
         var context = new MockEventContext();
         var answerStatus = (FiasAnswerStatuses)Random.Shared.Next((int)FiasAnswerStatuses.Successfully);
         var fiasService = GetFiasService(true, answerStatus);
-        var checkNumberService = new MockCheckNumberService();
-        var handler = new ExposedFiasPostingSimpleHandler(fiasService, checkNumberService);
+        var handler = new ExposedFiasPostingSimpleHandler(fiasService);
         var correlationId = default(int).ToString();
         await handler.ExposedHandleAsync(new FiasPostSimple
         {
@@ -49,7 +46,7 @@ public class FiasPostingSimpleHandlerTests : FiasPostingHandlerTestsBase
             Checks = []
         }, context);
 
-        CheckPostTransactionsResponse(false, correlationId, context, answerStatus.ToString());
+        CheckPostTransactionsResponse(false, correlationId, context, 1, answerStatus.ToString());
     }
     
     [Fact]
@@ -57,8 +54,7 @@ public class FiasPostingSimpleHandlerTests : FiasPostingHandlerTestsBase
     {
         var context = new MockEventContext();
         var fiasService = GetFiasServiceWithThrow(true);
-        var checkNumberService = new MockCheckNumberService();
-        var handler = new ExposedFiasPostingSimpleHandler(fiasService, checkNumberService);
+        var handler = new ExposedFiasPostingSimpleHandler(fiasService);
         var correlationId = default(int).ToString();
         await handler.ExposedHandleAsync(new FiasPostSimple
         {
@@ -66,6 +62,6 @@ public class FiasPostingSimpleHandlerTests : FiasPostingHandlerTestsBase
             Checks = []
         }, context);
         
-        CheckPostTransactionsResponse(false, correlationId, context, new Exception().Message);
+        CheckPostTransactionsResponse(false, correlationId, context, 1, new Exception().Message);
     }
 }

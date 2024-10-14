@@ -3,10 +3,10 @@
 /// <summary>
 /// Класс, описывающий обработчик события <see cref="FiasPostSimple"/>,
 /// оповещающего о совершении денежного платежа.<br/>
-/// Унаследован от класса <see cref="Handler{TIn}"/>
+/// Унаследован от класса <see cref="PostingHandler{TIn}"/>
 /// </summary>
-internal class FiasPostingSimpleHandler(IFiasService fiasService,
-    ICheckNumberService checkNumberService) : Handler<FiasPostSimple>
+internal class FiasPostingSimpleHandler(IFiasService fiasService)
+    : PostingHandler<FiasPostSimple>(fiasService)
 {
     /// <summary>
     /// Метод, обрабатывающий событие <see cref="FiasPostSimple"/>.
@@ -48,7 +48,7 @@ internal class FiasPostingSimpleHandler(IFiasService fiasService,
                 });
             else
             {
-                var checkNumber = await checkNumberService.GetCheckNumberAsync();
+                var checkNumber = GetCheckNumber(context);
                 
                 context.Send(new Check
                 {

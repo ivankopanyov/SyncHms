@@ -45,10 +45,8 @@ public class RoomNumberHandlerTests : PostTransactionsResponseHandlerTestsBase
             ReservationGuestId = reservationGuestId,
             FolioGenericNo = folioGenericNo
         }, context);
-        
-        Assert.Single(context.SendMessages);
-        Assert.Empty(context.Breaks);
-        CheckPostTransactionsResponse(false, correlationId, context, "Reservation ID is null.");
+
+        CheckPostTransactionsResponse(false, correlationId, context, 1, "Reservation ID is null.");
     }
     
     [Fact]
@@ -64,10 +62,8 @@ public class RoomNumberHandlerTests : PostTransactionsResponseHandlerTestsBase
             CorrelationId = correlationId,
             ReservationGuestId = $"GuestId/{reservationNumber}"
         }, context);
-        
-        Assert.Single(context.SendMessages);
-        Assert.Empty(context.Breaks);
-        CheckPostTransactionsResponse(false, correlationId, context, $"Reservation {reservationNumber} not found.");
+
+        CheckPostTransactionsResponse(false, correlationId, context, 1, $"Reservation {reservationNumber} not found.");
     }
     
     [Fact]
@@ -83,10 +79,8 @@ public class RoomNumberHandlerTests : PostTransactionsResponseHandlerTestsBase
             CorrelationId = correlationId,
             ReservationGuestId = $"GuestId/{reservationNumber}"
         }, context);
-        
-        Assert.Single(context.SendMessages);
-        Assert.Empty(context.Breaks);
-        CheckPostTransactionsResponse(false, correlationId, context, new Exception().Message);
+
+        CheckPostTransactionsResponse(false, correlationId, context, 1, new Exception().Message);
     }
 
     private static IOperaService GetOperaService(bool returnNull = false)

@@ -94,7 +94,10 @@ public static class ConfigureServices
                     eventsOptions.LoggerConfiguration = loggerConfiguration;
             });
 
-        builder.AddEventLog<UpdateLogHandler>();
+        builder
+            .AddEventLog<UpdateLogHandler>()
+            .AddUnloggedEvent<UpdatedEnvironmentHandler, ApplicationEnvironment>();
+
         return result;
     }
     

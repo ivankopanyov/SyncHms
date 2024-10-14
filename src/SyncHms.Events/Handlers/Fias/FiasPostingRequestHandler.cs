@@ -1,14 +1,12 @@
-using Microsoft.Extensions.Primitives;
-
 namespace SyncHms.Events.Handlers.Fias;
 
 /// <summary>
 /// Класс, описывающий обработчик события <see cref="FiasPostRequest"/>,
 /// оповещающего о начисления платежа на номер.<br/>
-/// Унаследован от класса <see cref="Handler{TIn}"/>
+/// Унаследован от класса <see cref="PostingHandler{TIn}"/>
 /// </summary>
-internal class FiasPostingRequestHandler(IFiasService fiasService,
-    ICheckNumberService checkNumberService) : Handler<FiasPostRequest>
+internal class FiasPostingRequestHandler(IFiasService fiasService)
+    : PostingHandler<FiasPostRequest>(fiasService)
 {
     /// <summary>
     /// Метод, обрабатывающий событие <see cref="FiasPostRequest"/>.
@@ -25,8 +23,8 @@ internal class FiasPostingRequestHandler(IFiasService fiasService,
     {
         try
         {
+            var checkNumber = GetCheckNumber(context);
             var subtotals = @in.Checks.Select(c => c.Select(i => i.Total).Sum() * 100).ToArray();
-            var checkNumber = await checkNumberService.GetCheckNumberAsync();
             var dateTime = DateTime.Now;
             var total = subtotals.Sum();
 

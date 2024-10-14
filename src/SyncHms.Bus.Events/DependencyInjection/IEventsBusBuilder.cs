@@ -15,4 +15,9 @@ public interface IEventsBusBuilder : IBusBuilder
     /// <summary>Метод, регистрирующий обработчик логов в контейнере зависимостей.</summary>
     /// <typeparam name="THandler">Тип обработчика. Должен быть унаследован от класса <see cref="LogHandler"/></typeparam>
     IEventsBusBuilder AddEventLog<THandler>() where THandler : LogHandler;
+
+    /// <summary>Метод, регистрирующий обработчик нелогируемых событий в контейнере зависимостей.</summary>
+    /// <typeparam name="THandler">Тип обработчика.</typeparam>
+    /// <typeparam name="TIn">Тип обрабатываемого сообщения.</typeparam>
+    IEventsBusBuilder AddUnloggedEvent<THandler, TIn>() where THandler : Handler<TIn>;
 }

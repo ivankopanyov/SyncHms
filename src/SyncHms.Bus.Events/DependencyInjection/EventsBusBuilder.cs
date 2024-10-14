@@ -35,6 +35,15 @@ public class EventsBusBuilder(IServiceCollection services) : ApplicationBuilder(
         return this;
     }
 
+    /// <summary>Метод, регистрирующий обработчик нелогируемых событий в контейнере зависимостей.</summary>
+    /// <typeparam name="THandler">Тип обработчика.</typeparam>
+    /// <typeparam name="TIn">Тип обрабатываемого сообщения.</typeparam>
+    public IEventsBusBuilder AddUnloggedEvent<THandler, TIn>() where THandler : Handler<TIn>
+    {
+        AddHandler(new HandlerOptions<THandler, TIn>());
+        return this;
+    }
+
     /// <summary>Метод, регистрирующий обработчик событий в контейнере зависимостей.</summary>
     /// <typeparam name="THandler">Тип обработчика.</typeparam>
     /// <typeparam name="TIn">Тип обрабатываемого сообщения.</typeparam>

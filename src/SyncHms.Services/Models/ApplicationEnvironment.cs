@@ -69,6 +69,7 @@ public class ApplicationEnvironment
         HashCode.Combine(
             SyncPostingOpera,
             SyncPostingMicros,
+            NextMicrosCheckNumber,
             ResortCode,
             Rvc,
             TaxCodes,
@@ -87,6 +88,8 @@ public class ApplicationEnvironment
         obj is ApplicationEnvironment other
         && SyncPostingOpera == other.SyncPostingOpera
         && SyncPostingMicros == other.SyncPostingMicros
+        && NextMicrosCheckNumber == other.NextMicrosCheckNumber
+        && SanatoriumCustomField == other.SanatoriumCustomField
         && ResortCode == other.ResortCode
         && Rvc == other.Rvc
         && TaxCodes.SequenceEqual(other.TaxCodes)

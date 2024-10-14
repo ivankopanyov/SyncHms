@@ -1,7 +1,7 @@
 namespace SyncHms.Events.UnitTests.Exposed.Fias;
 
-internal class ExposedFiasPostingRequestHandler(IFiasService fiasService, ICheckNumberService checkNumberService)
-    : FiasPostingRequestHandler(fiasService, checkNumberService)
+internal class ExposedFiasPostingRequestHandler(IFiasService fiasService)
+    : FiasPostingRequestHandler(fiasService)
 {
     public Task ExposedHandleAsync(FiasPostRequest @in, IEventContext context)
     {

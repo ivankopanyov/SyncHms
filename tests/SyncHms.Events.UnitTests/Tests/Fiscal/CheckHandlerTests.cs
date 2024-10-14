@@ -16,7 +16,7 @@ public class CheckHandlerTests : PostTransactionsResponseHandlerTestsBase
         };
 
         await handler.ExposedHandleAsync(check, context);
-        CheckPostTransactionsResponse(true, correlationId, context, handler.ExposedMessage(check));
+        CheckPostTransactionsResponse(true, correlationId, context, 1, handler.ExposedMessage(check));
     }
     
     [Fact]
@@ -33,7 +33,7 @@ public class CheckHandlerTests : PostTransactionsResponseHandlerTestsBase
             Details = []
         }, context);
 
-        CheckPostTransactionsResponse(false, correlationId, context, error);
+        CheckPostTransactionsResponse(false, correlationId, context, 1, error);
     }
     
     [Fact]
@@ -49,7 +49,7 @@ public class CheckHandlerTests : PostTransactionsResponseHandlerTestsBase
             Details = []
         }, context);
         
-        CheckPostTransactionsResponse(false, correlationId, context, new Exception().Message);
+        CheckPostTransactionsResponse(false, correlationId, context, 1, new Exception().Message);
     }
 
     private static IFiscalService GetFiscalService(bool success, string? errorMessage = null)

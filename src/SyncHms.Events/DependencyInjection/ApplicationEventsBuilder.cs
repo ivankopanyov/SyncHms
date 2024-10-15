@@ -35,11 +35,6 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
                 options.TaskName = "POST";
                 options.HandlerName = "POSTING";
             })
-            .AddEvent<FiasConnectionHandler, FiasConnection>(options =>
-            {
-                options.TaskName = "SERVICE_CONNECTION";
-                options.HandlerName = "FIAS";
-            })
             .AddEvent<FiasPostingSimpleHandler, FiasPostSimple>(options => options.HandlerName = "FIAS_SIMPLE")
             .AddEvent<FiasPostingRequestHandler, FiasPostRequest>(options => options.HandlerName = "FIAS_REQUEST")
             .AddEvent<ReservationHandler, ReservationInfo>(options => options.HandlerName = "OPERA")

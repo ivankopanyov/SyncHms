@@ -1,4 +1,6 @@
-﻿namespace SyncHms.Events.Handlers.Sanatorium;
+﻿using Microsoft.Extensions.Primitives;
+
+namespace SyncHms.Events.Handlers.Sanatorium;
 
 /// <summary>
 /// Класс, описывающий обработчик события <see cref="PostTransactionsResponse"/>,

@@ -31,9 +31,6 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
     /// <summary>Свойство, возвращающее новый экземпляр контекста для подключения к базе данных.</summary>
     private OperaDbContext Context => new(control.Options.ConnectionString, control.Options.OracleSqlCompatibility);
 
-    /// <summary>Событие, вызываемое, при изменении состояния сервиса.</summary>
-    public event ChangeServiceStateHandle ChangeServiceStateEvent;
-
     /// <summary>Экземпляр окружения.</summary>
     public ApplicationEnvironment Environment => control.Environment;
     

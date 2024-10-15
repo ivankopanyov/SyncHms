@@ -17,7 +17,7 @@ internal class TelegramMessageHandler(ITelegramBotService telegramBotService, IC
     /// <param name="in">Экземпляр лога обработки события.</param>
     protected override async Task HandleAsync(EventLog @in)
     {
-        if (!telegramBotService.Enabled || !telegramBotService.Chats.Any() || (!@in.Service && @in.Error == null && telegramBotService.OnlyError))
+        if (!telegramBotService.Enabled || !telegramBotService.Chats.Any() || (@in.Error == null && telegramBotService.OnlyError))
             return;
 
         var taskId = @in.TaskId ?? "UNKNOWN";

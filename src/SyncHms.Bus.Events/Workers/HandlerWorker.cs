@@ -74,7 +74,6 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                     TaskName = @event.TaskName,
                     HandlerName = _handlerName,
                     IsEnd = true,
-                    Service = @event.Service,
                     Error = "Input object is null"
                 });
             }
@@ -122,7 +121,6 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                     HandlerName = _handlerName,
                     Message = message,
                     IsEnd = !context.Events.Any(),
-                    Service = @event.Service,
                     InputObjectJson = inputObjectJson
                 });
             }
@@ -145,7 +143,6 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                     HandlerName = _handlerName,
                     Message = message,
                     IsEnd = true,
-                    Service = @event.Service,
                     Error = ex.Message,
                     StackTrace = ex.StackTrace,
                     InputObjectJson = inputObjectJson
@@ -167,7 +164,6 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                         HandlerName = _handlerName,
                         TaskId = @event.TaskId,
                         Message = message,
-                        Service = @event.Service,
                         Error = @event.Error,
                         StackTrace = @event.StackTrace,
                         InputObjectJson = inputObjectJson

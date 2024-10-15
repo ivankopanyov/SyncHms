@@ -15,9 +15,6 @@ public class UpdateLogHandler(ILogRepository logRepository, IHubContext<LogHub> 
     /// <param name="in">Экземпляр лога обработки события.</param>
     protected override async Task HandleAsync(EventLog @in)
     {
-        if (@in.Service)
-            return;
-
         var log = new Log
         {
             TaskId = @in.TaskId,

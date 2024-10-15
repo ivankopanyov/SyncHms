@@ -23,10 +23,7 @@ internal class TelegramBotService : ITelegramBotService
     /// Флаг, указывающий, что все доступные чаты принимают только сообщения об ошибках в обработке событий.
     /// </summary>
     public bool OnlyError { get; private set; }
-
-    /// <summary>Событие, вызываемое, при изменении состояния сервиса.</summary>
-    public event ChangeServiceStateHandle ChangeServiceStateEvent;
-
+    
     /// <summary>Экземпляр окружения.</summary>
     public ApplicationEnvironment Environment => _control.Environment;
 

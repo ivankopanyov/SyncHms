@@ -369,22 +369,22 @@ internal class FiasService(
             try
             {
                 await Task.Delay(TimeSpan.FromSeconds(10), token);
-                if (_socketConnection != null)
+                if (_socketConnection == null)
+                    continue;
+
+                var linkAlive = new FiasLinkAlive { DateTime = DateTime.Now }.ToString();
+
+                try
                 {
-                    var linkAlive = new FiasLinkAlive { DateTime = DateTime.Now }.ToString();
-
-                    try
-                    {
-                        await _socketConnection.SendAsync(linkAlive);
-                    }
-                    catch
-                    {
-                        new Thread(ConnectAsync).Start(control.Options);
-                        continue;
-                    }
-
-                    await Task.Delay(TimeSpan.FromSeconds(30), token);
+                    await _socketConnection.SendAsync(linkAlive);
                 }
+                catch
+                {
+                    new Thread(ConnectAsync).Start(control.Options);
+                    continue;
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(30), token);
 
                 new Thread(ConnectAsync).Start(control.Options);
             }

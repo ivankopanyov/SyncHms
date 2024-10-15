@@ -372,7 +372,7 @@ internal class FiasService(
                 if (_socketConnection == null)
                     continue;
 
-                var linkAlive = new FiasLinkAlive { DateTime = DateTime.Now }.ToString();
+                var linkAlive = new FiasLinkStart { DateTime = DateTime.Now }.ToString();
 
                 try
                 {

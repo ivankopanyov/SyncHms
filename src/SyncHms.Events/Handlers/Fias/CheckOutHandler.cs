@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Primitives;
-
-namespace SyncHms.Events.Handlers.Fias;
+﻿namespace SyncHms.Events.Handlers.Fias;
 
 /// <summary>
 /// Класс, описывающий обработчик события <see cref="FiasGuestCheckOut"/>,

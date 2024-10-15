@@ -57,18 +57,32 @@ internal class FiasService(
     /// <see cref="IControl{FiasServiceOptions, ApplicationEnvironment}.Options"/> параметра <c>control</c>,
     /// или нет соединения с удаленным сервисом.
     /// </exception>
-    public async Task<FiasPostingAnswer> SendPostingAsync(FiasPostingSimple message, int timeoutSeconds = 60)
+    public async Task<FiasPostingAnswer> SendPostingAsync(FiasPostingSimple message, int timeoutSeconds = 30)
     {
         if (!control.Options.Enabled)
-            throw new InvalidOperationException("Service is disabled.");
+            throw new InvalidOperationException("Fias is disabled.");
         
-        if (_socketConnection == null)
-            throw new InvalidOperationException("Service not connected.");
-        
+        if (_socketConnection == null && !await WaitConnectionAsync())
+            throw new InvalidOperationException("Fias not connected.");
+
         var postingSequenceNumber = PostingSequenceNumber;
         message.PostingSequenceNumber = postingSequenceNumber;
-        return await SendAsync<FiasPostingAnswer>(message.ToString(), postingSequenceNumber,
-            timeoutSeconds, _socketConnection);
+        var fiasPostingAnswer = message.ToString();
+
+        try
+        {
+            return await SendAsync<FiasPostingAnswer>(fiasPostingAnswer, postingSequenceNumber,
+                timeoutSeconds, _socketConnection!);
+        }
+        catch (TimeoutException)
+        {
+            Reconnect();
+            if (!await WaitConnectionAsync())
+                throw;
+
+            return await SendAsync<FiasPostingAnswer>(fiasPostingAnswer, postingSequenceNumber,
+                timeoutSeconds, _socketConnection!);
+        }
     }
 
     /// <summary>
@@ -90,10 +104,10 @@ internal class FiasService(
     public async Task<FiasPostingAnswer> SendPostingAsync(FiasPostingRequest message, int timeoutSeconds = 60)
     {
         if (!control.Options.Enabled)
-            throw new InvalidOperationException("Service is disabled.");
-        
-        if (_socketConnection == null)
-            throw new InvalidOperationException("Service not connected.");
+            throw new InvalidOperationException("Fias is disabled.");
+
+        if (_socketConnection == null && !await WaitConnectionAsync())
+            throw new InvalidOperationException("Fias not connected.");
 
         var postingSequenceNumber = PostingSequenceNumber;
         var request = new FiasPostingRequest
@@ -108,10 +122,25 @@ internal class FiasService(
             UserId = "0"
         };
 
+        var fiasPostingRequest = request.ToString();
+
         try
         {
-            var fiasPostingList = await SendAsync<List<FiasPostingList>>(request.ToString(), postingSequenceNumber,
-                timeoutSeconds, _socketConnection);
+            List<FiasPostingList> fiasPostingList;
+            try
+            {
+                fiasPostingList = await SendAsync<List<FiasPostingList>>(fiasPostingRequest, postingSequenceNumber,
+                    timeoutSeconds, _socketConnection!);
+            }
+            catch (TimeoutException)
+            {
+                Reconnect();
+                if (!await WaitConnectionAsync())
+                    throw;
+
+                fiasPostingList = await SendAsync<List<FiasPostingList>>(fiasPostingRequest, postingSequenceNumber,
+                    timeoutSeconds, _socketConnection!);
+            }
 
             if (fiasPostingList.FirstOrDefault(l => l.ReservationNumber == message.ReservationNumber)
                 is not { } posting)
@@ -133,7 +162,7 @@ internal class FiasService(
         message.PostingSequenceNumber = postingSequenceNumber;
         
         return await SendAsync<FiasPostingAnswer>(message.ToString(), postingSequenceNumber,
-            timeoutSeconds, _socketConnection);
+            timeoutSeconds, _socketConnection!);
     }
 
     /// <summary>Метод, обрабатывающий изменение опций сервиса.</summary>
@@ -259,6 +288,9 @@ internal class FiasService(
                     }
 
                     return;
+                case FiasLinkAlive:
+                    await FiasLinkAliveHandleAsync();
+                    return;
                 case FiasLinkEnd:
                     new Thread(ConnectAsync).Start(control.Options);
                     return;
@@ -335,4 +367,41 @@ internal class FiasService(
         if (cancellationTokenSource != null)
             await cancellationTokenSource.CancelAsync();
     }
+
+    /// <summary>
+    /// Метод, обрабатывающий сообщение типа <see cref="FiasLinkAlive"/><br/>
+    /// Будет вызван метод <see cref="WaitConnection.Cancel"/> у всех объектов
+    /// типа <see cref="WaitConnection"/>, хранящихся в кэше.
+    /// </summary>
+    private async Task FiasLinkAliveHandleAsync()
+    {
+        foreach (var waitСonnection in await cacheService.GetAllAsync<WaitConnection>())
+            waitСonnection.Cancel();
+    }
+
+    /// <summary>Метод, ожидающий подключение к сервису <c>FIAS</c></summary>
+    /// <returns>
+    /// <c>true</c> - подключение успешно<br/>
+    /// <c>false</c> - не удалось подключиться за отведенное время
+    /// </returns>
+    private async Task<bool> WaitConnectionAsync()
+    {
+        var waitConnection = new WaitConnection();
+        var timeSpan = TimeSpan.FromSeconds(10);
+        await cacheService.PushAsync(PostingSequenceNumber.ToString(), waitConnection, timeSpan);
+
+        try
+        {
+            await Task.Delay(timeSpan, waitConnection.CancellationToken);
+        }
+        catch (TaskCanceledException)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>Метод, инициализирующий переподключение к сервису <c>FIAS</c></summary>
+    private void Reconnect() => new Thread(ConnectAsync).Start(control.Options);
 }

@@ -11,6 +11,10 @@ public class Event
     [JsonProperty]
     internal string? TaskName { get; set; }
 
+    /// <summary>Флаг, указывающий, что событие является сервисным.</summary>
+    [JsonProperty]
+    public bool Service { get; set; }
+
     /// <summary>Сообщение об ошибке.</summary>
     [JsonProperty]
     internal string? Error { get; set; }

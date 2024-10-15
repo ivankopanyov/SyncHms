@@ -20,7 +20,11 @@ public class EventLog
 
     /// <summary>Описание события.</summary>
     public string? Message { get; set; }
-    
+
+    /// <summary>Флаг, указывающий, что событие является сервисным.</summary>
+    [JsonProperty]
+    public bool Service { get; set; }
+
     /// <summary>Сообщение об ошибке.</summary>
     public string? Error { get; set; }
 

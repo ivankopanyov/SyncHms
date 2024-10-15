@@ -1,5 +1,10 @@
 ﻿namespace SyncHms.Bus.Services;
 
+/// <summary>Метод, обрабатывающий изменение состояния сервиса.</summary>
+/// <param name="connected">Флаг, указывающий, подключен ли сервис к удаленному ресурсу.</param>
+/// <param name="message">Сообщение о состоянии сервиса.</param>
+public delegate void ChangeServiceStateHandle(bool connected, string? message);
+
 /// <summary>Интерфейс, определяющий методы сервиса.</summary>
 /// <typeparam name="TOptions">
 /// Тип опций сервиса.
@@ -7,6 +12,11 @@
 /// </typeparam>
 public interface IService<TOptions> where TOptions : class, new()
 {
+    /// <summary>Событие, вызываемое, при изменении состояния сервиса.</summary>
+    event ChangeServiceStateHandle ChangeServiceStateEvent;
+
+    /// <summary>Метод, обрабатывающий изменение опций сервиса.</summary>
+    /// <param name="options">Экземпляр обновленных опций сервиса.</param>
     Task ChangedOptionsHandleAsync(TOptions options);
 }
 

@@ -12,6 +12,9 @@ internal class FiscalService(IControl<MicrosOptions, ApplicationEnvironment> con
     /// </summary>
     private CheckDBClient Client => new(CheckDBClient.EndpointConfiguration.BasicHttpBinding_ICheckDB, control.Options.Endpoint);
 
+    /// <summary>Событие, вызываемое, при изменении состояния сервиса.</summary>
+    public event ChangeServiceStateHandle ChangeServiceStateEvent;
+
     /// <summary>Экземпляр окружения.</summary>
     public ApplicationEnvironment Environment => control.Environment;
 

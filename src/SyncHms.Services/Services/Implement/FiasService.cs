@@ -33,6 +33,9 @@ internal class FiasService(
     /// </summary>
     private static int PostingSequenceNumber => int.Parse(DateTime.Now.ToString("HHmmssff"));
 
+    /// <summary>Событие, вызываемое, при изменении состояния сервиса.</summary>
+    public event ChangeServiceStateHandle ChangeServiceStateEvent;
+
     /// <summary>Экземпляр окружения.</summary>
     public ApplicationEnvironment Environment => control.Environment;
     
@@ -241,8 +244,12 @@ internal class FiasService(
         {
             _semaphore.Release();
         }
-        
-        _socketConnection.ConnectedEvent += control.Active;
+
+        _socketConnection.ConnectedEvent += () =>
+        {
+            control.Active();
+            ChangeServiceStateEvent?.Invoke(true, "Connection to FIAS established.");
+        };
         _socketConnection.MessageEvent += async message => await MessageHandleAsync(message, _socketConnection);
         _socketConnection.DisconnectedEvent += ex =>
         {

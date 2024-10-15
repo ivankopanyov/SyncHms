@@ -18,11 +18,17 @@ internal class MessageProxyWorker : BackgroundService
         IEventPublisher<FiasGuestCheckIn> checkInPublisher,
         IEventPublisher<FiasGuestCheckOut> checkOutPublisher,
         IEventPublisher<FiasGuestChange> changePublisher,
+        IEventPublisher<FiasConnection> fiasConnectionPublisher,
         IEventPublisher<PostTransactionsRequest> postingRequestPublisher)
     {
         fiasService.FiasGuestCheckInEvent += checkInPublisher.Publish;
         fiasService.FiasGuestCheckOutEvent += checkOutPublisher.Publish;
         fiasService.FiasGuestChangeEvent += changePublisher.Publish;
+        fiasService.ChangeServiceStateEvent += (connected, message) => fiasConnectionPublisher.Publish(new FiasConnection
+        {
+            Connected = connected,
+            Message = message
+        });
         sanatoriumService.PostingRequestEvent += postingRequestPublisher.Publish;
     }
     

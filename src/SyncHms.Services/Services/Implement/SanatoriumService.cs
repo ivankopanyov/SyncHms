@@ -24,6 +24,9 @@ internal class SanatoriumService : ISanatoriumService
 
     private CancellationToken _cancellationToken;
 
+    /// <summary>Событие, вызываемое, при изменении состояния сервиса.</summary>
+    public event ChangeServiceStateHandle ChangeServiceStateEvent;
+
     /// <summary>Экземпляр окружения.</summary>
     public ApplicationEnvironment Environment => _control.Environment;
     

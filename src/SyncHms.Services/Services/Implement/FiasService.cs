@@ -14,7 +14,17 @@ internal class FiasService(
     : IFiasService
 {
     private readonly SemaphoreSlim _semaphore = new(1);
-    
+
+    /// <summary>
+    /// Объект, блокирующийся при обновлении объекта <see cref="FiasService._cancellationTokenSource"/>
+    /// </summary>
+    private readonly object _lock = new();
+
+    /// <summary>Флаг, указывающий была ли запущена проверка подключения к сервису <c>FIAS</c></summary>
+    private bool _pipelineRunning;
+
+    private CancellationTokenSource _cancellationTokenSource = new();
+
     /// <summary>Экземпляр объекта для подключения к сокету.</summary>
     private ISocketConnection? _socketConnection;
     
@@ -204,6 +214,12 @@ internal class FiasService(
         var options = (FiasServiceOptions)fiasOptions!;
         await _semaphore.WaitAsync();
 
+        if (!_pipelineRunning)
+        {
+            _pipelineRunning = true;
+            new Thread(StartConnectionCheckingPipelineAsync).Start();
+        }
+
         try
         {
             if (_socketConnection != null)
@@ -243,6 +259,8 @@ internal class FiasService(
     /// <param name="socketConnection">Экземпляр объекта подключения к сокету.</param>
     private async Task MessageHandleAsync(string message, ISocketConnection socketConnection)
     {
+        ContinueConnectionCheckingPipeline();
+
         List<FiasPostingList> fiasPostingList = [];
         foreach (var commonMessage in FiasCommonMessage.FromString(message))
         {
@@ -334,5 +352,59 @@ internal class FiasService(
         var cancellationTokenSource = await cacheService.PopAsync<CancellationTokenSource>(key);
         if (cancellationTokenSource != null)
             await cancellationTokenSource.CancelAsync();
+    }
+
+    /// <summary>Метод проверки подключения к сервису <c>FIAS</c></summary>
+    private async void StartConnectionCheckingPipelineAsync()
+    {
+        while (true)
+        {
+            CancellationToken token;
+
+            lock (_lock)
+            {
+                token = _cancellationTokenSource.Token;
+            }
+
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(10), token);
+                if (_socketConnection != null)
+                {
+                    var linkAlive = new FiasLinkAlive { DateTime = DateTime.Now }.ToString();
+
+                    try
+                    {
+                        await _socketConnection.SendAsync(linkAlive);
+                    }
+                    catch
+                    {
+                        new Thread(ConnectAsync).Start(control.Options);
+                        continue;
+                    }
+
+                    await Task.Delay(TimeSpan.FromSeconds(30), token);
+                }
+
+                new Thread(ConnectAsync).Start(control.Options);
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+    }
+
+    /// <summary>
+    /// Метод, вызываемый при получении сообщения от сервиса <c>FIAS</c><br/>
+    /// Указывает на установленное соединение.
+    /// </summary>
+    private void ContinueConnectionCheckingPipeline()
+    {
+        lock (_lock)
+        {
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource = new();
+        }
     }
 }

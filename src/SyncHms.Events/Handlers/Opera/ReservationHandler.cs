@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Primitives;
-
-namespace SyncHms.Events.Handlers.Opera;
+﻿namespace SyncHms.Events.Handlers.Opera;
 
 /// <summary>
 /// Класс, описывающий обработчик события <see cref="ReservationInfo"/>,

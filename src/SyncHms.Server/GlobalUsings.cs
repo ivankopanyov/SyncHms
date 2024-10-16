@@ -14,6 +14,7 @@ global using SyncHms.Cache;
 global using SyncHms.Domain;
 global using SyncHms.Domain.EntityFramework.Sqlite;
 global using SyncHms.Events;
+global using SyncHms.Events.Messages;
 global using SyncHms.Identity;
 global using SyncHms.Identity.Sqlite;
 global using SyncHms.Server.Dto;

@@ -242,7 +242,6 @@ internal class FiasService(
             _semaphore.Release();
         }
         
-        _socketConnection.ConnectedEvent += control.Active;
         _socketConnection.MessageEvent += async message => await MessageHandleAsync(message, _socketConnection);
         _socketConnection.DisconnectedEvent += ex =>
         {
@@ -276,6 +275,9 @@ internal class FiasService(
                         // ignored
                     }
 
+                    return;
+                case FiasLinkAlive:
+                    control.Active();
                     return;
                 case FiasLinkEnd:
                     new Thread(ConnectAsync).Start(control.Options);

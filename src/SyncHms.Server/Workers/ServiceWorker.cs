@@ -16,18 +16,25 @@ public class ServiceWorker : BackgroundService
     /// <summary>Экземпляр контроллера сервисов.</summary>
     private readonly IServiceController<ApplicationEnvironment> _serviceController;
 
+    /// <summary>Сервис публикации событий <see cref="ChangedServiceState"/></summary>
+    private readonly IEventPublisher<ChangedServiceState> _serviceStatePublisher;
+
     /// <summary>Инициализация сервиса.</summary>
     /// <param name="serviceScopeFactory">
     /// Экземпляр фабрики, создающей объекты, реализующие интерфейс <see cref="IServiceScopeFactory"/>
     /// </param>
     /// <param name="environment">Экземпляр окружения.</param>
     /// <param name="serviceController">Экземпляр контроллера сервисов.</param>
-    public ServiceWorker(IServiceScopeFactory serviceScopeFactory, IOptions<ApplicationEnvironment>? environment,
-        IServiceController<ApplicationEnvironment> serviceController)
+    /// <param name="serviceStatePublisher">Сервис публикации событий <see cref="ChangedServiceState"/></param>
+    public ServiceWorker(IServiceScopeFactory serviceScopeFactory,
+        IOptions<ApplicationEnvironment>? environment,
+        IServiceController<ApplicationEnvironment> serviceController,
+        IEventPublisher<ChangedServiceState> serviceStatePublisher)
     {
         _serviceScopeFactory = serviceScopeFactory;
         _environment = environment;
         _serviceController = serviceController;
+        _serviceStatePublisher = serviceStatePublisher;
 
         _serviceController.ChangedOptionsEvent += async serviceInfo => await HandleAsync(serviceInfo);
     }
@@ -58,6 +65,16 @@ public class ServiceWorker : BackgroundService
             
         var result = await serviceRepository.UpdateAsync(service, serviceInfo.UpdateOptions);
         await hubContext.Clients.All.SendAsync("Service", result);
+
+        if (result.State != null)
+        {
+            _serviceStatePublisher.Publish(new ChangedServiceState
+            {
+                ServiceName = result.Name,
+                Connection = result.State.IsActive,
+                Message = result.State.Error
+            });
+        }
 
         if (serviceInfo.ResponseRequired)
         {

@@ -43,6 +43,7 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
             .AddEvent<PostingResponseHandler, PostTransactionsResponse>(options => options.HandlerName = "SANATORIUM")
             .AddEvent<UpdateReservationHandler, ReservationUpdatedMessage>(options => options.HandlerName = "SANATORIUM")
             .AddEventLog<TelegramMessageHandler>()
+            .AddUnloggedEvent<ChangedServiceStateHandler, ChangedServiceState>()
             .AddHostedService<MessageProxyWorker>();
 
         return this;

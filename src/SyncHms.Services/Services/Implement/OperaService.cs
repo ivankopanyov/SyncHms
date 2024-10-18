@@ -217,7 +217,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                         CustomFieldValues = customFields!,
                         ReservationGuests =
                         [
-                            new Guest
+                            new Logus.HMS.Messages.Shared.Guest
                             {
                                 GenericNo = reservationResponse.GuestGenericNo,
                                 Id = reservationResponse.Id,

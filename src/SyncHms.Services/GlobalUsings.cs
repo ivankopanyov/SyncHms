@@ -13,6 +13,7 @@ global using SyncHms.Cache;
 global using SyncHms.CheckDB;
 global using SyncHms.Fias.Entities;
 global using SyncHms.Opera.Entities.Tables;
+global using SyncHms.OzLocks.Entities;
 global using SyncHms.Services.Attributes;
 global using SyncHms.Services.DependencyInjection;
 global using SyncHms.Services.Infrastructure;

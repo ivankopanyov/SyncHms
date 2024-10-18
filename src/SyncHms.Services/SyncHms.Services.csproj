@@ -12,10 +12,12 @@
       <ProjectReference Include="..\SyncHms.CheckDB\SyncHms.CheckDB.csproj" />
       <ProjectReference Include="..\SyncHms.Fias.Entities\SyncHms.Fias.Entities.csproj" />
       <ProjectReference Include="..\SyncHms.Opera.Entities.Tables\SyncHms.Opera.Entities.Tables.csproj" />
+      <ProjectReference Include="..\SyncHms.OzLocks.Entities\SyncHms.OzLocks.Entities.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Logus.HMS.Messages" Version="1.39.26" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.15" />
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
       <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
       <PackageReference Include="NServiceBus" Version="7.8.5" />

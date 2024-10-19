@@ -4,7 +4,8 @@ namespace SyncHms.Bus.Events.Services.Implement;
 /// Класс, описывающий контекст обработки события.
 /// Реализует интерфейс <see cref="IEventContext"/>
 /// </summary>
-internal class EventContext : IEventContext
+/// <param name="handlerName">Имя текущего обработчика.</param>
+internal class EventContext(string handlerName) : IEventContext
 {
     /// <summary>Список событий, которые должны быть опубликованы в шине данных.</summary>
     private readonly List<Event> _events = [];
@@ -14,7 +15,10 @@ internal class EventContext : IEventContext
     /// которые должны быть опубликованы в шине данных.
     /// </summary>
     public IEnumerable<Event> Events => _events;
-    
+
+    /// <summary>Имя текущего обработчика.</summary>
+    public string HandlerName => handlerName;
+
     /// <summary>Метод, добавляющий событие для публикации в шину данных.</summary>
     /// <typeparam name="TIn">Тип сообщения.</typeparam>
     /// <param name="in">Экземпляр сообщения.</param>

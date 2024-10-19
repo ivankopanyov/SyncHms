@@ -20,4 +20,9 @@ public interface IEventsBusBuilder : IBusBuilder
     /// <typeparam name="THandler">Тип обработчика.</typeparam>
     /// <typeparam name="TIn">Тип обрабатываемого сообщения.</typeparam>
     IEventsBusBuilder AddUnloggedEvent<THandler, TIn>() where THandler : Handler<TIn>;
+
+    /// <summary>Метод, регистрирующий обработчик событий, отправляемыx планировщиком <see cref="IEventScheduler"/></summary>
+    /// <typeparam name="THandler">Тип обработчика.</typeparam>
+    /// <param name="action">Инициализация опций обработчика.</param>
+    IEventsBusBuilder AddScheduleEvent<THandler>(Action<HandlerOptions> action) where THandler : ScheduleHandler;
 }

@@ -95,7 +95,7 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
             }
         }
         
-        var context = new EventContext();
+        var context = new EventContext(_handlerName);
         string? message;
 
         try

@@ -47,13 +47,9 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
     /// <param name="scheduleName">Уникальное имя планируемого события.</param>
     /// <param name="interval">
     /// Интервал обработки планируемого события.<br/>
-    /// Если передан <c>0</c> - событие будет остановлено.<br/>
-    /// Если передан <c>null</c> - интервал не будет обновлен.<br/>
+    /// Если передан <c>0</c> - событие будет остановлено.
     /// </param>
-    /// <param name="last">
-    /// Дата и время последней удачной обработки события.<br/>
-    /// Если передан <c>null</c> - дата не будет обновлена.<br/>
-    /// </param>
+    /// <param name="last">Дата и время последней удачной обработки события.</param>
     /// <param name="notify">
     /// Флаг, указывающий, нужно ли вызывать событие <see cref="IEventScheduler.UpdateScheduleEvent"/>
     /// </param>
@@ -64,46 +60,64 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
     /// <exception cref="KeyNotFoundException">
     /// Исключение возбуждается, если обработчик с указанным именем не зарегистрирован.
     /// </exception>
-    public async Task<ScheduleOptions> UpdateScheduleAsync(string scheduleName, TimeSpan? interval = null, DateTime? last = null, bool notify = false)
+    public async Task<ScheduleOptions> UpdateScheduleAsync(string scheduleName, TimeSpan interval, DateTime last, bool notify = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(scheduleName, nameof(scheduleName));
 
         if (!_events.TryGetValue(scheduleName, out var options))
             throw new KeyNotFoundException($"Handler named {scheduleName} was not found.");
 
-        if (!await _scheduler.CheckExists(options.Key))
+        if (options.Interval == interval && options.Last == last)
         {
-            if (interval is { } timeSpan)
-                options.Interval = timeSpan;
-
-            if (last is { } dateTime)
-                options.Last = dateTime;
+            if (!await _scheduler.CheckExists(options.Key))
+                await RunScheduleAsync(options, notify);
         }
         else
         {
-            if ((interval == null || (interval is { } timeSpan && options.Interval == timeSpan))
-                && (last == null || (last is { } dateTime && options.Last == dateTime)))
-                return options;
-
+            options.Interval = interval;
+            options.Last = last;
             await _scheduler.DeleteJob(options.Key);
-
-            options.Interval = interval ?? options.Interval;
-            options.Last = last ?? options.Last;
+            await RunScheduleAsync(options, notify);
         }
 
-        await RunScheduleAsync(options, notify);
         return options;
+    }
+
+    /// <summary>Метод обновления опций планируемого события.</summary>
+    /// <param name="scheduleName">Уникальное имя планируемого события.</param>
+    /// <param name="previous">Дата и время текущей удачной обработки события.</param>
+    /// <param name="current">Дата и время предыдущей удачной обработки события.</param>
+    /// <param name="ex">Исключение, возбужденное в процессе обработки события.</param>
+    public async Task UpdateScheduleAsync(string scheduleName, DateTime previous, DateTime current, Exception? ex = null)
+    {
+        if (!_events.TryGetValue(scheduleName, out var options))
+            return;
+
+        var currentMessage = options.Message;
+        options.Message = ex?.Message;
+        options.StackTrace = ex?.StackTrace;
+
+        if (await _scheduler.CheckExists(options.Key) || options.Last != previous)
+        {
+            if (currentMessage != options.Message)
+                UpdateScheduleEvent?.Invoke(options.Key.Name, options);
+
+            return;
+        }
+
+        var last = options.Last;
+        options.Last = current;
+        await RunScheduleAsync(options, currentMessage != options.Message || last != current);
     }
 
     /// <summary>Метод, инициализирующий обработку планируемого события.</summary>
     /// <param name="options">Экземпляр опций планируемого события.</param>
-    /// <param name="lastDateNotify">
-    /// Флаг, указывающий, нужно ли вызывать событие обновления даты и времени
-    /// <see cref="IEventScheduler.UpdateScheduleEvent"/> последней удачной обработки планируемого события.
+    /// <param name="notify">
+    /// Флаг, указывающий, нужно ли вызывать событие <see cref="IEventScheduler.UpdateScheduleEvent"/>
     /// </param>
-    private async Task RunScheduleAsync(ScheduleOptions options, bool lastDateNotify)
+    private async Task RunScheduleAsync(ScheduleOptions options, bool notify)
     {
-        if (lastDateNotify)
+        if (notify)
             UpdateScheduleEvent?.Invoke(options.Key.Name, options);
 
         if (options.Interval == TimeSpan.Zero)

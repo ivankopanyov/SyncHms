@@ -20,11 +20,12 @@ public abstract class ScheduleHandler : HandlerBase<ScheduleEvent>
         try
         {
             await HandleAsync(eventContext);
-            await UpdateLastAsync(@in.EventScheduler, context.HandlerName, @in.Current);
+            await @in.EventScheduler.UpdateScheduleAsync(context.HandlerName, @in.Previous, @in.Current);
         }
         catch (Exception ex)
         {
-            await UpdateLastAsync(@in.EventScheduler, context.HandlerName, @in.Previous);
+            await @in.EventScheduler.UpdateScheduleAsync(context.HandlerName, @in.Previous, @in.Current, ex);
+
             if (ex is not TaskCriticalException)
                 context.Break(ex.Message, ex);
         }
@@ -33,20 +34,4 @@ public abstract class ScheduleHandler : HandlerBase<ScheduleEvent>
     /// <summary>Абстрактный метод, который должен содержать логику обработки события.</summary>
     /// <param name="context">Объект контекста обработки события.</param>
     protected abstract Task HandleAsync(IScheduleEventContext context);
-
-    /// <summary>Метод, инициализирующий обновление даты и времени последней удачной обработки события.</summary>
-    /// <param name="eventScheduler">Экземпляр планировщика событий.</param>
-    /// <param name="scheduleName">Имя планируемого события.</param>
-    /// <param name="dateTime">Дата и время последней удачной обработки события.</param>
-    private static async Task UpdateLastAsync(IEventScheduler eventScheduler, string scheduleName, DateTime dateTime)
-    {
-        try
-        {
-            await eventScheduler.UpdateScheduleAsync(scheduleName, last: dateTime, notify: true);
-        }
-        catch 
-        {
-            // ignored
-        }
-    }
 }

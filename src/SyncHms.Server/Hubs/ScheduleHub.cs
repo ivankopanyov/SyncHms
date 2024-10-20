@@ -12,12 +12,14 @@ public class ScheduleHub(IEventScheduler eventScheduler) : Hub
     {
         await Clients
             .Client(Context.ConnectionId)
-            .SendAsync("Schedules", eventScheduler.Schedules.Select(s => new Schedule
+            .SendAsync("Schedules", eventScheduler.Schedules.Select(s => new ScheduleInfo
             {
                 Name = s.Key,
                 Description = s.Value.Description,
                 IntervalSeconds = (int)s.Value.Interval.TotalSeconds,
-                Last = s.Value.Last
+                Last = s.Value.Last,
+                Message = s.Value.Message,
+                StackTrace = s.Value.StackTrace
             }).ToList());
     }
 }

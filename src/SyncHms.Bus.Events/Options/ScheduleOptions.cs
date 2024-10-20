@@ -14,6 +14,11 @@ public class ScheduleOptions(string scheduleName, string? description = null)
     /// <summary>Дата и время последней удачной обработки события.</summary>
     public DateTime Last { get; internal set; } = DateTime.Now;
 
+    /// <summary>Сообщение об ошибке.</summary>
+    public string? Message { get; internal set; }
+
+    public string? StackTrace { get; internal set; }
+
     /// <summary>Ключ события.</summary>
     internal JobKey Key { get; } = new(scheduleName);
 }

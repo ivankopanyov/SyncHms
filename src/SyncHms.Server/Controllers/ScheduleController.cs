@@ -24,14 +24,16 @@ public class ScheduleController(IEventScheduler eventScheduler) : ControllerBase
         try
         {
             var result = await eventScheduler.UpdateScheduleAsync(scheduleName,
-                TimeSpan.FromSeconds(schedule.IntervalSeconds), schedule.Last, true);
+                TimeSpan.FromSeconds(schedule.IntervalSeconds), schedule.Last);
 
-            return Ok(new Schedule
+            return Ok(new ScheduleInfo
             {
                 Name = scheduleName,
                 Description = result.Description,
-                IntervalSeconds = schedule.IntervalSeconds,
-                Last = schedule.Last
+                IntervalSeconds = (int)result.Interval.TotalSeconds,
+                Last = result.Last,
+                Message = result.Message,
+                StackTrace = result.StackTrace
             });
         }
         catch (KeyNotFoundException ex)

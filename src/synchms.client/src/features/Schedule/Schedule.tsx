@@ -35,9 +35,12 @@ const Schedule: FC<Readonly<ScheduleProps>> = ({ schedule }) => {
                     {
                         schedule.loading
                             ? <CircularProgress className="schedule-progress" />
-                            : (schedule.isRunning
-                                ? <Alarm className="schedule-success-icon" />
-                                : <AlarmOff className="schedule-fail-icon" />)
+                            : (schedule.error
+                                ? <AlarmOff className="schedule-fail-icon" />
+                                : (schedule.isRunning
+                                    ? <Alarm className="schedule-success-icon" />
+                                    : <AlarmOff className="schedule-success-icon" />)
+                            )
                     }
                     <div>
                         <div className="schedule-header-container schedule-name">
@@ -51,11 +54,16 @@ const Schedule: FC<Readonly<ScheduleProps>> = ({ schedule }) => {
                 </div>
             </AccordionHeader>
             <AccordionBody indent>
+                {
+                    schedule.updateError &&
+                        <Text assignment="error" multiline>{ schedule.updateError }</Text>
+                }
                 <ParameterList
                     parameters={schedule.parameters}
                     modifiedParameters={modifiedParameters}
                     disable={schedule.loading}
                     error={schedule.error}
+                    stackTrace={schedule.stackTrace}
                     setModifiedParameters={setModifiedParameters}
                     onSave={onSaveClick}
                 />

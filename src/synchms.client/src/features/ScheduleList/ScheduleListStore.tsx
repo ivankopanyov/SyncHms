@@ -9,6 +9,8 @@ export interface Schedule {
     description?: string;
     intervalSeconds: number;
     last: string;
+    message?: string;
+    stackTrace?: string;
 }
 
 const defaultScheduleList: ScheduleList = {
@@ -25,7 +27,7 @@ export const updateSchedule = createAsyncThunk('scheduleList/updateSchedule', as
 }) => await api.put(`/scheduler/${schedule.name}`, object(schedule.parameters)));
 
 const setSchedule = (state: ScheduleList, payload: Schedule) => {
-    const { name, description, intervalSeconds, last } = payload;
+    const { name, description, intervalSeconds, last, message, stackTrace } = payload;
     const isRunning = intervalSeconds > 0;
     const schedule = state.schedules.find(s => s.name === name);
 
@@ -40,14 +42,18 @@ const setSchedule = (state: ScheduleList, payload: Schedule) => {
             description: description,
             parameters: parameters,
             isRunning: isRunning,
-            loading: false
+            loading: false,
+            error: message,
+            stackTrace: stackTrace
         });
     } else {
         schedule.description = description;
         schedule.parameters = parameters;
         schedule.isRunning = isRunning;
         schedule.loading = false;
-        schedule.error = undefined;
+        schedule.error = message;
+        schedule.stackTrace = stackTrace;
+        schedule.updateError = undefined;
     }
 };
 
@@ -88,8 +94,20 @@ const scheduleListSlice = createSlice({
             const { name } = action.meta.arg;
             const schedule = state.schedules.find(s => s.name === name);
             if (schedule) {
-                schedule.loading = false;
-                schedule.error = action.error.message;
+                if (action.error.code === '404')
+                {
+                    const index = state.schedules.indexOf(schedule);
+                    if (index >= 0) {
+                        state.schedules.splice(index, 1);
+                    }
+
+                    return;
+                }
+                else
+                {
+                    schedule.loading = false;
+                    schedule.updateError = action.error.message;
+                }
             }
 
             if (action.error.code === '401')
@@ -100,7 +118,7 @@ const scheduleListSlice = createSlice({
             const schedule = state.schedules.find(s => s.name === name);
             if (schedule) {
                 schedule.loading = true;
-                schedule.error = undefined;
+                schedule.updateError = undefined;
             }
         });
     }

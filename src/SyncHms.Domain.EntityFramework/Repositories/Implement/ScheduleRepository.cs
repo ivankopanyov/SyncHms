@@ -44,7 +44,6 @@ internal class ScheduleRepository(IDomainContextFactory domainContextFactory) : 
 
             if (await context.Schedules.FirstOrDefaultAsync(s => s.Name.Equals(schedule.Name)) is { } current)
             {
-                current.Description = schedule.Description;
                 current.IntervalSeconds = schedule.IntervalSeconds;
                 current.Last = schedule.Last;
             }

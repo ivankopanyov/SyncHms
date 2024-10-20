@@ -147,8 +147,6 @@ public class ServiceWorker : BackgroundService
 
             if (await scheduleRepository.GetAsync(s.Key) is { } schedule)
             {
-                schedule.Description = s.Value.Description;
-                await scheduleRepository.UpdateAsync(schedule);
                 await _eventScheduler.UpdateScheduleAsync(schedule.Name,
                     TimeSpan.FromSeconds(schedule.IntervalSeconds), schedule.Last);
             }
@@ -157,15 +155,12 @@ public class ServiceWorker : BackgroundService
                 schedule = new Schedule
                 {
                     Name = s.Key,
-                    Description = s.Value.Description,
                     IntervalSeconds = (int)s.Value.Interval.TotalSeconds,
                     Last = s.Value.Last
                 };
 
                 await scheduleRepository.UpdateAsync(schedule);
             }
-
-            await hubContext.Clients.All.SendAsync("Schedule", schedule);
         }
 
         foreach (var s in await scheduleRepository.GetAllAsync())
@@ -173,10 +168,6 @@ public class ServiceWorker : BackgroundService
             if (!exists.Remove(s.Name))
             {
                 await scheduleRepository.RemoveAsync(s.Name);
-                await hubContext.Clients.All.SendAsync("RemoveSchedule", new RemoveSchedule
-                {
-                    ScheduleName = s.Name
-                });
             }
         }
     }
@@ -192,7 +183,6 @@ public class ServiceWorker : BackgroundService
         var schedule = new Schedule
         {
             Name = scheduleName,
-            Description = options.Description,
             IntervalSeconds = (int)options.Interval.TotalSeconds,
             Last = options.Last
         };
@@ -202,6 +192,14 @@ public class ServiceWorker : BackgroundService
         var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<ScheduleHub>>();
 
         await scheduleRepository.UpdateAsync(schedule);
-        await hubContext.Clients.All.SendAsync("Schedule", schedule);
+        await hubContext.Clients.All.SendAsync("Schedule", new ScheduleInfo
+        {
+            Name = scheduleName,
+            Description = options.Description,
+            IntervalSeconds = (int)options.Interval.TotalSeconds,
+            Last = options.Last,
+            Message = options.Message,
+            StackTrace = options.StackTrace
+        });
     }
 }

@@ -7,6 +7,8 @@ export interface ScheduleInfo {
     isRunning: boolean;
     loading: boolean;
     error?: string;
+    stackTrace?: string;
+    updateError?: string;
 }
 
 export interface ScheduleList {

@@ -6,9 +6,6 @@ public class Schedule
     /// <summary>Имя планируемого события.</summary>
     public string Name { get; set; }
 
-    /// <summary>Описание планируемого события.</summary>
-    public string? Description { get; set; }
-
     /// <summary>Интервал выполнения планируемого события в секундах.</summary>
     public int IntervalSeconds { get; set; }
 

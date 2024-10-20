@@ -6,7 +6,7 @@ namespace SyncHms.Bus.Events;
 /// </summary>
 public class EventsBusBuilder : ApplicationBuilder, IEventsBusBuilder
 {
-    private readonly EventShedulerOptions _eventSheduleOptions = new();
+    private readonly EventSchedulerOptions _eventSheduleOptions = new();
 
     /// <summary>Коллекция зависимостей приложения.</summary>
     private readonly IServiceCollection _services;

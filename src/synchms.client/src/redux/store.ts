@@ -3,13 +3,15 @@ import appReducer from '../App/AppStore';
 import serviceListReducer from '../features/ServiceList/ServiceListStore';
 import logListReducer from '../features/LogList/LogListStore';
 import environmentReducer from '../features/Environment/EnvironmentStore';
+import scheduleReducer from '../features/ScheduleList/ScheduleListStore';
 
 export const store = configureStore({
     reducer: {
         app: appReducer,
         serviceList: serviceListReducer,
         logList: logListReducer,
-        environment: environmentReducer
+        environment: environmentReducer,
+        scheduleList: scheduleReducer
     }
 });
 

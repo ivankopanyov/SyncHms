@@ -1,12 +1,13 @@
 import { useState, FC } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { BottomNavigation, BottomNavigationAction } from '@mui/material';
-import { MenuBook, DisplaySettings, FormatListBulleted } from '@mui/icons-material';
+import { MenuBook, DisplaySettings, FormatListBulleted, PendingActions } from '@mui/icons-material';
 import { Tab } from '../../components';
 import useScreenSize from '../../hooks/useScreenSize';
 import ServiceList from '../ServiceList/ServiceList';
 import Environment from '../Environment/Environment';
 import LogList from '../LogList/LogList';
+import ScheduleList from '../ScheduleList/ScheduleList';
 import './TabBar.scss';
 
 const TabBar: FC = () => {
@@ -29,6 +30,10 @@ const TabBar: FC = () => {
             case 2:
                 navigate('environment');
                 break;
+
+            case 3:
+                navigate('scheduler');
+                break;
         }
     };
     
@@ -46,6 +51,10 @@ const TabBar: FC = () => {
                 <Route
                     path="environment"
                     element={<Tab setTab={() => setTab(2)}><Environment /></Tab>}
+                />
+                <Route
+                    path="scheduler"
+                    element={<Tab setTab={() => setTab(3)}><ScheduleList /></Tab>}
                 />
                 <Route path="*" element={<Navigate to="logs" replace={true} />} /> 
             </Routes>
@@ -69,6 +78,10 @@ const TabBar: FC = () => {
                 <BottomNavigationAction className={tabClassName}
                     icon={<FormatListBulleted className="tab-bar-icon" />}
                     label={ !screenSize.isMobile && 'Environment' }
+                />
+                <BottomNavigationAction className={tabClassName}
+                    icon={<PendingActions className="tab-bar-icon" />}
+                    label={ !screenSize.isMobile && 'Scheduler' }
                 />
             </BottomNavigation>
         </div>

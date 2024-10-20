@@ -6,7 +6,7 @@ namespace SyncHms.Server.Controllers;
 /// </summary>
 /// <param name="eventScheduler">Экземпляр планировщика событий.</param>
 [ApiController]
-[Route("api/v1.0/schedule")]
+[Route("api/v1.0/scheduler")]
 public class ScheduleController(IEventScheduler eventScheduler) : ControllerBase
 {
     /// <summary>Конечная точка для запроса на изменение опций планируемого события.</summary>

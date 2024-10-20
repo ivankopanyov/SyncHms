@@ -24,23 +24,23 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
 
     /// <summary>Метод, инициализирующий отправку сообщения об обработке планируемого события в шину данных.</summary>
     /// <param name="context">Контекст обработки события.</param>
-    public Task Execute(IJobExecutionContext context)
+    public async Task Execute(IJobExecutionContext context)
     {
-        var key = context.JobDetail.Key.Name;
+        var key = context.JobDetail.Key;
+        await _scheduler.DeleteJob(key);
+
         var now = DateTime.Now;
 
-        if (!_events.TryGetValue(key, out var options))
-            return Task.CompletedTask;
+        if (!_events.TryGetValue(key.Name, out var options))
+            return;
 
         schedulePublisher.Publish(new ScheduleEvent
         {
-            Destination = key,
+            Destination = key.Name,
             EventScheduler = this,
             Previous = options.Last,
             Current = now
         });
-
-        return Task.CompletedTask;
     }
 
     /// <summary>Метод обновления опций планируемого события.</summary>

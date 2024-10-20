@@ -5,6 +5,7 @@ namespace SyncHms.Server.Hubs;
 /// Унаследован от класса <see cref="Hub"/>
 /// </summary>
 /// <param name="eventScheduler">Экземпляр планировщика событий.</param>
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ScheduleHub(IEventScheduler eventScheduler) : Hub
 {
     public async Task Schedules()

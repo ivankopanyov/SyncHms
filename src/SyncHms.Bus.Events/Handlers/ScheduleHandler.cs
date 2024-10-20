@@ -36,13 +36,13 @@ public abstract class ScheduleHandler : HandlerBase<ScheduleEvent>
 
     /// <summary>Метод, инициализирующий обновление даты и времени последней удачной обработки события.</summary>
     /// <param name="eventScheduler">Экземпляр планировщика событий.</param>
-    /// <param name="handlerName">Имя обработчика события.</param>
+    /// <param name="scheduleName">Имя планируемого события.</param>
     /// <param name="dateTime">Дата и время последней удачной обработки события.</param>
-    private static async Task UpdateLastAsync(IEventScheduler eventScheduler, string handlerName, DateTime dateTime)
+    private static async Task UpdateLastAsync(IEventScheduler eventScheduler, string scheduleName, DateTime dateTime)
     {
         try
         {
-            await eventScheduler.UpdateSheduleEventAsync(handlerName, last: dateTime);
+            await eventScheduler.UpdateScheduleAsync(scheduleName, last: dateTime, notify: true);
         }
         catch 
         {

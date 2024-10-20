@@ -8,19 +8,22 @@
 /// <param name="schedulerFactory">Объект фабрики, создающей объекты типа <see cref="IScheduler"/></param>
 /// <param name="options">Экземпляр опций планировщика событий.</param>
 internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
-    ISchedulerFactory schedulerFactory, EventShedulerOptions options) : IEventScheduler
+    ISchedulerFactory schedulerFactory, EventSchedulerOptions options) : IEventScheduler
 {
     /// <summary>Экземпляр планировщика событий.</summary>
-    private readonly IScheduler _sheduler = schedulerFactory.GetScheduler().Result;
+    private readonly IScheduler _scheduler = schedulerFactory.GetScheduler().Result;
 
     /// <summary>Коллекция опций планируемых событий с именем обработчика в качестве ключа.</summary>
     private readonly Dictionary<string, ScheduleOptions> _events = options.Events;
 
-    /// <summary>
-    /// Событие, вызываемое при изменении даты и времени последней удачной обработки планируемого события.
-    /// </summary>
-    public event UpdateLastDateHandleAsync UpdateLastDateEvent;
+    /// <summary>Коллекция опций планируемых событий с именем обработчика в качестве ключа.</summary>
+    public IReadOnlyDictionary<string, ScheduleOptions> Schedules => _events;
 
+    /// <summary>Событие, вызываемое при обновлении опций планируемого события.</summary>
+    public event UpdateScheduleHandleAsync UpdateScheduleEvent;
+
+    /// <summary>Метод, инициализирующий отправку сообщения об обработке планируемого события в шину данных.</summary>
+    /// <param name="context">Контекст обработки события.</param>
     public Task Execute(IJobExecutionContext context)
     {
         var key = context.JobDetail.Key.Name;
@@ -29,7 +32,7 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
         if (!_events.TryGetValue(key, out var options))
             return Task.CompletedTask;
 
-        schedulePublisher.Publish(new()
+        schedulePublisher.Publish(new ScheduleEvent
         {
             Destination = key,
             EventScheduler = this,
@@ -41,7 +44,7 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
     }
 
     /// <summary>Метод обновления опций планируемого события.</summary>
-    /// <param name="handlerName">Уникальное имя обработчика планируемого события.</param>
+    /// <param name="scheduleName">Уникальное имя планируемого события.</param>
     /// <param name="interval">
     /// Интервал обработки планируемого события.<br/>
     /// Если передан <c>0</c> - событие будет остановлено.<br/>
@@ -51,56 +54,57 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
     /// Дата и время последней удачной обработки события.<br/>
     /// Если передан <c>null</c> - дата не будет обновлена.<br/>
     /// </param>
-    /// <param name="lastDateNotify">
-    /// Флаг, указывающий, нужно ли вызывать событие обновления даты и времени
-    /// <see cref="IEventScheduler.UpdateLastDateEvent"/> последней удачной обработки планируемого события.
+    /// <param name="notify">
+    /// Флаг, указывающий, нужно ли вызывать событие <see cref="IEventScheduler.UpdateScheduleEvent"/>
     /// </param>
+    /// <returns>Экземпляр обновленных опций планируемого события.</returns>
     /// <exception cref="ArgumentException">
-    /// Исключение возбуждается, если имя переданного обработчика не
-    /// инициализировано или обработчик с указанным именем не зарегистрирован.
+    /// Исключение возбуждается, если имя переданного обработчика не инициализировано.
     /// </exception>
-    public async Task UpdateSheduleEventAsync(string handlerName, TimeSpan? interval = null, DateTime? last = null, bool lastDateNotify = false)
+    /// <exception cref="KeyNotFoundException">
+    /// Исключение возбуждается, если обработчик с указанным именем не зарегистрирован.
+    /// </exception>
+    public async Task<ScheduleOptions> UpdateScheduleAsync(string scheduleName, TimeSpan? interval = null, DateTime? last = null, bool notify = false)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(handlerName, nameof(handlerName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(scheduleName, nameof(scheduleName));
 
-        if (!_events.TryGetValue(handlerName, out var options))
-            throw new ArgumentException($"Handler named {handlerName} was not found.");
+        if (!_events.TryGetValue(scheduleName, out var options))
+            throw new KeyNotFoundException($"Handler named {scheduleName} was not found.");
 
-        if (!await _sheduler.CheckExists(options.Key))
+        if (!await _scheduler.CheckExists(options.Key))
         {
-            if (interval is TimeSpan timeSpan)
+            if (interval is { } timeSpan)
                 options.Interval = timeSpan;
 
-            if (last is DateTime dateTime)
+            if (last is { } dateTime)
                 options.Last = dateTime;
-
-            await RunSheduleAsync(options, lastDateNotify);
         }
         else
         {
-            if ((interval == null || (interval is TimeSpan timeSpan && options.Interval == timeSpan))
-                && (last == null || (last is DateTime dateTime && options.Last == dateTime)))
-                return;
+            if ((interval == null || (interval is { } timeSpan && options.Interval == timeSpan))
+                && (last == null || (last is { } dateTime && options.Last == dateTime)))
+                return options;
 
-            await _sheduler.DeleteJob(options.Key);
+            await _scheduler.DeleteJob(options.Key);
 
             options.Interval = interval ?? options.Interval;
             options.Last = last ?? options.Last;
-
-            await RunSheduleAsync(options, lastDateNotify);
         }
+
+        await RunScheduleAsync(options, notify);
+        return options;
     }
 
     /// <summary>Метод, инициализирующий обработку планируемого события.</summary>
     /// <param name="options">Экземпляр опций планируемого события.</param>
     /// <param name="lastDateNotify">
     /// Флаг, указывающий, нужно ли вызывать событие обновления даты и времени
-    /// <see cref="IEventScheduler.UpdateLastDateEvent"/> последней удачной обработки планируемого события.
+    /// <see cref="IEventScheduler.UpdateScheduleEvent"/> последней удачной обработки планируемого события.
     /// </param>
-    private async Task RunSheduleAsync(ScheduleOptions options, bool lastDateNotify)
+    private async Task RunScheduleAsync(ScheduleOptions options, bool lastDateNotify)
     {
         if (lastDateNotify)
-            UpdateLastDateEvent?.Invoke(options.Key.Name, options.Last, options.Description);
+            UpdateScheduleEvent?.Invoke(options.Key.Name, options);
 
         if (options.Interval == TimeSpan.Zero)
             return;
@@ -121,6 +125,6 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
             ? triggerBuilder.StartNow()
             : triggerBuilder.StartAt(next);
 
-        await _sheduler.ScheduleJob(job, triggerBuilder.Build());
+        await _scheduler.ScheduleJob(job, triggerBuilder.Build());
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SyncHms.Domain.EntityFramework.Sqlite.Infrastructure;
 
@@ -10,9 +11,11 @@ using SyncHms.Domain.EntityFramework.Sqlite.Infrastructure;
 namespace SyncHms.Domain.EntityFramework.Sqlite.Migrations
 {
     [DbContext(typeof(SqliteDomainContext))]
-    partial class SqliteDomainContextModelSnapshot : ModelSnapshot
+    [Migration("20241020093908_AddedSchedule")]
+    partial class AddedSchedule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.15");
@@ -101,6 +104,9 @@ namespace SyncHms.Domain.EntityFramework.Sqlite.Migrations
             modelBuilder.Entity("SyncHms.Domain.Schedule", b =>
                 {
                     b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("IntervalSeconds")

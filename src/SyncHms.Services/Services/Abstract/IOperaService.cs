@@ -24,4 +24,14 @@ public interface IOperaService : IService<OperaOptions, ApplicationEnvironment>
     /// <returns>Данные бронирования.</returns>
     Task<ReservationUpdatedMessage?> GetReservationUpdatedMessageAsync(decimal reservationId, string status,
         string room, DateTime? arrival, DateTime? departure, bool? noPost);
+
+    /// <summary>Метод, возвращающий коллекцию бронирований, которые были обновлены ы указанный период.</summary>
+    /// <param name="fromDate">Минимальная дата обновления бронирования.</param>
+    /// <param name="toDate">Максимальная дата обноаления бронирования.</param>
+    /// <returns>
+    /// Коллекция обновленных бронирований с номером бронирования
+    /// в качестве ключа и статусом бронирования в качестве значения.
+    /// <seealso cref="ReservationStatus"/>
+    /// </returns>
+    Task<Dictionary<decimal, string>> GetUpdatedReservationsAsync(DateTime fromDate, DateTime toDate);
 }

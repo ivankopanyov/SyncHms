@@ -166,6 +166,7 @@ public static class ConfigureServices
         app.MapHub<LogHub>("/hub/logs");
         app.MapHub<ServiceHub>("/hub/services");
         app.MapHub<EnvironmentHub>("/hub/environment");
+        app.MapHub<ScheduleHub>("/hub/scheduler");
         return app;
     }
 

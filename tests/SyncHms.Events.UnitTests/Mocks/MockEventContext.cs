@@ -6,10 +6,12 @@ public class MockEventContext : IEventContext
 
     private readonly List<(string?, Exception?)> _breaks = [];
 
+    public string HandlerName => "TEST";
+
     public IReadOnlyList<object?> SendMessages => _sendMessages;
     
     public IReadOnlyList<(string? Message, Exception? Exception)> Breaks => _breaks;
-    
+
     public void Send<TIn>(TIn @in)
     {
         _sendMessages.Add(@in);

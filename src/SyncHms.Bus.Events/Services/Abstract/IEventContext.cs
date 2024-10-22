@@ -3,6 +3,9 @@ namespace SyncHms.Bus.Events;
 /// <summary>Интерфейс, определяющий методы контекста обработки события.</summary>
 public interface IEventContext
 {
+    /// <summary>Имя текущего обработчика.</summary>
+    string HandlerName { get; }
+
     /// <summary>Метод, добавляющий событие для публикации в шину данных.</summary>
     /// <typeparam name="TIn">Тип сообщения.</typeparam>
     /// <param name="in">Экземпляр сообщения.</param>

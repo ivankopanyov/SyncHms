@@ -36,7 +36,8 @@ public static class CacheBuilderExtensions
         cacheBuilder
             .AddScoped<ILogRepository, LogRepository>()
             .AddScoped<IServiceRepository, ServiceRepository>()
-            .AddScoped<IEnvironmentRepository<TEnvironment>, EnvironmentRepository<TEnvironment>>();
+            .AddScoped<IEnvironmentRepository<TEnvironment>, EnvironmentRepository<TEnvironment>>()
+            .AddScoped<IScheduleRepository, ScheduleRepository>();
 
         return cacheBuilder;
     }

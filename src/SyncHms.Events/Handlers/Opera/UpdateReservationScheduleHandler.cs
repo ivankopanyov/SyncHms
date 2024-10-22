@@ -21,27 +21,32 @@ internal class UpdateReservationScheduleHandler(IOperaService operaService) : Sc
         var reservations = await operaService.GetUpdatedReservationsAsync(context.Previous, context.Current);
         foreach (var reservation in reservations)
         {
-            switch (reservation.Value)
+            switch (reservation.Status)
             {
                 case ReservationStatus.Reserved:
-                    context.Send(new GuestReserved
-                    {
-                        ReservationNumber = (long)reservation.Key
-                    });
+                    SendUpdatedReservationMessage<GuestReserved>(reservation, context);
                     return;
                 case ReservationStatus.Cancelled:
-                    context.Send(new GuestCancelled
-                    {
-                        ReservationNumber = (long)reservation.Key
-                    });
+                    SendUpdatedReservationMessage<GuestCancelled>(reservation, context);
                     return;
                 case ReservationStatus.NoShow:
-                    context.Send(new GuestNoShow
-                    {
-                        ReservationNumber = (long)reservation.Key
-                    });
+                    SendUpdatedReservationMessage<GuestNoShow>(reservation, context);
                     return;
             }
         }
+    }
+
+    /// <summary>Метод отправляет объект с информацие о бронировании в шину данных.</summary>
+    /// <typeparam name="T">Тип объекта бронирования.</typeparam>
+    /// <param name="reservation">Исходный объект.</param>
+    private static void SendUpdatedReservationMessage<T>(UpdatedReservation reservation, IEventContext context)
+        where T : GuestBase, new()
+    {
+        context.Send(new T
+        {
+            ReservationNumber = (long)reservation.ReservationNumber,
+            Arrival = reservation.Arrival,
+            Departure = reservation.Departure
+        });
     }
 }

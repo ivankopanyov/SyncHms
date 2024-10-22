@@ -3,9 +3,9 @@ namespace SyncHms.Events.Handlers.Opera;
 /// <summary>
 /// Класс, описывающий обработчик события <see cref="GuestCancelled"/>,
 /// оповещающего об изменении статуса бронирования на <c>CANCELLED</c>.<br/>
-/// Унаследован от класса <see cref="Handler{TIn}"/>
+/// Унаследован от класса <see cref="GuestHandlerBase{TIn}"/>
 /// </summary>
-internal class CancelledHandler : Handler<GuestCancelled>
+internal class CancelledHandler : GuestHandlerBase<GuestCancelled>
 {
     /// <summary>
     /// Метод, обрабатывающий событие <see cref="GuestCancelled"/>.
@@ -16,20 +16,7 @@ internal class CancelledHandler : Handler<GuestCancelled>
     /// <param name="context">Контекст обработки события.</param>
     protected override Task HandleAsync(GuestCancelled @in, IEventContext context)
     {
-        context.Send(new ReservationInfo
-        {
-            ReservationNumber = @in.ReservationNumber,
-            Status = "OUT"
-        });
-
+        SendUpdatedReservationMessage(@in, "OUT", context);
         return Task.CompletedTask;
     }
-
-    /// <summary>
-    /// Метод, возвращающий краткое описание события <see cref="GuestCancelled"/><br/>
-    /// Переопределяет метод <see cref="Handler{TIn}.Message"/>
-    /// </summary>
-    /// <param name="in">Экземпляр обрабатываемого события.</param>
-    /// <returns>Краткое описание события.</returns>
-    protected override string Message(GuestCancelled @in) => $"Reservation: {@in.ReservationNumber}";
 }

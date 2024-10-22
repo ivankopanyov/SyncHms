@@ -318,26 +318,26 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
     /// <summary>Метод, возвращающий коллекцию бронирований, которые были обновлены ы указанный период.</summary>
     /// <param name="fromDate">Минимальная дата обновления бронирования.</param>
     /// <param name="toDate">Максимальная дата обноаления бронирования.</param>
-    /// <returns>
-    /// Коллекция обновленных бронирований с номером бронирования
-    /// в качестве ключа и статусом бронирования в качестве значения.
-    /// <seealso cref="ReservationStatus"/>
-    /// </returns>
-    public async Task<Dictionary<decimal, string>> GetUpdatedReservationsAsync(DateTime fromDate, DateTime toDate)
+    /// <returns>Коллекция обновленных бронирований.</returns>
+    public async Task<List<UpdatedReservation>> GetUpdatedReservationsAsync(DateTime fromDate, DateTime toDate)
     {
-        Dictionary<decimal, string> result;
+        List<UpdatedReservation> result;
 
         try
         {
             using (var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionOptions))
             {
                 var context = Context;
-                var reservations = await (from rn in context.ReservationNames
+                result = await (from rn in context.ReservationNames
                     where rn.Resort == Environment.ResortCode && rn.ResvNameId != null &&
                           rn.UpdateDate > fromDate && rn.UpdateDate <= toDate
-                    select new { rn.ResvNameId, rn.ResvStatus }).ToListAsync();
-
-                result = reservations.ToDictionary(r => (decimal)r.ResvNameId, r => r.ResvStatus);
+                    select new UpdatedReservation
+                    {
+                        ReservationNumber = (decimal)rn.ResvNameId!,
+                        Arrival = rn.BeginDate,
+                        Departure = rn.EndDate,
+                        Status = rn.ResvStatus!
+                    }).ToListAsync();
             }
 
             control.Active();

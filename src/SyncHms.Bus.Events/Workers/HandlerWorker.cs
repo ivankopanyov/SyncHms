@@ -64,6 +64,28 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
         using var scope = _serviceScopeFactory.CreateScope();
         var handler = scope.ServiceProvider.GetRequiredService<THandler>();
 
+
+        var handlerName = _handlerName;
+        string? message = null;
+
+        try
+        {
+            handlerName = handler.HandlerName(@event.Message) ?? handlerName;
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, ex.Message);
+        }
+
+        try
+        {
+            message = handler.Message(@event.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, ex.Message);
+        }
+
         if (@event.Message == null)
         {
             if (_useLogging)
@@ -72,7 +94,8 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                 {
                     TaskId = @event.TaskId,
                     TaskName = @event.TaskName,
-                    HandlerName = _handlerName,
+                    HandlerName = handlerName,
+                    Message = message,
                     IsEnd = true,
                     Error = "Input object is null"
                 });
@@ -95,18 +118,7 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
             }
         }
         
-        var context = new EventContext(_handlerName);
-        string? message;
-
-        try
-        {
-            message = handler.Message(@event.Message);
-        }
-        catch (Exception ex)
-        {
-            message = null;
-            _logger?.LogError(ex, ex.Message);
-        }
+        var context = new EventContext(handlerName);
 
         try
         {
@@ -118,7 +130,7 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                 {
                     TaskId = @event.TaskId,
                     TaskName = @event.TaskName,
-                    HandlerName = _handlerName,
+                    HandlerName = handlerName,
                     Message = message,
                     IsEnd = !context.Events.Any(),
                     InputObjectJson = inputObjectJson
@@ -140,7 +152,7 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                 {
                     TaskId = @event.TaskId,
                     TaskName = @event.TaskName,
-                    HandlerName = _handlerName,
+                    HandlerName = handlerName,
                     Message = message,
                     IsEnd = true,
                     Error = ex.Message,
@@ -161,7 +173,7 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                     await LogAsync(new EventLog
                     {
                         TaskName = @event.TaskName,
-                        HandlerName = _handlerName,
+                        HandlerName = handlerName,
                         TaskId = @event.TaskId,
                         Message = message,
                         Error = @event.Error,

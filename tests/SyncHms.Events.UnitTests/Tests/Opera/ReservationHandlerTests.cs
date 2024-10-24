@@ -60,8 +60,7 @@ public class ReservationHandlerTests
         });
         
         operaService
-            .Setup(fs => fs.GetReservationUpdatedMessageAsync(It.IsAny<decimal>(), It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<bool?>()))
+            .Setup(fs => fs.GetReservationUpdatedMessageAsync(It.IsAny<decimal>(), It.IsAny<string>()))
             .ReturnsAsync(returnNull ? null : new ReservationUpdatedMessage());
 
         return operaService.Object;
@@ -77,8 +76,7 @@ public class ReservationHandlerTests
         });
         
         operaService
-            .Setup(fs => fs.GetReservationUpdatedMessageAsync(It.IsAny<decimal>(), It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<bool?>()))
+            .Setup(fs => fs.GetReservationUpdatedMessageAsync(It.IsAny<decimal>(), It.IsAny<string>()))
             .Throws<Exception>();
 
         return operaService.Object;

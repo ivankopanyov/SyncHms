@@ -38,11 +38,7 @@ internal class CheckInHandlerCases : IEnumerable<object[]>
                 new ReservationInfo
                 {
                     ReservationNumber = reservationNumber,
-                    Room = roomNumber,
-                    Status = "IN",
-                    ArrivalDate = item.ExceptedArrival,
-                    DepartureDate = item.ExceptedDeparture,
-                    NoPost = noPost
+                    Status = SanatoriumReservationStatus.CheckedIn
                 }
             };
         }).GetEnumerator();

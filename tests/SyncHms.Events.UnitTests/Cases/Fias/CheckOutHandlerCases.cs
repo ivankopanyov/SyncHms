@@ -21,8 +21,7 @@ internal class CheckOutHandlerCases : IEnumerable<object[]>
                 new ReservationInfo
                 {
                     ReservationNumber = reservationNumber,
-                    Room = roomNumber,
-                    Status = "OUT"
+                    Status = SanatoriumReservationStatus.CheckedOut
                 }
             };
         }).GetEnumerator();

@@ -19,8 +19,7 @@ internal class CheckOutHandler : Handler<FiasGuestCheckOut>
         context.Send(new ReservationInfo
         {
             ReservationNumber = @in.ReservationNumber,
-            Room = @in.RoomNumber,
-            Status = "OUT"
+            Status = SanatoriumReservationStatus.CheckedOut
         });
 
         return Task.CompletedTask;

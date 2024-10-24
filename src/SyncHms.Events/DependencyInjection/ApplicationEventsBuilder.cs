@@ -47,9 +47,7 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
             .AddEvent<CheckHandler, Check>(options => options.HandlerName = "MICROS")
             .AddEvent<PostingResponseHandler, PostTransactionsResponse>(options => options.HandlerName = "SANATORIUM")
             .AddEvent<UpdateReservationHandler, ReservationUpdatedMessage>(options => options.HandlerName = "SANATORIUM")
-            .AddEvent<ReservedHandler, GuestReserved>(options => options.HandlerName = "RESERVED")
-            .AddEvent<CancelledHandler, GuestCancelled>(options => options.HandlerName = "CANCELLED")
-            .AddEvent<NoShowHandler, GuestNoShow>(options => options.HandlerName = "NO_SHOW")
+            .AddEvent<UpdatedReservationHandler, UpdatedReservation>(options => options.HandlerName = "UPDATED")
             .AddEventLog<TelegramMessageHandler>()
             .AddUnloggedEvent<ChangedServiceStateHandler, ChangedServiceState>()
             .AddHostedService<MessageProxyWorker>();

@@ -6,9 +6,18 @@ namespace SyncHms.Events.Handlers.Opera;
 /// Унаследован от класса <see cref="ScheduleHandler"/>
 /// </summary>
 /// <param name="operaService">Экземпляр сервиса взаимодействия с базой данных <c>OPERA</c></param>
-[ScheduleDescription("Мониторинг обновлений бронирований в базе данных OPERA.\nСтатусы: RESERVED, CANCELLED, NO SHOW")]
+[ScheduleDescription("Мониторинг обновлений бронирований в базе данных OPERA.")]
 internal class UpdateReservationScheduleHandler(IOperaService operaService) : ScheduleHandler
 {
+    /// <summary>Статусы бронирований, запрашиваемые в базе данных <c>OPERA</c></summary>
+    private static readonly ISet<string> Statuses = new HashSet<string>
+    {
+        OperaReservationStatus.Reserved,
+        OperaReservationStatus.Cancelled,
+        OperaReservationStatus.WaitList,
+        OperaReservationStatus.NoShow
+    };
+
     /// <summary>
     /// Метод, запрашивающий обновления бронирований из базы данных <c>OPERA</c>.<br/>
     /// Переопределяет метод <see cref="ScheduleHandler.HandleAsync"/>
@@ -18,35 +27,8 @@ internal class UpdateReservationScheduleHandler(IOperaService operaService) : Sc
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(operaService.Environment.ResortCode, nameof(operaService.Environment.ResortCode));
 
-        var reservations = await operaService.GetUpdatedReservationsAsync(context.Previous, context.Current);
+        var reservations = await operaService.GetUpdatedReservationsAsync(context.Previous, context.Current, Statuses);
         foreach (var reservation in reservations)
-        {
-            switch (reservation.Status)
-            {
-                case ReservationStatus.Reserved:
-                    SendUpdatedReservationMessage<GuestReserved>(reservation, context);
-                    return;
-                case ReservationStatus.Cancelled:
-                    SendUpdatedReservationMessage<GuestCancelled>(reservation, context);
-                    return;
-                case ReservationStatus.NoShow:
-                    SendUpdatedReservationMessage<GuestNoShow>(reservation, context);
-                    return;
-            }
-        }
-    }
-
-    /// <summary>Метод отправляет объект с информацие о бронировании в шину данных.</summary>
-    /// <typeparam name="T">Тип объекта бронирования.</typeparam>
-    /// <param name="reservation">Исходный объект.</param>
-    private static void SendUpdatedReservationMessage<T>(UpdatedReservation reservation, IEventContext context)
-        where T : GuestBase, new()
-    {
-        context.Send(new T
-        {
-            ReservationNumber = (long)reservation.ReservationNumber,
-            Arrival = reservation.Arrival,
-            Departure = reservation.Departure
-        });
+            context.Send(reservation);
     }
 }

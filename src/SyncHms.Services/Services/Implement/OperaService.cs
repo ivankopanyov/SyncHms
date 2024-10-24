@@ -275,12 +275,10 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                             }).ToArray()
                         }).ToArray();
 
-                        var currentTimeline = message.Timelines.FirstOrDefault(t =>
+                        message.CurrentTimeline = message.Timelines.FirstOrDefault(t =>
                             reservationResponse.BusinnesDate != null &&
-                            t.DateRange.DateTimeFrom == reservationResponse.BusinnesDate);
-
-                        if (currentTimeline != null)
-                            message.CurrentTimeline = currentTimeline;
+                            t.DateRange.DateTimeFrom == reservationResponse.BusinnesDate)
+                            ?? message.Timelines.First();
                     }
                 }
             }

@@ -22,6 +22,9 @@ public class ServiceWorker : BackgroundService
     /// <summary>Экземпляр планировщика событий.</summary>
     private readonly IEventScheduler _eventScheduler;
 
+    /// <summary>Экземпляр опций планировщика событий.</summary>
+    private readonly SchedulerOptions _schedulerOptions;
+
     /// <summary>Инициализация сервиса.</summary>
     /// <param name="serviceScopeFactory">
     /// Экземпляр фабрики, создающей объекты, реализующие интерфейс <see cref="IServiceScopeFactory"/>
@@ -30,17 +33,20 @@ public class ServiceWorker : BackgroundService
     /// <param name="serviceController">Экземпляр контроллера сервисов.</param>
     /// <param name="serviceStatePublisher">Сервис публикации событий <see cref="ChangedServiceState"/></param>
     /// <param name="eventScheduler">Экземпляр планировщика событий.</param>
+    /// <param name="schedulerOptions">Экземпляр опций планировщика событий.</param>
     public ServiceWorker(IServiceScopeFactory serviceScopeFactory,
         IOptions<ApplicationEnvironment>? environment,
         IServiceController<ApplicationEnvironment> serviceController,
         IEventPublisher<ChangedServiceState> serviceStatePublisher,
-        IEventScheduler eventScheduler)
+        IEventScheduler eventScheduler,
+        SchedulerOptions schedulerOptions)
     {
         _serviceScopeFactory = serviceScopeFactory;
         _environment = environment;
         _serviceController = serviceController;
         _serviceStatePublisher = serviceStatePublisher;
         _eventScheduler = eventScheduler;
+        _schedulerOptions = schedulerOptions;
 
         _serviceController.ChangedOptionsEvent += async serviceInfo => await HandleAsync(serviceInfo);
         _eventScheduler.UpdateScheduleEvent += UpdateScheduleHandleAsync;
@@ -152,12 +158,27 @@ public class ServiceWorker : BackgroundService
             }
             else
             {
-                schedule = new Schedule
+                if (_schedulerOptions.Schedules?.FirstOrDefault(i => i.Name == s.Key) is { } scheduleOptions)
                 {
-                    Name = s.Key,
-                    IntervalSeconds = (int)s.Value.Interval.TotalSeconds,
-                    Last = s.Value.Last
-                };
+                    await _eventScheduler.UpdateScheduleAsync(scheduleOptions.Name,
+                        TimeSpan.FromSeconds(scheduleOptions.IntervalSeconds), scheduleOptions.Last);
+                    
+                    schedule = new Schedule
+                    {
+                        Name = scheduleOptions.Name,
+                        IntervalSeconds = scheduleOptions.IntervalSeconds,
+                        Last = scheduleOptions.Last
+                    };
+                }
+                else
+                {
+                    schedule = new Schedule
+                    {
+                        Name = s.Key,
+                        IntervalSeconds = (int)s.Value.Interval.TotalSeconds,
+                        Last = s.Value.Last
+                    };
+                }
 
                 await scheduleRepository.UpdateAsync(schedule);
             }

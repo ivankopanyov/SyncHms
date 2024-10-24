@@ -87,16 +87,8 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
     /// <summary>Метод, запрашивающий данные бронирования в базе данных <c>OPERA</c></summary>
     /// <param name="reservationId">Идентификатор бронирования.</param>
     /// <param name="status">Статус бронирования.</param>
-    /// <param name="room">Номер комнаты бронирования.</param>
-    /// <param name="arrival">Дата заезда.</param>
-    /// <param name="departure">Дата выезда.</param>
-    /// <param name="noPost">
-    /// Флаг, указывающий на возможность начисления платежей на комнату.<br/>
-    /// Если значения <c>true</c> - функция начисления на комнату отключена.
-    /// </param>
     /// <returns>Данные бронирования.</returns>
-    public async Task<ReservationUpdatedMessage?> GetReservationUpdatedMessageAsync(decimal reservationId, string status,
-        string? room, DateTime? arrival, DateTime? departure, bool? noPost)
+    public async Task<ReservationUpdatedMessage?> GetReservationUpdatedMessageAsync(decimal reservationId, string status)
     {
         ReservationUpdatedMessage? message = null;
 
@@ -120,13 +112,14 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                                      Sex = n.Gender,
                                                      BirthDateStr = string.Empty,
                                                      BirthDate = DateTime.Now,
-                                                     //Notes = 
-                                                     rn.ArrivalDateTime,
-                                                     rn.DepartureDateTime,
-                                                     rn.ActualCheckInDate,
-                                                     rn.ActualCheckOutDate,
-                                                     rn.TruncBeginDate,
-                                                     rn.TruncEndDate,
+                                                     //Notes =
+                                                     Arrival = rn.ActualCheckInDate != null,
+                                                     Departure = rn.ActualCheckOutDate != null,
+                                                     rn.BeginDate,
+                                                     rn.EndDate,
+                                                     rn.PostingAllowedYn,
+                                                     rn.InsertDate,
+                                                     rn.UpdateDate,
                                                      DocumentTypeCode = (from nd in context.NameDocuments
                                                                          where nd.PrimaryYn == "Y" && nd.NameId == n.NameId
                                                                          select nd.IdType).FirstOrDefault(),
@@ -194,26 +187,33 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                         .FromSqlRaw(string.Format(NameDataQuery, reservationResponse.GuestGenericNo))
                         .FirstOrDefaultAsync();
 
+                    var noPost = reservationResponse.PostingAllowedYn != "Y";
                     var notes = GetNote(reservationResponse.Timelines.SelectMany(t => t.Packages).Select(p => p.Code).ToHashSet(), noPost);
 
                     CustomField[]? customFields = !string.IsNullOrWhiteSpace(Environment.SanatoriumCustomField)
                         ? [
-                            new CustomField()
+                            new CustomField
                             {
                                 Code = Environment.SanatoriumCustomField,
                                 StringValue = notes
                             }]
                         : null;
 
-                    var arrivalDate = arrival ?? reservationResponse.ArrivalDateTime ?? reservationResponse.ActualCheckInDate ?? default;
-                    var departureDate = departure ?? reservationResponse.DepartureDateTime ?? reservationResponse.ActualCheckOutDate ?? default;
+                    var arrivalDate = reservationResponse.Arrival ? reservationResponse.BeginDate : null;
+                    var departureDate = reservationResponse.Departure ? reservationResponse.EndDate : null;
 
-                    message = new ReservationUpdatedMessage()
+                    message = new ReservationUpdatedMessage
                     {
                         GenericNo = reservationId.ToString("0"),
                         Status = status,
-                        ArrivalDate = arrivalDate,
-                        DepartureDate = departureDate,
+                        ArrivalDate = reservationResponse.BeginDate ?? default,
+                        DepartureDate = reservationResponse.EndDate ?? default,
+                        ActualArrivalDate = arrivalDate,
+                        ActualDepartureDate = departureDate,
+                        FactArrivalDateTime = arrivalDate,
+                        FactDepartureDateTime = departureDate,
+                        CreatedDate = reservationResponse.InsertDate ?? default,
+                        ModifiedDate = reservationResponse.UpdateDate ?? default,
                         CustomFieldValues = customFields!,
                         ReservationGuests =
                         [
@@ -231,7 +231,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                 City = reservationResponse.Address?.City,
                                 Street = reservationResponse.Address?.Street,
                                 Notes = notes,
-                                NoPost = noPost ?? false,
+                                NoPost = noPost,
                                 Phones = reservationResponse.Phones.Select(p => new GuestPhone
                                 {
                                     PhoneNumber = p.PhoneNumber,
@@ -252,23 +252,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                         ]
                     };
 
-                    if (reservationResponse.Timelines.Count == 0)
-                    {
-                        var timeline = new ReservationMessage.Timeline
-                        {
-                            DateRange = new DateRange
-                            {
-                                DateTimeFrom = arrivalDate,
-                                DateTimeTo = departureDate
-                            },
-                            EffectiveDate = arrivalDate,
-                            RoomCode = room
-                        };
-
-                        message.Timelines = [timeline];
-                        message.CurrentTimeline = timeline;
-                    }
-                    else
+                    if (reservationResponse.Timelines.Count > 0)
                     {
                         message.Timelines = reservationResponse.Timelines.Select(t => new ReservationMessage.Timeline
                         {
@@ -291,16 +275,12 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                             }).ToArray()
                         }).ToArray();
 
-                        if (reservationResponse.TruncBeginDate != reservationResponse.TruncEndDate)
-                            message.Timelines = message.Timelines
-                                .Where(t => t.DateRange.DateTimeFrom != reservationResponse.TruncEndDate)
-                                .ToArray();
+                        var currentTimeline = message.Timelines.FirstOrDefault(t =>
+                            reservationResponse.BusinnesDate != null &&
+                            t.DateRange.DateTimeFrom == reservationResponse.BusinnesDate);
 
-                        message.CurrentTimeline =
-                            message.Timelines.FirstOrDefault(t =>
-                                reservationResponse.BusinnesDate != null &&
-                                t.DateRange.DateTimeFrom == reservationResponse.BusinnesDate)
-                            ?? message.Timelines.First();
+                        if (currentTimeline != null)
+                            message.CurrentTimeline = currentTimeline;
                     }
                 }
             }
@@ -330,13 +310,11 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                 var context = Context;
                 result = await (from rn in context.ReservationNames
                     where rn.Resort == Environment.ResortCode && rn.ResvNameId != null &&
-                          rn.UpdateDate > fromDate && rn.UpdateDate <= toDate
+                          rn.UpdateDate > fromDate && rn.UpdateDate <= toDate && rn.ResvStatus != null
                     select new UpdatedReservation
                     {
                         ReservationNumber = (decimal)rn.ResvNameId!,
-                        Arrival = rn.BeginDate,
-                        Departure = rn.EndDate,
-                        Status = rn.ResvStatus!
+                        Status = rn.ResvStatus
                     }).ToListAsync();
             }
 

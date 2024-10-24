@@ -6,6 +6,9 @@ public interface IEventContext
     /// <summary>Имя текущего обработчика.</summary>
     string HandlerName { get; }
 
+    /// <summary>Флаг, укзывающий, что нужно обновить идентификатор отправляемых сообщений.</summary>
+    internal bool UpdateTaskId { get; set; }
+
     /// <summary>Метод, добавляющий событие для публикации в шину данных.</summary>
     /// <typeparam name="TIn">Тип сообщения.</typeparam>
     /// <param name="in">Экземпляр сообщения.</param>

@@ -16,26 +16,10 @@ internal class ChangeHandler : Handler<FiasGuestChange>
     /// <param name="context">Контекст обработки события.</param>
     protected override Task HandleAsync(FiasGuestChange @in, IEventContext context)
     {
-        DateTime? arrivalDate = null;
-        if (@in.GuestArrivalDate is { } arrival)
-            arrivalDate = arrival.ToDateTime(default);
-
-        DateTime? departureDate = null;
-        if (@in.GuestDepartureDate is { } departure)
-        {
-            departureDate = departure.ToDateTime(default);
-            if (arrivalDate is { } date && date == departureDate)
-                departureDate = date.AddDays(1).AddTicks(-1);
-        }
-
         context.Send(new ReservationInfo
         {
             ReservationNumber = @in.ReservationNumber,
-            Room = @in.RoomNumber,
-            Status = "IN",
-            ArrivalDate = arrivalDate,
-            DepartureDate = departureDate,
-            NoPost = @in.NoPostStatus
+            Status = SanatoriumReservationStatus.CheckedIn
         });
 
         return Task.CompletedTask;

@@ -10,7 +10,6 @@ global using SyncHms.Events.Extensions;
 global using SyncHms.Events.Handlers.Fias;
 global using SyncHms.Events.Handlers.Fias.Base;
 global using SyncHms.Events.Handlers.Opera;
-global using SyncHms.Events.Handlers.Opera.Base;
 global using SyncHms.Events.Handlers.Fiscal;
 global using SyncHms.Events.Handlers.Sanatorium;
 global using SyncHms.Events.Handlers.Telegram;

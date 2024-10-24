@@ -17,6 +17,13 @@ internal class ScheduleEventContext(IEventContext baseContext) : IScheduleEventC
 
     public DateTime Current { get; init; }
 
+    /// <summary>Флаг, укзывающий, что нужно обновить идентификатор отправляемых сообщений.</summary>
+    public bool UpdateTaskId
+    {
+        get => baseContext.UpdateTaskId;
+        set => baseContext.UpdateTaskId = value;
+    }
+
     /// <summary>
     /// Метод, добавляющий событие для публикации в шину данных.<br/>
     /// Вызывает метод <see cref="IEventContext.Send"/>

@@ -14,16 +14,8 @@ public interface IOperaService : IService<OperaOptions, ApplicationEnvironment>
     /// <summary>Метод, запрашивающий данные бронирования в базе данных <c>OPERA</c></summary>
     /// <param name="reservationId">Идентификатор бронирования.</param>
     /// <param name="status">Статус бронирования.</param>
-    /// <param name="room">Номер комнаты бронирования.</param>
-    /// <param name="arrival">Дата заезда.</param>
-    /// <param name="departure">Дата выезда.</param>
-    /// <param name="noPost">
-    /// Флаг, указывающий на возможность начисления платежей на комнату.<br/>
-    /// Если значения <c>true</c> - функция начисления на комнату отключена.
-    /// </param>
     /// <returns>Данные бронирования.</returns>
-    Task<ReservationUpdatedMessage?> GetReservationUpdatedMessageAsync(decimal reservationId, string status,
-        string room, DateTime? arrival, DateTime? departure, bool? noPost);
+    Task<ReservationUpdatedMessage?> GetReservationUpdatedMessageAsync(decimal reservationId, string status);
 
     /// <summary>Метод, возвращающий коллекцию бронирований, которые были обновлены ы указанный период.</summary>
     /// <param name="fromDate">Минимальная дата обновления бронирования.</param>

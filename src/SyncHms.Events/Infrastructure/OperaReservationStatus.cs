@@ -1,7 +1,7 @@
-namespace SyncHms.Services;
+namespace SyncHms.Events;
 
-/// <summary>Статический класс, хранящий набор констант со статусами бронирования.</summary>
-public static class ReservationStatus
+/// <summary>Статический класс, хранящий набор констант со статусами бронирования системы <c>OPERA</c>.</summary>
+public static class OperaReservationStatus
 {
     /// <summary>Забронировано.</summary>
     public const string Reserved = "RESERVED";

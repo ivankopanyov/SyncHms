@@ -98,6 +98,10 @@ public static class ConfigureServices
             .AddEventLog<UpdateLogHandler>()
             .AddUnloggedEvent<UpdatedEnvironmentHandler, ApplicationEnvironment>();
 
+        var schedulerOptions = new SchedulerOptions();
+        appBuilder.Configuration.Bind(SchedulerOptions.Section, schedulerOptions);
+        builder.AddSingleton(schedulerOptions);
+
         return result;
     }
     

@@ -9,6 +9,8 @@ Cервис интеграции систем [OPERA Hotel Property Management S
 	+ [Sanatorium](#sanatorium)
 	+ [Telegram](#telegram)
 * [Окружение](#окружение)
+* [Планировщик](#планировщик)
+	+ [Reservations Updates Monitoring](#reservations-updates-monitoring)
 * [Зависимости](#зависимости)
 	+ [Шина данных](#шина-данных)
 	+ [База данных](#база-данных)
@@ -243,6 +245,31 @@ Cервис интеграции систем [OPERA Hotel Property Management S
   }
 }
 ```
+## Планировщик
+Планировщик запускает выполнение задач через определенные интервалы времени. Используется библиотека [Quartz](https://www.nuget.org/packages/Quartz).
+* Конфигурации планировщика
+	+ `Schedules` *(readonly ISet\<Schedule>)* - Список опций задач планировщика.
+      - `Name` *(readonly string)* - Имя задачи.
+	  - `IntervalSeconds` *(int)* - Интервал выполнени задачи в секундах.<br/>*Если* `IntervalSeconds` *равен* `0` *- задача не будет выполняться.*<br/>**По умолчанию* `0`.
+	  - `Last` *(DateTime)* - Дата последнего успешного выполнения задачи.<br/>*По умолчанию* `DateTime.Now`.
+#### appsettings.json
+```json
+"Scheduler": {
+  "Schedules": [
+    {
+      "Name": "Reservations Updates Monitoring",
+      "IntervalSeconds": 0, 
+      "Last": "2024-01-01T12:00:00.0000000+03:00"
+    }
+  ]
+}
+```
+### Reservations Updates Monitoring
+Задача запрашивает обновления бронирований из базы данных «OPERA», за период с последнего удачного запроса до текущей даты и времени со статусами:
+* RESERVED
+* CANCELLED
+* NO SHOW
+* WAITLIST
 ## Зависимости
 Для работы приложение использует некоторые зависимости, доступ к которым осуществляется посредством провайдеров. В текущей версии поддерживаются только провайдеры по умолчанию, но в следующих версиях их список будет расширен. Конфигурации зависимостей можно задать в файле настроек приложения `appsettings.json`. Ниже представлено краткое описание зависимостей и примеры их конфигураций.
 ### Шина данных
@@ -346,13 +373,21 @@ docker compose up -d
 	<tbody>
 		<tr>
 			<td align="center">Заселение бронирования</td>
-			<td align="center">Изменение данных бронирования</td>
+			<td align="center">Изменение бронирования</td>
 			<td align="center">Выезд бронирования</td>
+			<td align="center">Новое бронирование</td>
+			<td align="center">Отмена бронирования</td>
+			<td align="center">Незаезд бронирования</td>
+			<td align="center">Список ожидания</td>
 		</tr>
 		<tr>
 			<td align="center">CHECK_IN</td>
 			<td align="center">CHANGE</td>
 			<td align="center">CHECK_OUT</td>
+			<td align="center">RESERVED</td>
+			<td align="center">CANCELLED</td>
+			<td align="center">NO SHOW</td>
+			<td align="center">WAITLIST</td>
 		</tr>
 		<tr>
 			<td colspan="3" valign="top">
@@ -361,12 +396,18 @@ docker compose up -d
 					<li>Отправка сообщения в обработчик <b>OPERA</b>.</li>
 				</ul>
 			</td>
+			<td colspan="4" valign="top">
+				<ul>
+					<li>Получение сообщения из задачи <a href="#планировщик">планировщика</a> <a href="#reservations-updates-monitoring">Reservations Updates Monitoring</a>.</li>
+					<li>Отправка сообщения в обработчик <b>OPERA</b>.</li>
+				</ul>
+			</td>
 		</tr>
 		<tr>
-			<td colspan="3" align="center">OPERA</td>
+			<td colspan="7" align="center">OPERA</td>
 		</tr>
 		<tr>
-			<td colspan="3" valign="top">
+			<td colspan="7" valign="top">
 				<ul>
 					<li>
 						Запрос данных бронирования в базе данных системы «Opera».
@@ -380,10 +421,10 @@ docker compose up -d
 			</td>
 		</tr>
 		<tr>
-			<td colspan="3" align="center">SANATORIUM</td>
+			<td colspan="7" align="center">SANATORIUM</td>
 		</tr>
 		<tr>
-			<td colspan="3" valign="top">
+			<td colspan="7" valign="top">
 				<ul>
 					<li>
 						Отправка сообщения с данными бронирования в шину данных «Sanatorium».

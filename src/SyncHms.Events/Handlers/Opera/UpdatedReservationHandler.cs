@@ -8,7 +8,7 @@ namespace SyncHms.Events.Handlers.Opera;
 internal class UpdatedReservationHandler : Handler<UpdatedReservation>
 {
     /// <summary>Соответствие статусов бронирования систем <c>OPERA</c> и <c>Sanatorium</c>.</summary>
-    private static readonly Dictionary<string, string> Statuses = new()
+    private static readonly IReadOnlyDictionary<string, string> Statuses = new Dictionary<string, string>
     {
         {OperaReservationStatus.CheckedIn,  SanatoriumReservationStatus.CheckedIn},
         {OperaReservationStatus.CheckedOut, SanatoriumReservationStatus.CheckedOut},
@@ -48,7 +48,7 @@ internal class UpdatedReservationHandler : Handler<UpdatedReservation>
     /// </summary>
     /// <param name="in">Экземпляр обрабатываемого события.</param>
     /// <returns>Краткое описание события.</returns>
-    protected override string Message(UpdatedReservation @in) => $"Reservation: {@in.ReservationNumber}";
+    protected override string Message(UpdatedReservation @in) => $"Reservation: {@in.ReservationNumber:0}";
 
     /// <summary>Метод переопределения стандартного имени обработчика.</summary>
     /// <param name="in">Объект обрабатываемого события.</param>

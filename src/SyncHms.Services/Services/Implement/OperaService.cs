@@ -298,13 +298,8 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
     /// <summary>Метод, возвращающий коллекцию бронирований, которые были обновлены ы указанный период.</summary>
     /// <param name="fromDate">Минимальная дата обновления бронирования.</param>
     /// <param name="toDate">Максимальная дата обноаления бронирования.</param>
-    /// <param name="statuses">
-    /// Коллекция статусов, обновления бронирований с которыми будут запрашиваться.<br/>
-    /// Если коллекция пустая или <c>null</c>, будут запрашиваться бронирования с любыми статусами.<br/>
-    /// По умолчанию <c>null</c>.
-    /// </param>
     /// <returns>Коллекция обновленных бронирований.</returns>
-    public async Task<List<UpdatedReservation>> GetUpdatedReservationsAsync(DateTime fromDate, DateTime toDate, ISet<string>? statuses = null)
+    public async Task<List<UpdatedReservation>> GetUpdatedReservationsAsync(DateTime fromDate, DateTime toDate)
     {
         List<UpdatedReservation> result;
 
@@ -315,8 +310,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                 var context = Context;
                 result = await (from rn in context.ReservationNames
                     where rn.Resort == Environment.ResortCode && rn.ResvNameId != null &&
-                          rn.UpdateDate > fromDate && rn.UpdateDate <= toDate && rn.ResvStatus != null &&
-                          (statuses == null || statuses.Count == 0 || statuses.Contains(rn.ResvStatus))
+                          rn.UpdateDate > fromDate && rn.UpdateDate <= toDate && rn.ResvStatus != null
                     select new UpdatedReservation
                     {
                         ReservationNumber = (decimal)rn.ResvNameId!,

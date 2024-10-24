@@ -11,6 +11,7 @@ public abstract class ScheduleHandler : HandlerBase<ScheduleEvent>
         if (context.HandlerName != @in.Destination)
             return;
 
+        context.UpdateTaskId = true;
         var eventContext = new ScheduleEventContext(context)
         {
             Previous = @in.Previous,

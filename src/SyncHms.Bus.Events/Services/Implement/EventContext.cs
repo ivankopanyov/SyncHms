@@ -10,6 +10,9 @@ internal class EventContext(string handlerName) : IEventContext
     /// <summary>Список событий, которые должны быть опубликованы в шине данных.</summary>
     private readonly List<Event> _events = [];
 
+    /// <summary>Флаг, укзывающий, что нужно обновить идентификатор отправляемых сообщений.</summary>
+    public bool UpdateTaskId { get; set; }
+
     /// <summary>
     /// Свойство, возвращающее перечисление событий,
     /// которые должны быть опубликованы в шине данных.

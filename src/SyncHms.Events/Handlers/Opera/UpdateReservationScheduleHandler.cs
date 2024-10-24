@@ -10,7 +10,7 @@ namespace SyncHms.Events.Handlers.Opera;
 internal class UpdateReservationScheduleHandler(IOperaService operaService) : ScheduleHandler
 {
     /// <summary>Статусы бронирований, запрашиваемые в базе данных <c>OPERA</c></summary>
-    private static readonly ISet<string> Statuses = new HashSet<string>
+    private static readonly IReadOnlySet<string> Statuses = new HashSet<string>
     {
         OperaReservationStatus.Reserved,
         OperaReservationStatus.Cancelled,
@@ -27,8 +27,9 @@ internal class UpdateReservationScheduleHandler(IOperaService operaService) : Sc
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(operaService.Environment.ResortCode, nameof(operaService.Environment.ResortCode));
 
-        var reservations = await operaService.GetUpdatedReservationsAsync(context.Previous, context.Current, Statuses);
+        var reservations = await operaService.GetUpdatedReservationsAsync(context.Previous, context.Current);
         foreach (var reservation in reservations)
-            context.Send(reservation);
+            if (Statuses.Contains(reservation.Status))
+                context.Send(reservation);
     }
 }

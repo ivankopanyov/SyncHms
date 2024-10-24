@@ -64,7 +64,6 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
         using var scope = _serviceScopeFactory.CreateScope();
         var handler = scope.ServiceProvider.GetRequiredService<THandler>();
 
-
         var handlerName = _handlerName;
         string? message = null;
 
@@ -139,7 +138,7 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
 
             foreach (var @out in context.Events)
             {
-                @out.TaskId = @event.TaskId;
+                @out.TaskId = !context.UpdateTaskId ? @event.TaskId : Guid.NewGuid().ToString();
                 @out.TaskName = @event.TaskName;
                 await @out.PublishAsync(_provider);
             }

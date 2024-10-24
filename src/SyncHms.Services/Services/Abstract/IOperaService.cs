@@ -20,11 +20,6 @@ public interface IOperaService : IService<OperaOptions, ApplicationEnvironment>
     /// <summary>Метод, возвращающий коллекцию бронирований, которые были обновлены ы указанный период.</summary>
     /// <param name="fromDate">Минимальная дата обновления бронирования.</param>
     /// <param name="toDate">Максимальная дата обноаления бронирования.</param>
-    /// <param name="statuses">
-    /// Коллекция статусов, обновления бронирований с которыми будут запрашиваться.<br/>
-    /// Если коллекция пустая или <c>null</c>, будут запрашиваться бронирования с любыми статусами.<br/>
-    /// По умолчанию <c>null</c>.
-    /// </param>
     /// <returns>Коллекция обновленных бронирований.</returns>
-    Task<List<UpdatedReservation>> GetUpdatedReservationsAsync(DateTime fromDate, DateTime toDate, ISet<string>? statuses = null);
+    Task<List<UpdatedReservation>> GetUpdatedReservationsAsync(DateTime fromDate, DateTime toDate);
 }

@@ -8,6 +8,8 @@ public class MockEventContext : IEventContext
 
     public string HandlerName => "TEST";
 
+    public bool UpdateTaskId { get; set; }
+
     public IReadOnlyList<object?> SendMessages => _sendMessages;
     
     public IReadOnlyList<(string? Message, Exception? Exception)> Breaks => _breaks;

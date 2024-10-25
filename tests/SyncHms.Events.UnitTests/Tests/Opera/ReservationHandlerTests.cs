@@ -1,6 +1,6 @@
 namespace SyncHms.Events.UnitTests.Tests.Opera;
 
-public class ReservationHandlerTests
+public class ReservationHandlerTests : OperaHandlerTestsBase
 {
     [Fact]
     internal async Task HandleAsyncSuccess()
@@ -48,37 +48,5 @@ public class ReservationHandlerTests
         var handler = new ExposedReservationHandler(operaService);
         await Assert.ThrowsAsync<Exception>(async () =>
             await handler.ExposedHandleAsync(new ReservationInfo(), context));
-    }
-
-    private static IOperaService GetOperaService(string resortCode, bool returnNull = false)
-    {
-        var operaService = new Mock<IOperaService>();
-
-        operaService.SetupGet(fs => fs.Environment).Returns(new ApplicationEnvironment
-        {
-            ResortCode = resortCode
-        });
-        
-        operaService
-            .Setup(fs => fs.GetReservationUpdatedMessageAsync(It.IsAny<decimal>(), It.IsAny<string>()))
-            .ReturnsAsync(returnNull ? null : new ReservationUpdatedMessage());
-
-        return operaService.Object;
-    }
-    
-    private static IOperaService GetOperaServiceWithThrow()
-    {
-        var operaService = new Mock<IOperaService>();
-
-        operaService.SetupGet(fs => fs.Environment).Returns(new ApplicationEnvironment
-        {
-            ResortCode = "ResortCode"
-        });
-        
-        operaService
-            .Setup(fs => fs.GetReservationUpdatedMessageAsync(It.IsAny<decimal>(), It.IsAny<string>()))
-            .Throws<Exception>();
-
-        return operaService.Object;
     }
 }

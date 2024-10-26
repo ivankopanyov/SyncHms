@@ -1,6 +1,6 @@
 namespace SyncHms.Events.UnitTests.Mocks;
 
-public class MockEventContext : IEventContext
+public class MockEventContext : IScheduleEventContext
 {
     private readonly List<object?> _sendMessages = [];
 
@@ -13,6 +13,10 @@ public class MockEventContext : IEventContext
     public IReadOnlyList<object?> SendMessages => _sendMessages;
     
     public IReadOnlyList<(string? Message, Exception? Exception)> Breaks => _breaks;
+
+    public DateTime Previous => DateTime.Now;
+
+    public DateTime Current => DateTime.Now;
 
     public void Send<TIn>(TIn @in)
     {

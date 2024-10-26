@@ -237,14 +237,14 @@ public sealed partial class FiasCommonMessage
         (ToFiasMessageToPmsObject() ?? ToFiasMessageFromPmsObject()) is IValidatableObject validatableObject
             ? validatableObject.Validate(validationContext) : [];
 
-    public override string ToString()
+    public string ToString(CultureInfo? cultureInfo)
     {
         var stringWriter = new StringWriter();
         var serializer = new JsonSerializer();
 
         try
         {
-            var writer = new FiasJsonWriter(stringWriter, Indicator);
+            var writer = new FiasJsonWriter(stringWriter, Indicator, cultureInfo);
             serializer.Serialize(writer, this);
 
             return stringWriter.ToString();
@@ -253,6 +253,11 @@ public sealed partial class FiasCommonMessage
         {
             return string.Empty;
         }
+    }
+
+    public override string ToString()
+    {
+        return ToString(CultureInfo.CurrentCulture);
     }
 
     public static IEnumerable<FiasCommonMessage> FromString(string source)

@@ -21,6 +21,11 @@ public class FiasServiceOptions
     [Range(IPEndPoint.MinPort, IPEndPoint.MaxPort)]
     public int Port { get; set; }
 
+    /// <summary>Код локализации.</summary>
+    [Description("Код локализации FIAS.\nЕсли поле пустое или код не будет найден - будет установлена локализация хоста.")]
+    [Required(AllowEmptyStrings = true)]
+    public string LocalizationCode { get; set; } = string.Empty;
+
     public override int GetHashCode() => HashCode.Combine(Enabled, Host, Port);
 
     /// <summary>Метод, переопределяющий базовый метод <see cref="Equals"/></summary>

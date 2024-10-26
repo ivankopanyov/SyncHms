@@ -24,6 +24,7 @@ global using SyncHms.Services.Options;
 global using SyncHms.Services.Services.Implement;
 global using System.ComponentModel.DataAnnotations;
 global using System.Diagnostics.CodeAnalysis;
+global using System.Globalization;
 global using System.Net;
 global using System.Net.Sockets;
 global using System.Reflection;

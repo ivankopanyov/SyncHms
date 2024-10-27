@@ -12,5 +12,7 @@ public abstract class FiasMessageBase : IValidatableObject
 
     public abstract IEnumerable<ValidationResult> Validate(ValidationContext validationContext);
 
-    public override string ToString() => FiasMapper.Mapper.Map(this, GetType()).ToString();
+    public string ToString(CultureInfo? cultureInfo) => FiasMapper.Mapper.Map(this, GetType()).ToString(cultureInfo);
+
+    public override string ToString() => ToString(CultureInfo.CurrentCulture);
 }

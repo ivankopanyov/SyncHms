@@ -2,15 +2,20 @@
 
 internal sealed class FiasJsonWriter : JsonWriter
 {
+    private const string DoubleFormat = "0.####";
+
     private readonly TextWriter _writer;
 
     private string _currentPropertyName;
 
     private bool _isDelimeter = true;
 
-    public FiasJsonWriter(TextWriter textWriter, string indicator)
+    private readonly CultureInfo _cultureInfo;
+
+    public FiasJsonWriter(TextWriter textWriter, string indicator, CultureInfo? cultureInfo = null)
     {
         _writer = textWriter;
+        _cultureInfo = cultureInfo ?? CultureInfo.CurrentCulture;
 
         WriteStart();
         if (string.IsNullOrEmpty(indicator))
@@ -86,13 +91,13 @@ internal sealed class FiasJsonWriter : JsonWriter
     public override void WriteValue(float value)
     {
         base.WriteValue(value);
-        WriteItem(value.ToString());
+        WriteItem(value.ToString(DoubleFormat, _cultureInfo));
     }
 
     public override void WriteValue(double value)
     {
         base.WriteValue(value);
-        WriteItem(value.ToString());
+        WriteItem(value.ToString(DoubleFormat, _cultureInfo));
     }
 
     public override void WriteValue(bool value) => base.WriteValue(value);
@@ -130,7 +135,7 @@ internal sealed class FiasJsonWriter : JsonWriter
     public override void WriteValue(decimal value)
     {
         base.WriteValue(value);
-        WriteItem(value.ToString());
+        WriteItem(value.ToString(DoubleFormat, _cultureInfo));
     }
 
     public override void WriteValue(DateTime value)

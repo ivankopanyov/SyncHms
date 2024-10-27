@@ -39,14 +39,7 @@ public class FiasServiceOptions
                 return;
             }
 
-            try
-            {
-                _localizationCode = CultureInfo.GetCultureInfo(value).Name;
-            }
-            catch
-            {
-                // ignored
-            }
+            _localizationCode = CultureInfo.GetCultureInfo(value.Trim()).Name;
         }
     }
 

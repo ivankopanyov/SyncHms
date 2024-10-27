@@ -5,6 +5,9 @@ namespace SyncHms.Services.Options;
 /// </summary>
 public class FiasServiceOptions
 {
+    /// <summary>Код локализации.</summary>
+    private string _localizationCode = CultureInfo.CurrentCulture.Name;
+
     /// <summary>Имя секции в файле <c>appsettings.json</c></summary>
     public const string Section = "Fias";
 
@@ -22,9 +25,30 @@ public class FiasServiceOptions
     public int Port { get; set; }
 
     /// <summary>Код локализации.</summary>
-    [Description("Код локализации FIAS.\nЕсли поле пустое или код не будет найден - будет установлена локализация хоста.")]
+    [Description("Код локализации FIAS. Если поле пустое - будет установлена локализация хоста.")]
     [Required(AllowEmptyStrings = true)]
-    public string LocalizationCode { get; set; } = string.Empty;
+    public string LocalizationCode
+    {
+        get => _localizationCode;
+
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                _localizationCode = CultureInfo.CurrentCulture.Name;
+                return;
+            }
+
+            try
+            {
+                _localizationCode = CultureInfo.GetCultureInfo(value).Name;
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+    }
 
     public override int GetHashCode() => HashCode.Combine(Enabled, Host, Port);
 

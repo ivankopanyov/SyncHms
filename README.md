@@ -149,14 +149,14 @@ Cервис интеграции систем [OPERA Hotel Property Management S
 	+ `Enabled` *(bool)* - Включение и отключение сервиса.<br/>*По умолчанию* `false`.
 	+ `Host` *(string)* - Имя или адрес удаленного хоста.<br/>*По умолчанию* `пустая строка`.
 	+ `Port` *(int)* - Порт для подключения к сокету на удаленном хосте.<br/>*По умолчанию* `0`.
-	+ `LocalizationCode` *(string)* - Код локализации FIAS. *Примеры:* `en_US`*,* `ru_RU`.<br/>*Если поле пустое или код не будет найден - будет установлена локализация хоста.*<br/>*По умолчанию* `пустая строка`.
+	+ `LocalizationCode` *(string)* - Код локализации FIAS. *[Поддерживаемые коды](https://learn.microsoft.com/en-us/bingmaps/rest-services/common-parameters-and-types/supported-culture-codes)*.<br/>*Если поле пустое - будет установлена локализация хоста.*<br/>*По умолчанию* `пустая строка`.
 #### appsettings.json
 ```json
 "Fias": {
   "Enabled": true,
   "Host": "127.0.0.2",
   "Port": 5000,
-  "LocalizationCode": ""
+  "LocalizationCode": "en_US"
 }
 ```
 ### Opera

@@ -15,7 +15,8 @@ internal class UpdatedReservationHandler : Handler<UpdatedReservation>
         {OperaReservationStatus.Reserved,   SanatoriumReservationStatus.Reserved},
         {OperaReservationStatus.Cancelled,  SanatoriumReservationStatus.Cancelled},
         {OperaReservationStatus.WaitList,   SanatoriumReservationStatus.WaitList},
-        {OperaReservationStatus.NoShow,     SanatoriumReservationStatus.NoShow}
+        {OperaReservationStatus.NoShow,     SanatoriumReservationStatus.NoShow},
+        {EmisReservationStatus.Emis,        SanatoriumReservationStatus.CheckedIn}
     };
 
     /// <summary>

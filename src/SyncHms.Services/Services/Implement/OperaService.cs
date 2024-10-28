@@ -293,7 +293,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
         }
     }
 
-    /// <summary>Метод, возвращающий коллекцию бронирований, которые были обновлены ы указанный период.</summary>
+    /// <summary>Метод, возвращающий коллекцию бронирований, которые были обновлены в указанный период.</summary>
     /// <param name="fromDate">Минимальная дата обновления бронирования.</param>
     /// <param name="toDate">Максимальная дата обноаления бронирования.</param>
     /// <returns>Коллекция обновленных бронирований.</returns>
@@ -314,6 +314,35 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                         ReservationNumber = (decimal)rn.ResvNameId!,
                         Status = rn.ResvStatus
                     }).ToListAsync();
+            }
+
+            control.Active();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            control.Unactive(ex);
+            throw;
+        }
+    }
+
+    /// <summary>Метод, возвращающий номера бронирований профиля с указаным статусом.</summary>
+    /// <param name="profileNumber">Номер профайла.</param>
+    /// <param name="status">Статус бронирования.<br/>Если передан <c>null</c> - не будет учитываться при поиске.</param>
+    /// <returns>Список номеров бронирований.</returns>
+    public async Task<List<decimal>> GetReservationsByProfileAsync(decimal profileNumber, string? status = null)
+    {
+        List<decimal> result;
+
+        try
+        {
+            using (var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionOptions))
+            {
+                var context = Context;
+                result = await (from rn in context.ReservationNames
+                    where rn.Resort == Environment.ResortCode && rn.ResvNameId != null
+                    && rn.NameId == profileNumber && (status == null || rn.ResvStatus == status)
+                    select (decimal)rn.ResvNameId).ToListAsync();
             }
 
             control.Active();

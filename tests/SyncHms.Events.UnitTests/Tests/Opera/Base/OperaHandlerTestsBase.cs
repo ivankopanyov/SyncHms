@@ -4,7 +4,8 @@ namespace SyncHms.Events.UnitTests.Tests.Opera.Base;
 
 public abstract class OperaHandlerTestsBase
 {
-    private protected static IOperaService GetOperaService(string resortCode, bool returnNull = false, IEnumerable<string>? statuses = null)
+    private protected static IOperaService GetOperaService(string resortCode, bool returnNull = false,
+        IEnumerable<string>? statuses = null, decimal[]? reservationNumbers = null)
     {
         var operaService = new Mock<IOperaService>();
 
@@ -24,6 +25,10 @@ public abstract class OperaHandlerTestsBase
                 ReservationNumber = Random.Shared.Next(),
                 Status = i
             }).ToList());
+
+        operaService
+            .Setup(fs => fs.GetReservationsByProfileAsync(It.IsAny<decimal>(), It.IsAny<string?>()))
+            .ReturnsAsync((reservationNumbers ?? []).ToList());
 
         return operaService.Object;
     }

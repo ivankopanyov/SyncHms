@@ -9,6 +9,7 @@ public class UpdatedReservationHandlerTests : ReservationHandlerTestsBase
     [InlineData(OperaReservationStatus.Cancelled,  SanatoriumReservationStatus.Cancelled)]
     [InlineData(OperaReservationStatus.WaitList,   SanatoriumReservationStatus.WaitList)]
     [InlineData(OperaReservationStatus.NoShow,     SanatoriumReservationStatus.NoShow)]
+    [InlineData(EmisReservationStatus.Emis,        SanatoriumReservationStatus.CheckedIn)]
     internal async Task HandleAsyncSuccess(string status, string expectedStatus)
     {
         var context = new MockEventContext();

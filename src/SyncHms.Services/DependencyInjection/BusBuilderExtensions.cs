@@ -39,6 +39,7 @@ public static class BusBuilderExtensions
             servicesBusBuilder.AddOptions<OperaOptions>().Bind(configurationManager.GetSection(OperaOptions.Section));
             servicesBusBuilder.AddOptions<MicrosOptions>().Bind(configurationManager.GetSection(MicrosOptions.Section));
             servicesBusBuilder.AddOptions<SanatoriumOptions>().Bind(configurationManager.GetSection(SanatoriumOptions.Section));
+            servicesBusBuilder.AddOptions<EmisOptions>().Bind(configurationManager.GetSection(EmisOptions.Section));
             servicesBusBuilder.AddOptions<TelegramBotOptions>().Bind(configurationManager.GetSection(TelegramBotOptions.Section));
             servicesBusBuilder.AddOptions<ApplicationEnvironment>().Bind(configurationManager.GetSection(ApplicationEnvironment.Section));
         }
@@ -46,6 +47,7 @@ public static class BusBuilderExtensions
         servicesBusBuilder
             .AddSingleton<IFiasService, FiasService, FiasServiceOptions>(options => options.ServiceName = "Fias")
             .AddSingleton<ISanatoriumService, SanatoriumService, SanatoriumOptions>(options => options.ServiceName = "NServiceBus")
+            .AddSingleton<IEmisService, EmisService, EmisOptions>(options => options.ServiceName = "Emis")
             .AddScoped<IOperaService, OperaService, OperaOptions>(options => options.ServiceName = "Oracle")
             .AddScoped<IFiscalService, FiscalService, MicrosOptions>(options => options.ServiceName = "CheckDB")
             .AddScoped<ITelegramBotService, TelegramBotService, TelegramBotOptions>(options => options.ServiceName = "TelegramBot")

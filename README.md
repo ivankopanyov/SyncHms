@@ -7,6 +7,7 @@ Cервис интеграции систем [OPERA Hotel Property Management S
 	+ [Opera](#opera)
 	+ [Micros](#micros)
 	+ [Sanatorium](#sanatorium)
+	+ [Emis](#emis)
 	+ [Telegram](#telegram)
 * [Окружение](#окружение)
 * [Планировщик](#планировщик)
@@ -197,6 +198,18 @@ Cервис интеграции систем [OPERA Hotel Property Management S
   "License": ""
 }
 ```
+### Emis
+Интерфейс получения вебхуков с обновленными профилями от сервиса [Emis](https://g1sw.ru/#emis).
+* Конфигурации подключения
+	+ `Enabled` *(bool)* - Включение и отключение сервиса.<br/>*По умолчанию* `false`.
+	+ `DelaySeconds` *(int)* - Задержка в секундах перед обновлением.<br/>*По умолчанию* `0`.
+#### appsettings.json
+```json
+"Emis": {
+  "Enabled": true,
+  "DelaySeconds": 0
+}
+```
 ### Telegram
 [API Telegram-бота](https://core.telegram.org/bots/api). Для взаимодействия приложение использует библиотеку [Telegram.Bot](https://www.nuget.org/packages/Telegram.Bot).
 * Конфигурации подключения
@@ -381,6 +394,7 @@ docker compose up -d
 			<td align="center">Отмена бронирования</td>
 			<td align="center">Незаезд бронирования</td>
 			<td align="center">Список ожидания</td>
+			<td align="center">Изменение профиля</td>
 		</tr>
 		<tr>
 			<td align="center">CHECK_IN</td>
@@ -390,6 +404,7 @@ docker compose up -d
 			<td align="center">CANCELLED</td>
 			<td align="center">NO SHOW</td>
 			<td align="center">WAITLIST</td>
+			<td align="center">EMIS</td>
 		</tr>
 		<tr>
 			<td colspan="3" valign="top">
@@ -404,12 +419,23 @@ docker compose up -d
 					<li>Отправка сообщения в обработчик <b>OPERA</b>.</li>
 				</ul>
 			</td>
+			<td colspan="1" valign="top">
+				<ul>
+					<li>
+						Получение сообщения из системы «EMIS».
+						<ul>
+							<li>Если данные получены, сообщение будет отправлено в обработчик <b>OPERA</b>.</li>
+							<li>Если получено сообщение с ошибкой, задача будет завершена с ошибкой.</li>
+						</ul>
+					</li>
+				</ul>
+			</td>
 		</tr>
 		<tr>
-			<td colspan="7" align="center">OPERA</td>
+			<td colspan="8" align="center">OPERA</td>
 		</tr>
 		<tr>
-			<td colspan="7" valign="top">
+			<td colspan="8" valign="top">
 				<ul>
 					<li>
 						Запрос данных бронирования в базе данных системы «Opera».
@@ -423,10 +449,10 @@ docker compose up -d
 			</td>
 		</tr>
 		<tr>
-			<td colspan="7" align="center">SANATORIUM</td>
+			<td colspan="8" align="center">SANATORIUM</td>
 		</tr>
 		<tr>
-			<td colspan="7" valign="top">
+			<td colspan="8" valign="top">
 				<ul>
 					<li>
 						Отправка сообщения с данными бронирования в шину данных «Sanatorium».

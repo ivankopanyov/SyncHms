@@ -52,9 +52,13 @@ public class EventsBusBuilder : ApplicationBuilder, IEventsBusBuilder
     /// <summary>Метод, регистрирующий обработчик нелогируемых событий в контейнере зависимостей.</summary>
     /// <typeparam name="THandler">Тип обработчика.</typeparam>
     /// <typeparam name="TIn">Тип обрабатываемого сообщения.</typeparam>
-    public IEventsBusBuilder AddUnloggedEvent<THandler, TIn>() where THandler : Handler<TIn>
+    /// <param name="action">Инициализация опций обработчика.</param>
+    public IEventsBusBuilder AddUnloggedEvent<THandler, TIn>(Action<HandlerOptions>? action = null) where THandler : Handler<TIn>
     {
-        AddHandler(new HandlerOptions<THandler, TIn>());
+        var options = new HandlerOptions<THandler, TIn>();
+        action?.Invoke(options);
+
+        AddHandler(options);
         return this;
     }
 

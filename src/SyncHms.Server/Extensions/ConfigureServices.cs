@@ -98,6 +98,10 @@ public static class ConfigureServices
             .AddEventLog<UpdateLogHandler>()
             .AddUnloggedEvent<UpdatedEnvironmentHandler, ApplicationEnvironment>();
 
+        var schedulerOptions = new SchedulerOptions();
+        appBuilder.Configuration.Bind(SchedulerOptions.Section, schedulerOptions);
+        builder.AddSingleton(schedulerOptions);
+
         return result;
     }
     
@@ -166,6 +170,7 @@ public static class ConfigureServices
         app.MapHub<LogHub>("/hub/logs");
         app.MapHub<ServiceHub>("/hub/services");
         app.MapHub<EnvironmentHub>("/hub/environment");
+        app.MapHub<ScheduleHub>("/hub/scheduler");
         return app;
     }
 

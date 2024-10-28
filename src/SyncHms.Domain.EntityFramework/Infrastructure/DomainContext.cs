@@ -16,6 +16,8 @@ public abstract class DomainContext : DbContext
     
     public virtual DbSet<LogData> LogDatas { get; set; }
 
+    public virtual DbSet<Schedule> Schedules { get; set; }
+
     protected abstract override void OnConfiguring(DbContextOptionsBuilder optionsBuilder);
 
     protected sealed override void OnModelCreating(ModelBuilder modelBuilder)
@@ -59,6 +61,11 @@ public abstract class DomainContext : DbContext
                 .WithOne(l => l.LogData)
                 .HasForeignKey<Log>(l => l.LogDataId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Schedule>(buildAction =>
+        {
+            buildAction.HasKey(s => s.Name);
         });
     }
 

@@ -21,8 +21,7 @@ internal class ReservationHandler(IOperaService operaService) : Handler<Reservat
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(operaService.Environment.ResortCode, nameof(operaService.Environment.ResortCode));
 
-        if (await operaService.GetReservationUpdatedMessageAsync(@in.ReservationNumber, @in.Status, @in.Room,
-                @in.ArrivalDate, @in.DepartureDate, @in.NoPost) is { } reservationResponse)
+        if (await operaService.GetReservationUpdatedMessageAsync(@in.ReservationNumber, @in.Status) is { } reservationResponse)
         {
             context.Send(reservationResponse);
         }
@@ -43,8 +42,8 @@ internal class ReservationHandler(IOperaService operaService) : Handler<Reservat
         var stringBuilder = new StringBuilder();
         stringBuilder.Append($"Reservation: {@in.ReservationNumber:0}");
 
-        if (!string.IsNullOrWhiteSpace(@in.Room))
-            stringBuilder.Append($", Room: {@in.Room}");
+        if (!string.IsNullOrWhiteSpace(@in.Status))
+            stringBuilder.Append($", Status: {@in.Status}");
 
         return stringBuilder.ToString();
     }

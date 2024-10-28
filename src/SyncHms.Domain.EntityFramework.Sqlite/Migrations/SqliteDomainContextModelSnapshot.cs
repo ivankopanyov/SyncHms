@@ -98,6 +98,22 @@ namespace SyncHms.Domain.EntityFramework.Sqlite.Migrations
                     b.ToTable("LogDatas");
                 });
 
+            modelBuilder.Entity("SyncHms.Domain.Schedule", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("IntervalSeconds")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Last")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("Schedules");
+                });
+
             modelBuilder.Entity("SyncHms.Domain.Service", b =>
                 {
                     b.Property<string>("Name")

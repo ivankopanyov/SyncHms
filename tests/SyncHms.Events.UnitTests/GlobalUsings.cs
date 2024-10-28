@@ -15,5 +15,6 @@ global using SyncHms.Events.UnitTests.Exposed.Opera;
 global using SyncHms.Events.UnitTests.Mocks;
 global using SyncHms.Events.UnitTests.Tests.Base;
 global using SyncHms.Events.UnitTests.Tests.Fias.Base;
+global using SyncHms.Events.UnitTests.Tests.Opera.Base;
 global using SyncHms.Fias.Entities;
 global using SyncHms.Services;

@@ -30,6 +30,11 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
                 options.TaskName = "RESV";
                 options.HandlerName = "CHANGE";
             })
+            .AddScheduleEvent<UpdateReservationScheduleHandler>(options =>
+            {
+                options.TaskName = "RESV";
+                options.HandlerName = "Reservations Updates Monitoring";
+            })
             .AddEvent<PostingRequestHandler, PostTransactionsRequest>(options =>
             {
                 options.TaskName = "POST";
@@ -42,6 +47,7 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
             .AddEvent<CheckHandler, Check>(options => options.HandlerName = "MICROS")
             .AddEvent<PostingResponseHandler, PostTransactionsResponse>(options => options.HandlerName = "SANATORIUM")
             .AddEvent<UpdateReservationHandler, ReservationUpdatedMessage>(options => options.HandlerName = "SANATORIUM")
+            .AddEvent<UpdatedReservationHandler, UpdatedReservation>(options => options.HandlerName = "UPDATED")
             .AddEventLog<TelegramMessageHandler>()
             .AddUnloggedEvent<ChangedServiceStateHandler, ChangedServiceState>()
             .AddHostedService<MessageProxyWorker>();

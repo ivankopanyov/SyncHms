@@ -77,7 +77,8 @@ internal class FiasService(
         
         var postingSequenceNumber = PostingSequenceNumber;
         message.PostingSequenceNumber = postingSequenceNumber;
-        return await SendAsync<FiasPostingAnswer>(message.ToString(), postingSequenceNumber,
+        var cultureInfo = GetCultureInfo(control.Options.LocalizationCode);
+        return await SendAsync<FiasPostingAnswer>(message.ToString(cultureInfo), postingSequenceNumber,
             timeoutSeconds, _socketConnection);
     }
 
@@ -99,6 +100,8 @@ internal class FiasService(
     /// </exception>
     public async Task<FiasPostingAnswer> SendPostingAsync(FiasPostingRequest message, int timeoutSeconds = 60)
     {
+        var cultureInfo = GetCultureInfo(control.Options.LocalizationCode);
+
         if (!control.Options.Enabled)
             throw new InvalidOperationException("Service is disabled.");
         
@@ -120,7 +123,7 @@ internal class FiasService(
 
         try
         {
-            var fiasPostingList = await SendAsync<List<FiasPostingList>>(request.ToString(), postingSequenceNumber,
+            var fiasPostingList = await SendAsync<List<FiasPostingList>>(request.ToString(cultureInfo), postingSequenceNumber,
                 timeoutSeconds, _socketConnection);
 
             if (fiasPostingList.FirstOrDefault(l => l.ReservationNumber == message.ReservationNumber)
@@ -142,7 +145,7 @@ internal class FiasService(
         message.DateTime = DateTime.Now;
         message.PostingSequenceNumber = postingSequenceNumber;
         
-        return await SendAsync<FiasPostingAnswer>(message.ToString(), postingSequenceNumber,
+        return await SendAsync<FiasPostingAnswer>(message.ToString(cultureInfo), postingSequenceNumber,
             timeoutSeconds, _socketConnection);
     }
 
@@ -307,22 +310,24 @@ internal class FiasService(
     /// <param name="socketConnection">Экземпляр объекта подключения к сокету.</param>
     private async Task SendOptionsAsync(ISocketConnection socketConnection)
     {
+        var cultureInfo = GetCultureInfo(control.Options.LocalizationCode);
+
         var linkDescription = new FiasLinkDescription
         {
             DateTime = DateTime.Now,
             VendorSystemsVersion = "1.0.3.0",
             InterfaceFamily = FiasInterfaceTypes.PayTv
-        }.ToString();
+        }.ToString(cultureInfo);
 
         await socketConnection.SendAsync(linkDescription);
 
         foreach (var fiasOptions in FiasConnectionOptions.Reservation)
-            await socketConnection.SendAsync(new FiasLinkRecord(fiasOptions).ToString());
+            await socketConnection.SendAsync(new FiasLinkRecord(fiasOptions).ToString(cultureInfo));
         
         foreach (var fiasOptions in FiasConnectionOptions.Posting)
-            await socketConnection.SendAsync(new FiasLinkRecord(fiasOptions).ToString());
+            await socketConnection.SendAsync(new FiasLinkRecord(fiasOptions).ToString(cultureInfo));
 
-        var linkAlive = new FiasLinkAlive { DateTime = DateTime.Now }.ToString();
+        var linkAlive = new FiasLinkAlive { DateTime = DateTime.Now }.ToString(cultureInfo);
         await socketConnection.SendAsync(linkAlive);
     }
 
@@ -374,7 +379,7 @@ internal class FiasService(
                 if (_socketConnection == null)
                     continue;
 
-                var linkAlive = new FiasLinkStart { DateTime = DateTime.Now }.ToString();
+                var linkAlive = new FiasLinkStart { DateTime = DateTime.Now }.ToString(GetCultureInfo(control.Options.LocalizationCode));
 
                 try
                 {
@@ -407,6 +412,24 @@ internal class FiasService(
         {
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource = new();
+        }
+    }
+
+    /// <summary>Метод возвращает объект опций локализации.</summary>
+    /// <param name="code">Код локализации.</param>
+    /// <returns>Объект опций локализации.</returns>
+    private static CultureInfo GetCultureInfo(string? code)
+    {
+        if (string.IsNullOrWhiteSpace(code))
+            return CultureInfo.CurrentCulture;
+
+        try
+        {
+            return CultureInfo.GetCultureInfo(code);
+        }
+        catch
+        {
+            return CultureInfo.CurrentCulture;
         }
     }
 }

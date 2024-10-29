@@ -203,11 +203,22 @@ Cервис интеграции систем [OPERA Hotel Property Management S
 * Конфигурации подключения
 	+ `Enabled` *(bool)* - Включение и отключение сервиса.<br/>*По умолчанию* `false`.
 	+ `DelaySeconds` *(int)* - Задержка в секундах перед обновлением.<br/>*По умолчанию* `0`.
+    + `Statuses` *(IDictionary<readonly string, bool>)* - Статусы бронирваний, которые будут учитываться при синхронизации.<br/>*По умолчанию* `{ "STATUS": false }`.
+
 #### appsettings.json
 ```json
 "Emis": {
   "Enabled": true,
-  "DelaySeconds": 0
+  "DelaySeconds": 0,
+  "Statuses": {
+    "CHECKED IN": false,
+    "CHECKED OUT": false,
+    "RESERVED": false,
+    "CANCELLED": false,
+    "NO SHOW": false,
+    "WAITLIST": false,
+    "PROSPECT": false
+  }
 }
 ```
 ### Telegram

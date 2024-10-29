@@ -9,6 +9,12 @@ public delegate void UpdateProfileHandle(decimal profileNumber);
 /// </summary>
 public interface IEmisService : IService<EmisOptions, ApplicationEnvironment>
 {
+    /// <summary>Флаг, указывающий, включен ли сервис.</summary>
+    public bool Enabled { get; }
+
+    /// <summary>Статусы, которые должны быть установлены у бронирований профиля.</summary>
+    public ISet<string> Statuses { get; }
+
     /// <summary>Событие, вызываемое при получении сервисом идентификатора обновленного профиля.</summary>
     event UpdateProfileHandle? UpdateProfileEvent;
 
@@ -17,5 +23,11 @@ public interface IEmisService : IService<EmisOptions, ApplicationEnvironment>
     /// если установлено значение <c>true</c> у свойства <see cref="EmisOptions.Enabled"/>
     /// </summary>
     /// <param name="profileNumber">Идентификатора обновленного профиля.</param>
-    void Publish(decimal profileNumber);
+    Task PublishAsync(decimal profileNumber);
+
+    /// <summary>
+    /// Метод, отменющий вызов события<see cref="UpdateProfileEvent"/></summary>
+    /// для указанного профиля.
+    /// <param name="profileNumber">Идентификатора профиля.</param>
+    Task CancelAsync(decimal profileNumber);
 }

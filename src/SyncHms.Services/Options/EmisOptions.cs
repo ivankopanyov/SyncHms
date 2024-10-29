@@ -17,6 +17,31 @@ public class EmisOptions
     [Range(0, int.MaxValue)]
     public int DelaySeconds { get; set; }
 
+    /// <summary>
+    /// Статусы бронирваний, которые будут учитываться при синхронизации.
+    /// <seealso cref="OperaReservationStatus"/>
+    /// </summary>
+    [Description("Статусы бронирваний, которые будут учитываться при синхронизации.")]
+    [DictionaryEqual<string, bool>(
+        OperaReservationStatus.Reserved,
+        OperaReservationStatus.CheckedIn,
+        OperaReservationStatus.CheckedOut,
+        OperaReservationStatus.Cancelled,
+        OperaReservationStatus.WaitList,
+        OperaReservationStatus.NoShow,
+        OperaReservationStatus.Prospect
+    )]
+    public Dictionary<string, bool> Statuses { get; set; }  = new()
+    {
+        { OperaReservationStatus.CheckedIn, false },
+        { OperaReservationStatus.CheckedOut, false },
+        { OperaReservationStatus.Reserved, false },
+        { OperaReservationStatus.Cancelled, false },
+        { OperaReservationStatus.NoShow, false },
+        { OperaReservationStatus.WaitList, false },
+        { OperaReservationStatus.Prospect, false }
+    };
+
     public override int GetHashCode() => HashCode.Combine(Enabled);
 
     /// <summary>Метод, переопределяющий базовый метод <see cref="Equals"/></summary>

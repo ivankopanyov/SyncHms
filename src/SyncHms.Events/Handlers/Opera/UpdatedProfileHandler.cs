@@ -5,7 +5,7 @@ namespace SyncHms.Events.Handlers.Opera;
 /// оповещающего об изменении профиля.<br/>
 /// Унаследован от класса <see cref="Handler{TIn}"/>
 /// </summary>
-internal class UpdatedProfileHandler(IOperaService operaService) : Handler<UpdatedProfile>
+internal class UpdatedProfileHandler(IOperaService operaService, IEmisService emisService) : Handler<UpdatedProfile>
 {
     /// <summary>
     /// Метод, обрабатывающий событие <see cref="UpdatedProfile"/>.<br/>
@@ -21,18 +21,7 @@ internal class UpdatedProfileHandler(IOperaService operaService) : Handler<Updat
             ArgumentException.ThrowIfNullOrWhiteSpace(operaService.Environment.ResortCode, nameof(operaService.Environment.ResortCode));
 
             var reservations = await operaService
-                .GetReservationsByProfileAsync(@in.ProfileNumber, OperaReservationStatus.CheckedIn);
-
-            if (reservations.Count == 0)
-            {
-                context.Send(new UpdatedProfileFailed
-                {
-                    ProfileNumber = @in.ProfileNumber,
-                    ErrorMessage = $"Reservation for profile {@in.ProfileNumber} with {OperaReservationStatus.CheckedIn} status was not found."
-                });
-
-                return;
-            }
+                .GetReservationsByProfileAsync(@in.ProfileNumber, emisService.Statuses);
 
             foreach (var reservation in reservations)
             {

@@ -27,7 +27,7 @@ public abstract class OperaHandlerTestsBase
             }).ToList());
 
         operaService
-            .Setup(fs => fs.GetReservationsByProfileAsync(It.IsAny<decimal>(), It.IsAny<string?>()))
+            .Setup(fs => fs.GetReservationsByProfileAsync(It.IsAny<decimal>(), It.IsAny<HashSet<string>>()))
             .ReturnsAsync((reservationNumbers ?? []).ToList());
 
         return operaService.Object;
@@ -51,5 +51,16 @@ public abstract class OperaHandlerTestsBase
             .Throws<Exception>();
 
         return operaService.Object;
+    }
+
+    private protected static IEmisService GetEmisService()
+    {
+        var emisService = new Mock<IEmisService>();
+
+        emisService.SetupGet(fs => fs.Enabled).Returns(true);
+        emisService.SetupGet(fs => fs.Statuses).Returns(new HashSet<string>());
+        emisService.Setup(fs => fs.CancelAsync(It.IsAny<decimal>()));
+
+        return emisService.Object;
     }
 }

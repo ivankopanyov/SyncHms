@@ -48,49 +48,19 @@ public class MemoryCache : IMemoryCache
     /// <param name="expiry">Время хранения объекта в кэше.</param>
     public Task PushAsync<T>(string key, T value, TimeSpan? expiry = null) where T : class
     {
-        ArgumentNullException.ThrowIfNull(key, nameof(key));
-        ArgumentNullException.ThrowIfNull(value, nameof(value));
+        Push(key, value, expiry);
+        return Task.CompletedTask;
+    }
 
-        lock (_lock)
-        {
-            if (!_objects.TryGetValue(typeof(T), out var objects))
-            {
-                objects = [];
-                _objects.Add(typeof(T), objects);
-            }
-
-            var cancellationTokenSource = new CancellationTokenSource();
-
-            if (!objects.TryAdd(key, (cancellationTokenSource, value)))
-                objects[key] = (cancellationTokenSource, value);
-
-            if (expiry is not { } timeSpan)
-                return Task.CompletedTask;
-
-            async void Start()
-            {
-                try
-                {
-                    await Task.Delay(timeSpan, cancellationTokenSource.Token);
-
-                    lock (_lock)
-                    {
-                        if (!_objects.TryGetValue(typeof(T), out objects)) return;
-
-                        objects?.Remove(key);
-                        if (objects == null || objects.Count == 0)
-                            _objects.Remove(typeof(T));
-                    }
-                }
-                catch (TaskCanceledException)
-                {
-                    // ignored
-                }
-            }
-
-            new Thread(Start).Start();
-        }
-
+    /// <summary>Метод добавляет или заменяет объект указанного типа с указанным ключем.</summary>
+    /// <typeparam name="T">Тип добавляемого объекта.</typeparam>
+    /// <param name="key">Ключ добавляемого объекта.</param>
+    /// <param name="value">Добавляемый объект.</param>
+    /// <param name="expiry">Время хранения объекта в кэше.</param>
+    /// <param name="callback">Функция, срабатывающая во время удаления объекта по истечению срока жизни.</param>
+    public Task PushAsync<T>(string key, T value, TimeSpan expiry, Func<string, T, Task>? callback = null)  where T : class
+    {
+        Push(key, value, expiry, callback);
         return Task.CompletedTask;
     }
     
@@ -143,6 +113,65 @@ public class MemoryCache : IMemoryCache
         lock (_lock)
         {
             return Task.FromResult(_objects.TryGetValue(typeof(T), out var objects) && objects.ContainsKey(key));
+        }
+    }
+
+    /// <summary>Метод добавляет или заменяет объект указанного типа с указанным ключем.</summary>
+    /// <typeparam name="T">Тип добавляемого объекта.</typeparam>
+    /// <param name="key">Ключ добавляемого объекта.</param>
+    /// <param name="value">Добавляемый объект.</param>
+    /// <param name="expiry">Время хранения объекта в кэше.</param>
+    /// <param name="callback">Функция, срабатывающая во время удаления объекта по истечению срока жизни.</param>
+    private void Push<T>(string key, T value, TimeSpan? expiry, Func<string, T, Task>? callback = null) where T : class
+    {
+        ArgumentNullException.ThrowIfNull(key, nameof(key));
+        ArgumentNullException.ThrowIfNull(value, nameof(value));
+
+        lock (_lock)
+        {
+            if (!_objects.TryGetValue(typeof(T), out var objects))
+            {
+                objects = [];
+                _objects.Add(typeof(T), objects);
+            }
+
+            var cancellationTokenSource = new CancellationTokenSource();
+
+            if (objects.TryGetValue(key, out var current))
+                current.Item1.Cancel();
+
+            objects[key] = (cancellationTokenSource, value);
+
+            if (!objects.TryAdd(key, (cancellationTokenSource, value)))
+                objects[key] = (cancellationTokenSource, value);
+
+            if (expiry is not { } timeSpan)
+                return;
+
+            async void Start()
+            {
+                try
+                {
+                    await Task.Delay(timeSpan, cancellationTokenSource.Token);
+
+                    lock (_lock)
+                    {
+                        if (!_objects.TryGetValue(typeof(T), out objects)) return;
+
+                        objects?.Remove(key);
+                        if (objects == null || objects.Count == 0)
+                            _objects.Remove(typeof(T));
+                    }
+
+                    callback?.Invoke(key, value);
+                }
+                catch (TaskCanceledException)
+                {
+                    // ignored
+                }
+            }
+
+            new Thread(Start).Start();
         }
     }
 }

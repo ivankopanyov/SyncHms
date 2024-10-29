@@ -1,4 +1,4 @@
-namespace SyncHms.Events;
+namespace SyncHms.Services;
 
 /// <summary>Статический класс, хранящий набор констант со статусами бронирования системы <c>OPERA</c>.</summary>
 public static class OperaReservationStatus

@@ -328,10 +328,13 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
 
     /// <summary>Метод, возвращающий номера бронирований профиля с указаным статусом.</summary>
     /// <param name="profileNumber">Номер профайла.</param>
-    /// <param name="status">Статус бронирования.<br/>Если передан <c>null</c> - не будет учитываться при поиске.</param>
+    /// <param name="statuses">Статусы, которые должны быть установлены у бронирований профиля.</param>
     /// <returns>Список номеров бронирований.</returns>
-    public async Task<List<decimal>> GetReservationsByProfileAsync(decimal profileNumber, string? status = null)
+    public async Task<List<decimal>> GetReservationsByProfileAsync(decimal profileNumber, ISet<string> statuses)
     {
+        if (statuses == null || statuses.Count == 0)
+            return [];
+
         List<decimal> result;
 
         try
@@ -341,7 +344,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                 var context = Context;
                 result = await (from rn in context.ReservationNames
                     where rn.Resort == Environment.ResortCode && rn.ResvNameId != null
-                    && rn.NameId == profileNumber && (status == null || rn.ResvStatus == status)
+                    && rn.NameId == profileNumber && statuses.Contains(rn.ResvStatus)
                     select (decimal)rn.ResvNameId).ToListAsync();
             }
 

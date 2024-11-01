@@ -12,8 +12,8 @@ public class EmisController(IEmisService emisService) : ControllerBase
     /// <summary>Конечная точка для получения обновлений от сервиса <c>EMIS</c>.</summary>
     /// <param name="profileNumber">Идентификатор обновленного профиля.</param>
     [HttpPost("name_doc_update")]
-    public void Update([FromQuery][Bind(Prefix = "hp_id")] decimal profileNumber)
+    public async Task UpdateAsync([FromQuery][Bind(Prefix = "hp_id")] decimal profileNumber)
     {
-        emisService.Publish(profileNumber);
+        await emisService.PublishAsync(profileNumber);
     }
 }

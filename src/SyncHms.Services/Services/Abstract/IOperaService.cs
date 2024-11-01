@@ -25,7 +25,7 @@ public interface IOperaService : IService<OperaOptions, ApplicationEnvironment>
 
     /// <summary>Метод, возвращающий номера бронирований профиля с указаным статусом.</summary>
     /// <param name="profileNumber">Номер профайла.</param>
-    /// <param name="status">Статус бронирования.<br/>Если передан <c>null</c> - не будет учитываться при поиске.</param>
+    /// <param name="statuses">Статусы, которые должны быть установлены у бронирований профиля.</param>
     /// <returns>Список номеров бронирований.</returns>
-    Task<List<decimal>> GetReservationsByProfileAsync(decimal profileNumber, string? status = null);
+    Task<List<decimal>> GetReservationsByProfileAsync(decimal profileNumber, ISet<string> statuses);
 }

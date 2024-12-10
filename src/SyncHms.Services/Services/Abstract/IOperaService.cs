@@ -17,15 +17,9 @@ public interface IOperaService : IService<OperaOptions, ApplicationEnvironment>
     /// <returns>Данные бронирования.</returns>
     Task<ReservationUpdatedMessage?> GetReservationUpdatedMessageAsync(decimal reservationId, string status);
 
-    /// <summary>Метод, возвращающий коллекцию бронирований, которые были обновлены в указанный период.</summary>
+    /// <summary>Метод, возвращающий коллекцию бронирований, которые были обновлены ы указанный период.</summary>
     /// <param name="fromDate">Минимальная дата обновления бронирования.</param>
     /// <param name="toDate">Максимальная дата обноаления бронирования.</param>
     /// <returns>Коллекция обновленных бронирований.</returns>
     Task<List<UpdatedReservation>> GetUpdatedReservationsAsync(DateTime fromDate, DateTime toDate);
-
-    /// <summary>Метод, возвращающий номера бронирований профиля с указаным статусом.</summary>
-    /// <param name="profileNumber">Номер профайла.</param>
-    /// <param name="statuses">Статусы, которые должны быть установлены у бронирований профиля.</param>
-    /// <returns>Список номеров бронирований.</returns>
-    Task<List<decimal>> GetReservationsByProfileAsync(decimal profileNumber, ISet<string> statuses);
 }

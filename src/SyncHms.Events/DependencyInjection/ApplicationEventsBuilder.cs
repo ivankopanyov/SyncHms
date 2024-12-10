@@ -40,8 +40,6 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
                 options.TaskName = "POST";
                 options.HandlerName = "POSTING";
             })
-            .AddEvent<UpdatedReservationHandler, UpdatedReservation>(options => options.HandlerName = "UPDATED")
-            .AddEvent<UpdatedProfileFailedHandler, UpdatedProfileFailed>(options => options.HandlerName = "EMIS")
             .AddEvent<FiasPostingSimpleHandler, FiasPostSimple>(options => options.HandlerName = "FIAS_SIMPLE")
             .AddEvent<FiasPostingRequestHandler, FiasPostRequest>(options => options.HandlerName = "FIAS_REQUEST")
             .AddEvent<ReservationHandler, ReservationInfo>(options => options.HandlerName = "OPERA")
@@ -49,9 +47,9 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
             .AddEvent<CheckHandler, Check>(options => options.HandlerName = "MICROS")
             .AddEvent<PostingResponseHandler, PostTransactionsResponse>(options => options.HandlerName = "SANATORIUM")
             .AddEvent<UpdateReservationHandler, ReservationUpdatedMessage>(options => options.HandlerName = "SANATORIUM")
+            .AddEvent<UpdatedReservationHandler, UpdatedReservation>(options => options.HandlerName = "UPDATED")
             .AddEventLog<TelegramMessageHandler>()
             .AddUnloggedEvent<ChangedServiceStateHandler, ChangedServiceState>()
-            .AddUnloggedEvent<UpdatedProfileHandler, UpdatedProfile>(options => options.TaskName = "RESV")
             .AddHostedService<MessageProxyWorker>();
 
         return this;

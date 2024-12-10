@@ -5,7 +5,7 @@
 /// оповещающего об изменении данных бронирования.<br/>
 /// Унаследован от класса <see cref="Handler{TIn}"/>
 /// </summary>
-internal class ReservationHandler(IOperaService operaService, IEmisService emisService) : Handler<ReservationInfo>
+internal class ReservationHandler(IOperaService operaService) : Handler<ReservationInfo>
 {
     /// <summary>
     /// Метод, обрабатывающий событие <see cref="ReservationInfo"/>.
@@ -23,15 +23,6 @@ internal class ReservationHandler(IOperaService operaService, IEmisService emisS
 
         if (await operaService.GetReservationUpdatedMessageAsync(@in.ReservationNumber, @in.Status) is { } reservationResponse)
         {
-            if (emisService.Enabled && reservationResponse.ReservationGuests != null)
-            {
-                foreach (var guest in reservationResponse.ReservationGuests)
-                {
-                    if (decimal.TryParse(guest.GenericNo, out var profileNumber))
-                        await emisService.CancelAsync(profileNumber);
-                }
-            }
-
             context.Send(reservationResponse);
         }
         else

@@ -7,8 +7,7 @@ public class ReservationHandlerTests : OperaHandlerTestsBase
     {
         var context = new MockEventContext();
         var operaService = GetOperaService("ResortCode");
-        var emisService = GetEmisService();
-        var handler = new ExposedReservationHandler(operaService, emisService);
+        var handler = new ExposedReservationHandler(operaService);
         await handler.ExposedHandleAsync(new ReservationInfo(), context);
 
         Assert.Single(context.SendMessages);
@@ -23,8 +22,7 @@ public class ReservationHandlerTests : OperaHandlerTestsBase
     {
         var context = new MockEventContext();
         var operaService = GetOperaService(resortCode);
-        var emisService = GetEmisService();
-        var handler = new ExposedReservationHandler(operaService, emisService);
+        var handler = new ExposedReservationHandler(operaService);
         await Assert.ThrowsAsync<ArgumentException>(async () =>
             await handler.ExposedHandleAsync(new ReservationInfo(), context));
     }
@@ -34,8 +32,7 @@ public class ReservationHandlerTests : OperaHandlerTestsBase
     {
         var context = new MockEventContext();
         var operaService = GetOperaService("ResortCode", true);
-        var emisService = GetEmisService();
-        var handler = new ExposedReservationHandler(operaService, emisService);
+        var handler = new ExposedReservationHandler(operaService);
         await handler.ExposedHandleAsync(new ReservationInfo(), context);
 
         Assert.Single(context.Breaks);
@@ -48,8 +45,7 @@ public class ReservationHandlerTests : OperaHandlerTestsBase
     {
         var context = new MockEventContext();
         var operaService = GetOperaServiceWithThrow();
-        var emisService = GetEmisService();
-        var handler = new ExposedReservationHandler(operaService, emisService);
+        var handler = new ExposedReservationHandler(operaService);
         await Assert.ThrowsAsync<Exception>(async () =>
             await handler.ExposedHandleAsync(new ReservationInfo(), context));
     }

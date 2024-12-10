@@ -19,8 +19,7 @@ public interface IEventsBusBuilder : IBusBuilder
     /// <summary>Метод, регистрирующий обработчик нелогируемых событий в контейнере зависимостей.</summary>
     /// <typeparam name="THandler">Тип обработчика.</typeparam>
     /// <typeparam name="TIn">Тип обрабатываемого сообщения.</typeparam>
-    /// <param name="action">Инициализация опций обработчика.</param>
-    IEventsBusBuilder AddUnloggedEvent<THandler, TIn>(Action<HandlerOptions>? action = null) where THandler : Handler<TIn>;
+    IEventsBusBuilder AddUnloggedEvent<THandler, TIn>() where THandler : Handler<TIn>;
 
     /// <summary>Метод, регистрирующий обработчик событий, отправляемыx планировщиком <see cref="IEventScheduler"/></summary>
     /// <typeparam name="THandler">Тип обработчика.</typeparam>

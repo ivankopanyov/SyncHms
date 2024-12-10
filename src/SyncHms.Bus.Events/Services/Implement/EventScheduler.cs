@@ -75,6 +75,7 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
         else
         {
             options.Interval = interval;
+            options.First = last;
             options.Last = last;
             await _scheduler.DeleteJob(options.Key);
             await RunScheduleAsync(options, notify);
@@ -133,7 +134,18 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
             .WithIdentity(options.Key.Name);
 
         var now = DateTime.Now;
-        var next = options.Last + options.Interval;
+        var next = options.Last;
+
+        if (options.First == options.Last)
+        {
+            next += options.Interval;
+        }
+        else
+        {
+            var runTime = (options.Last - options.First).TotalSeconds;
+            var interval = options.Interval.TotalSeconds;
+            next += TimeSpan.FromSeconds(interval - (runTime - (int)runTime / interval * interval));
+        }
 
         triggerBuilder = next <= now
             ? triggerBuilder.StartNow()

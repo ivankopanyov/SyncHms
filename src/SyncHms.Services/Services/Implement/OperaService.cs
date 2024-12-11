@@ -103,7 +103,6 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                                        n.NameId == rn.NameId
                                                  select new
                                                  {
-                                                     //CustomFieldValues = 
                                                      GuestGenericNo = $"{n.NameId:0}",
                                                      Id = $"{n.NameId:0}/{reservationId:0}",
                                                      FirstName = Trim(n.XfirstName ?? n.First),
@@ -112,7 +111,6 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                                      Sex = n.Gender,
                                                      BirthDateStr = string.Empty,
                                                      BirthDate = DateTime.Now,
-                                                     //Notes =
                                                      Arrival = rn.ActualCheckInDate != null,
                                                      Departure = rn.ActualCheckOutDate != null,
                                                      rn.BeginDate,
@@ -123,13 +121,9 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                                      DocumentTypeCode = (from nd in context.NameDocuments
                                                                          where nd.PrimaryYn == "Y" && nd.NameId == n.NameId
                                                                          select nd.IdType).FirstOrDefault(),
-                                                     //DocumentTypeName =
-                                                     //DocumentNumber = 
                                                      DocumentSeries = n.Udfc01,
                                                      DepartmentCode = n.Udfc03,
                                                      IssueDate = ToDateTime(n.Udfc02, "dd.MM.yy"),
-                                                     //ExpirationDate = 
-                                                     //RegistrationDate = 
                                                      IssuerInfo = Trim(n.Udfc04),
                                                      Timelines = (from rden in context.ReservationDailyElementNames
                                                                   from rde in context.ReservationDailyElements
@@ -240,11 +234,9 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                 DocumentData = new DocumentData
                                 {
                                     DocumentTypeCode = FixDocumentTypeCode(reservationResponse.DocumentTypeCode),
-                                    //DocumentTypeName =
                                     DocumentSeries = reservationResponse.DocumentSeries,
                                     DocumentNumber = nameInfo?.PassId,
                                     IssueDate = reservationResponse.IssueDate,
-                                    //ExpirationDate = 
                                     DepartmentCode = reservationResponse.DepartmentCode,
                                     IssuerInfo = reservationResponse.IssuerInfo
                                 }
@@ -318,6 +310,88 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
 
             control.Active();
             return result;
+        }
+        catch (Exception ex)
+        {
+            control.Unactive(ex);
+            throw;
+        }
+    }
+    
+    public async Task<HashSet<ReservationInventory>> GetReservationInventoriesAsync(decimal reservationId, string status)
+    {
+        try
+        {
+            HashSet<ReservationInventory> reservationInventories;
+            
+            using (var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionOptions))
+            {
+                await using var context = Context;
+
+                var result = await (from rn in context.ReservationNames
+                    from rdn in context.ReservationDailyElementNames
+                        .Where(rdn => rdn.Resort == rn.Resort && rdn.ResvNameId == rn.ResvNameId)
+                    from n in context.Names.Where(n => n.NameId == rn.NameId)
+                    from rde in context.ReservationDailyElements
+                        .Where(rde =>
+                            rde.Resort == rdn.Resort && rde.ResvDailyElSeq == rdn.ResvDailyElSeq &&
+                            rdn.ReservationDate == rde.ReservationDate)
+                    from b in context.Businessdates
+                        .Where(b => b.Resort == rdn.Resort && b.BusinessDate1 == rdn.ReservationDate &&
+                                    b.State == "OPEN")
+                    from ri in context.ReservationItems
+                        .Where(ri => ri.Resort == rn.Resort && ri.ResvNameId == rn.ResvNameId).DefaultIfEmpty()
+                    from gi in context.GemItems
+                        .Where(gi => gi.Resort == rn.Resort && gi.ItemId == ri.ItemId).DefaultIfEmpty()
+                    from gic in context.GemItemClasses
+                        .Where(gic => gic.Resort == rn.Resort && gic.ItemclassId == gi.ItemclassId).DefaultIfEmpty()
+                    where rn.Resort == Environment.ResortCode && rn.ResvStatus == status && rde.Room == (
+                        from rn in context.ReservationNames
+                        from rdn in context.ReservationDailyElementNames
+                            .Where(rdn => rdn.Resort == rn.Resort && rdn.ResvNameId == rn.ResvNameId)
+                        from rde in context.ReservationDailyElements
+                            .Where(rde =>
+                                rde.Resort == rdn.Resort && rde.ResvDailyElSeq == rdn.ResvDailyElSeq &&
+                                rdn.ReservationDate == rde.ReservationDate)
+                        from b in context.Businessdates
+                            .Where(b => b.Resort == rdn.Resort && b.BusinessDate1 == rdn.ReservationDate &&
+                                        b.State == "OPEN")
+                        where rn.Resort == Environment.ResortCode && rn.ResvNameId == reservationId
+                        select rde.Room
+                    ).FirstOrDefault()
+                    select new
+                    {
+                        ReservationId = rn.ResvNameId ?? default,
+                        rn.ConfirmationNo,
+                        FirstName = Trim(n.XfirstName ?? n.First),
+                        LastName = Trim(n.XlastName ?? n.Last),
+                        MiddleName = Trim(n.XmiddleName ?? n.Middle),
+                        rde.Room,
+                        Inventory = gi.ArticleNumber == null
+                            ? null
+                            : new Inventory
+                            {
+                                ArticleNumber = gi.ArticleNumber,
+                                BeginDate = ri.BeginDate ?? default,
+                                EndDate = ri.EndDate ?? default
+                            }
+                    }).ToListAsync();
+
+                var inventories = result.Where(ri => ri.Inventory != null).Select(ri => ri.Inventory).ToHashSet();
+                reservationInventories = result.Select(ri => new ReservationInventory
+                {
+                    ReservationId = ri.ReservationId,
+                    ConfirmationNo = ri.ConfirmationNo,
+                    FirstName = ri.FirstName,
+                    LastName = ri.LastName,
+                    MiddleName = ri.MiddleName,
+                    Room = ri.Room,
+                    Inventories = inventories
+                }).ToHashSet();
+            }
+
+            control.Active();
+            return reservationInventories;
         }
         catch (Exception ex)
         {

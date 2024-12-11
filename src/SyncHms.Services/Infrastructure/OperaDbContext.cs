@@ -42,6 +42,12 @@ public class OperaDbContext : OperaDbContextBase
 
     public virtual DbSet<NameData> NameData { get; set; }
 
+    public virtual DbSet<GemItem> GemItems { get; set; }
+
+    public virtual DbSet<GemItemClass> GemItemClasses { get; set; }
+
+    public virtual DbSet<ReservationItems> ReservationItems { get; set; }
+
     internal OperaDbContext(string connectionString, string? oracleSqlCompatibility = null)
     {
         _connectionString = connectionString;

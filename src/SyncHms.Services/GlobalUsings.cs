@@ -30,6 +30,7 @@ global using System.Net;
 global using System.Net.Sockets;
 global using System.Reflection;
 global using System.Text;
+global using System.Text.RegularExpressions;
 global using System.Transactions;
 global using Telegram.Bot;
 global using Telegram.Bot.Types;

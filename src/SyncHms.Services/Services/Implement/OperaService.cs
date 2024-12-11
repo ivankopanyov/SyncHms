@@ -318,15 +318,21 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
         }
     }
     
-    public async Task<HashSet<ReservationInventory>> GetReservationInventoriesAsync(decimal reservationId, string status)
+    public async Task<HashSet<ReservationInventory>> GetReservationInventoriesAsync(decimal reservationId, string? room, params string[] statuses)
     {
+        if (Environment.InventoryClasses.Count == 0)
+            return [];
+
+        HashSet<string> resvStatuses = [.. statuses];
+        HashSet<ReservationInventory> reservationInventories;
+        int count = resvStatuses.Count;
+
         try
         {
-            HashSet<ReservationInventory> reservationInventories;
-            
             using (var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionOptions))
             {
                 await using var context = Context;
+                var now = DateTime.Now;
 
                 var result = await (from rn in context.ReservationNames
                     from rdn in context.ReservationDailyElementNames
@@ -337,15 +343,14 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                             rde.Resort == rdn.Resort && rde.ResvDailyElSeq == rdn.ResvDailyElSeq &&
                             rdn.ReservationDate == rde.ReservationDate)
                     from b in context.Businessdates
-                        .Where(b => b.Resort == rdn.Resort && b.BusinessDate1 == rdn.ReservationDate &&
-                                    b.State == "OPEN")
+                        .Where(b => b.Resort == rdn.Resort && b.BusinessDate1 == rdn.ReservationDate && b.State == "OPEN")
                     from ri in context.ReservationItems
-                        .Where(ri => ri.Resort == rn.Resort && ri.ResvNameId == rn.ResvNameId).DefaultIfEmpty()
-                    from gi in context.GemItems
-                        .Where(gi => gi.Resort == rn.Resort && gi.ItemId == ri.ItemId).DefaultIfEmpty()
-                    from gic in context.GemItemClasses
-                        .Where(gic => gic.Resort == rn.Resort && gic.ItemclassId == gi.ItemclassId).DefaultIfEmpty()
-                    where rn.Resort == Environment.ResortCode && rn.ResvStatus == status && rde.Room == (
+                        .Where(ri => ri.Resort == rn.Resort && ri.ResvNameId == rn.ResvNameId && ri.BeginDate >= now && ri.EndDate <= now)
+                        .DefaultIfEmpty()
+                    from gi in context.GemItems.Where(gi => gi.Resort == rn.Resort && gi.ItemId == ri.ItemId).DefaultIfEmpty()
+                    from gic in context.GemItemClasses.Where(gic => gic.Resort == rn.Resort && gic.ItemclassId == gi.ItemclassId).DefaultIfEmpty()
+                    where rn.Resort == Environment.ResortCode && (count == 0 || resvStatuses.Contains(rn.ResvStatus!))
+                    && ((room != null && rde.Room == room) || (room == null && rde.Room == (
                         from rn in context.ReservationNames
                         from rdn in context.ReservationDailyElementNames
                             .Where(rdn => rdn.Resort == rn.Resort && rdn.ResvNameId == rn.ResvNameId)
@@ -354,11 +359,10 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                 rde.Resort == rdn.Resort && rde.ResvDailyElSeq == rdn.ResvDailyElSeq &&
                                 rdn.ReservationDate == rde.ReservationDate)
                         from b in context.Businessdates
-                            .Where(b => b.Resort == rdn.Resort && b.BusinessDate1 == rdn.ReservationDate &&
-                                        b.State == "OPEN")
+                            .Where(b => b.Resort == rdn.Resort && b.BusinessDate1 == rdn.ReservationDate && b.State == "OPEN")
                         where rn.Resort == Environment.ResortCode && rn.ResvNameId == reservationId
                         select rde.Room
-                    ).FirstOrDefault()
+                    ).FirstOrDefault()))
                     select new
                     {
                         ReservationId = rn.ResvNameId ?? default,
@@ -369,15 +373,27 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                         rde.Room,
                         Inventory = gi.ArticleNumber == null
                             ? null
-                            : new Inventory
+                            : new
                             {
-                                ArticleNumber = gi.ArticleNumber,
+                                gi.ArticleNumber,
+                                gic.ItemclassCode,
                                 BeginDate = ri.BeginDate ?? default,
                                 EndDate = ri.EndDate ?? default
                             }
                     }).ToListAsync();
 
-                var inventories = result.Where(ri => ri.Inventory != null).Select(ri => ri.Inventory).ToHashSet();
+                var inventories = result
+                    .Where(ri => ri.Inventory?.ItemclassCode is { } code
+                        && ri.Inventory?.ArticleNumber is { } article 
+                        && Environment.InventoryClasses.ContainsKey(code))
+                    .Select(ri => new Inventory
+                    {
+                        ArticleNumber = ri.Inventory.ArticleNumber,
+                        BeginDate = ri.Inventory.BeginDate,
+                        EndDate = ri.Inventory.EndDate
+                    })
+                    .ToHashSet();
+
                 reservationInventories = result.Select(ri => new ReservationInventory
                 {
                     ReservationId = ri.ReservationId,
@@ -392,6 +408,46 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
 
             control.Active();
             return reservationInventories;
+        }
+        catch (Exception ex)
+        {
+            control.Unactive(ex);
+            throw;
+        }
+    }
+
+    public async Task<HashSet<decimal>> GetUpdatedReservationInventoriesAsync(DateTime fromDate, DateTime toDate, params string[] statuses)
+    {
+        if (Environment.InventoryClasses.Count == 0)
+            return [];
+
+        HashSet<string> resvStatuses = [.. statuses];
+        HashSet<decimal> reservations;
+        HashSet<string> classCodes = [.. Environment.InventoryClasses.Keys];
+        int count = resvStatuses.Count;
+
+        try
+        {
+            using (var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionOptions))
+            {
+                await using var context = Context;
+
+                var result = await (from ri in context.ReservationItems
+                                    from rn in context.ReservationNames
+                                        .Where(rn => rn.Resort == ri.Resort && resvStatuses.Contains(rn.ResvStatus!))
+                                    from gi in context.GemItems
+                                        .Where(gi => gi.Resort == ri.Resort && gi.ItemId == ri.ItemId)
+                                    from gic in context.GemItemClasses
+                                        .Where(gic => gic.Resort == gi.Resort && gic.ItemclassId == gi.ItemclassId)
+                                    where ri.Resort == Environment.ResortCode && classCodes.Contains(gic.ItemclassCode!)
+                                        && ((ri.BeginDate > fromDate && ri.BeginDate <= toDate) || (ri.EndDate > fromDate && ri.EndDate <= toDate))
+                                    select ri.ResvNameId ?? default).ToListAsync();
+
+                reservations = [.. result];
+            }
+
+            control.Active();
+            return reservations;
         }
         catch (Exception ex)
         {

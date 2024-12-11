@@ -1,4 +1,4 @@
-namespace SyncHms.Services.Models;
+namespace SyncHms.Services;
 
 public class ReservationInventory
 {
@@ -6,10 +6,10 @@ public class ReservationInventory
     
     public string ConfirmationNo { get; set; }
     
-    public string FirstName { get; set; }
-    
     public string LastName { get; set; }
-    
+
+    public string FirstName { get; set; }
+
     public string MiddleName { get; set; }
     
     public string Room { get; set; }

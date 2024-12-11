@@ -22,4 +22,8 @@ public interface IOperaService : IService<OperaOptions, ApplicationEnvironment>
     /// <param name="toDate">Максимальная дата обноаления бронирования.</param>
     /// <returns>Коллекция обновленных бронирований.</returns>
     Task<List<UpdatedReservation>> GetUpdatedReservationsAsync(DateTime fromDate, DateTime toDate);
+
+    Task<HashSet<ReservationInventory>> GetReservationInventoriesAsync(decimal reservationId, string? room, params string[] statuses);
+
+    Task<HashSet<decimal>> GetUpdatedReservationInventoriesAsync(DateTime fromDate, DateTime toDate, params string[] statuses);
 }

@@ -12,18 +12,23 @@ internal class MessageProxyWorker : BackgroundService
     /// <param name="checkOutPublisher">Сервис публикации событий <see cref="FiasGuestCheckOut"/></param>
     /// <param name="changePublisher">Сервис публикации событий <see cref="FiasGuestChange"/></param>
     /// <param name="postingRequestPublisher">Сервис публикации событий <see cref="FiasPostingRequest"/></param>
+    /// <param name="inventoryPublisher">Сервис публикации событий <see cref="ReservationInventoryRequest"/></param>
     public MessageProxyWorker(
         IFiasService fiasService,
         ISanatoriumService sanatoriumService,
         IEventPublisher<FiasGuestCheckIn> checkInPublisher,
         IEventPublisher<FiasGuestCheckOut> checkOutPublisher,
         IEventPublisher<FiasGuestChange> changePublisher,
-        IEventPublisher<PostTransactionsRequest> postingRequestPublisher)
+        IEventPublisher<PostTransactionsRequest> postingRequestPublisher,
+        IEventPublisher<ReservationInventoryRequest> inventoryPublisher)
     {
         fiasService.FiasGuestCheckInEvent += checkInPublisher.Publish;
         fiasService.FiasGuestCheckOutEvent += checkOutPublisher.Publish;
         fiasService.FiasGuestChangeEvent += changePublisher.Publish;
         sanatoriumService.PostingRequestEvent += postingRequestPublisher.Publish;
+
+        fiasService.FiasGuestCheckInEvent += checkIn => inventoryPublisher.Publish(checkIn);
+        fiasService.FiasGuestChangeEvent += change => inventoryPublisher.Publish(change);
     }
     
     protected override Task ExecuteAsync(CancellationToken stoppingToken)

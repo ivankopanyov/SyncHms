@@ -1,4 +1,4 @@
-namespace SyncHms.Services.Models;
+namespace SyncHms.Services;
 
 public class Inventory
 {

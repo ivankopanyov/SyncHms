@@ -1,3 +1,5 @@
+using SyncHms.Events.Handlers.Opera;
+
 namespace SyncHms.Events.DependencyInjection;
 
 /// <summary>
@@ -48,6 +50,22 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
             .AddEvent<PostingResponseHandler, PostTransactionsResponse>(options => options.HandlerName = "SANATORIUM")
             .AddEvent<UpdateReservationHandler, ReservationUpdatedMessage>(options => options.HandlerName = "SANATORIUM")
             .AddEvent<UpdatedReservationHandler, UpdatedReservation>(options => options.HandlerName = "UPDATED")
+
+            .AddScheduleEvent<UpdateInventoryScheduleHandler>(options =>
+            {
+                options.TaskName = "LOCK";
+                options.HandlerName = "Inventory Updates Monitoring";
+            })
+            .AddEvent<ReservationInventoryRequestHandler, ReservationInventoryRequest>(options =>
+            {
+                options.TaskName = "LOCK";
+                options.HandlerName = "OPERA";
+            }).AddEvent<ReservationInventoriesHandler, ReservationInventories>(options =>
+            {
+                options.TaskName = "LOCK";
+                options.HandlerName = "OZLOCKS";
+            })
+
             .AddEventLog<TelegramMessageHandler>()
             .AddUnloggedEvent<ChangedServiceStateHandler, ChangedServiceState>()
             .AddHostedService<MessageProxyWorker>();

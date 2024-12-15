@@ -117,20 +117,20 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
             }
         }
         
-        var context = new EventContext(handlerName);
+        var context = new EventContext(handlerName, message, @event.Error != null);
 
         try
         {
             await handler.ProcessHandleAsync(@event.Message, context);
 
-            if (_useLogging)
+            if (_useLogging && (context.Logiable || (!context.Logiable && context.HasError)))
             {
                 await LogAsync(new EventLog
                 {
                     TaskId = @event.TaskId,
                     TaskName = @event.TaskName,
-                    HandlerName = handlerName,
-                    Message = message,
+                    HandlerName = context.HandlerName,
+                    Message = context.Message,
                     IsEnd = !context.Events.Any(),
                     InputObjectJson = inputObjectJson
                 });
@@ -151,8 +151,8 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                 {
                     TaskId = @event.TaskId,
                     TaskName = @event.TaskName,
-                    HandlerName = handlerName,
-                    Message = message,
+                    HandlerName = context.HandlerName,
+                    Message = context.Message,
                     IsEnd = true,
                     Error = ex.Message,
                     StackTrace = ex.StackTrace,
@@ -172,16 +172,19 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                     await LogAsync(new EventLog
                     {
                         TaskName = @event.TaskName,
-                        HandlerName = handlerName,
+                        HandlerName = context.HandlerName,
                         TaskId = @event.TaskId,
-                        Message = message,
+                        Message = context.Message,
                         Error = @event.Error,
                         StackTrace = @event.StackTrace,
                         InputObjectJson = inputObjectJson
                     }, ex);
                 }
-                
-                messageContext?.Requeue(true);
+
+                if (messageContext != null)
+                    messageContext?.Requeue(true);
+                else
+                    await @event.PublishAsync(_provider);
             }
             else
             {

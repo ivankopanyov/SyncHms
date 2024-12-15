@@ -6,18 +6,28 @@ internal class ReservationInventoryRequestHandler(IOperaService operaService) : 
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(operaService.Environment.ResortCode, nameof(operaService.Environment.ResortCode));
 
-        var reservations = await operaService.GetReservationInventoriesAsync(@in.ReservationId, @in.Room, OperaReservationStatus.CheckedIn);
-        if (reservations.Count > 0)
-        {
-            var reservation = reservations.First();
-            reservations.Remove(reservation);
+        var reservations = await operaService.GetReservationInventoriesAsync(@in.ReservationId, @in.Room,
+            OperaReservationStatus.CheckedIn, OperaReservationStatus.CheckedOut);
 
-            context.Send(new ReservationInventories
-            {
-                Reservation = reservation,
-                Queue = reservations
-            });
-        }
+        context.Logiable = context.HasError;
+
+        if (reservations.Count == 0)
+            return;
+
+        var inventories = reservations
+            .Where(r => r.Status == OperaReservationStatus.CheckedIn)
+            .SelectMany(r => r.Inventories)
+            .ToHashSet();
+
+        foreach (var reservation in reservations)
+            reservation.Inventories = reservation.Status == OperaReservationStatus.CheckedIn
+                ? inventories : [];
+
+        context.Send(new ReservationInventories
+        {
+            HasError = context.HasError,
+            Queue = reservations
+        });
     }
 
     protected override string Message(ReservationInventoryRequest @in)

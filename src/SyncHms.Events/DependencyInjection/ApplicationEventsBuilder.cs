@@ -1,5 +1,3 @@
-using SyncHms.Events.Handlers.Opera;
-
 namespace SyncHms.Events.DependencyInjection;
 
 /// <summary>
@@ -42,15 +40,6 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
                 options.TaskName = "POST";
                 options.HandlerName = "POSTING";
             })
-            .AddEvent<FiasPostingSimpleHandler, FiasPostSimple>(options => options.HandlerName = "FIAS_SIMPLE")
-            .AddEvent<FiasPostingRequestHandler, FiasPostRequest>(options => options.HandlerName = "FIAS_REQUEST")
-            .AddEvent<ReservationHandler, ReservationInfo>(options => options.HandlerName = "OPERA")
-            .AddEvent<RoomNumberHandler, RoomNumberRequest>(options => options.HandlerName = "OPERA")
-            .AddEvent<CheckHandler, Check>(options => options.HandlerName = "MICROS")
-            .AddEvent<PostingResponseHandler, PostTransactionsResponse>(options => options.HandlerName = "SANATORIUM")
-            .AddEvent<UpdateReservationHandler, ReservationUpdatedMessage>(options => options.HandlerName = "SANATORIUM")
-            .AddEvent<UpdatedReservationHandler, UpdatedReservation>(options => options.HandlerName = "UPDATED")
-
             .AddScheduleEvent<UpdateInventoryScheduleHandler>(options =>
             {
                 options.TaskName = "LOCK";
@@ -60,12 +49,16 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
             {
                 options.TaskName = "LOCK";
                 options.HandlerName = "OPERA";
-            }).AddEvent<ReservationInventoriesHandler, ReservationInventories>(options =>
-            {
-                options.TaskName = "LOCK";
-                options.HandlerName = "OZLOCKS";
             })
-
+            .AddEvent<FiasPostingSimpleHandler, FiasPostSimple>(options => options.HandlerName = "FIAS_SIMPLE")
+            .AddEvent<FiasPostingRequestHandler, FiasPostRequest>(options => options.HandlerName = "FIAS_REQUEST")
+            .AddEvent<ReservationHandler, ReservationInfo>(options => options.HandlerName = "OPERA")
+            .AddEvent<RoomNumberHandler, RoomNumberRequest>(options => options.HandlerName = "OPERA")
+            .AddEvent<CheckHandler, Check>(options => options.HandlerName = "MICROS")
+            .AddEvent<PostingResponseHandler, PostTransactionsResponse>(options => options.HandlerName = "SANATORIUM")
+            .AddEvent<UpdateReservationHandler, ReservationUpdatedMessage>(options => options.HandlerName = "SANATORIUM")
+            .AddEvent<UpdatedReservationHandler, UpdatedReservation>(options => options.HandlerName = "UPDATED")
+            .AddEvent<ReservationInventoriesHandler, ReservationInventories>(options => options.HandlerName = "OZLOCKS")
             .AddEventLog<TelegramMessageHandler>()
             .AddUnloggedEvent<ChangedServiceStateHandler, ChangedServiceState>()
             .AddHostedService<MessageProxyWorker>();

@@ -13,6 +13,16 @@ internal class ScheduleEventContext(IEventContext baseContext) : IScheduleEventC
     /// </summary>
     public string HandlerName => baseContext.HandlerName;
 
+    public string? Message => baseContext.Message;
+
+    public bool Logiable
+    {
+        get => baseContext.Logiable;
+        set => baseContext.Logiable = value;
+    }
+
+    public bool HasError => baseContext.HasError;
+
     public DateTime Previous { get; init; }
 
     public DateTime Current { get; init; }
@@ -45,5 +55,15 @@ internal class ScheduleEventContext(IEventContext baseContext) : IScheduleEventC
     public void Break(string? message = null, Exception? innerException = null)
     {
         baseContext.Break(message, innerException);
+    }
+
+    public void SetHandlerName(string handlerName)
+    {
+        baseContext.SetHandlerName(handlerName);
+    }
+
+    public void SetMessage(string message)
+    {
+        baseContext.SetMessage(message);
     }
 }

@@ -1,76 +1,71 @@
 ﻿namespace SyncHms.OzLocks.Entities;
-
 public partial class Guest
 {
     public int GuestId { get; set; }
-
     public int? Foreigner { get; set; }
-
     public string? Name { get; set; }
-
     public string? Fam { get; set; }
-
     public string? Otch { get; set; }
 
     public string? Sex { get; set; }
 
-    public string? BirthDay { get; set; }
+    public string? BirthDay { get; set; } = "  .  .    ";
 
-    public string? BirthCountryId { get; set; }
+    public string? BirthCountryId { get; set; } = string.Empty;
 
-    public string? BirthRegion { get; set; }
+    public string? BirthRegion { get; set; } = string.Empty;
 
-    public string? BirthArea { get; set; }
+    public string? BirthArea { get; set; } = string.Empty;
 
-    public string? BirthCity { get; set; }
+    public string? BirthCity { get; set; } = string.Empty;
 
-    public string? BirthPoint { get; set; }
+    public string? BirthPoint { get; set; } = string.Empty;
 
-    public string? CitizenshipId { get; set; }
+    public string? CitizenshipId { get; set; } = string.Empty;
 
-    public string? TypeDocId { get; set; }
+    public string? TypeDocId { get; set; } = string.Empty;
 
-    public string? DocSeries { get; set; }
+    public string? DocSeries { get; set; } = string.Empty;
 
-    public string? DocNo { get; set; }
+    public string? DocNo { get; set; } = string.Empty;
 
-    public string? DocIssuedDate { get; set; }
+    public string? DocIssuedDate { get; set; } = "  .  .    ";
 
-    public string? DocValidity { get; set; }
+    public string? DocValidity { get; set; } = "  .  .    ";
 
-    public string? DocIssuedId { get; set; }
+    public string? DocIssuedId { get; set; } = "0";
 
-    public string? RegRegion { get; set; }
+    public string? RegRegion { get; set; } = string.Empty;
 
-    public string? RegArea { get; set; }
+    public string? RegArea { get; set; } = string.Empty;
 
-    public string? RegCity { get; set; }
+    public string? RegCity { get; set; } = string.Empty;
 
-    public string? RegPoint { get; set; }
+    public string? RegPoint { get; set; } = string.Empty;
 
-    public string? RegStreet { get; set; }
+    public string? RegStreet { get; set; } = string.Empty;
 
-    public string? RegBuilding { get; set; }
+    public string? RegBuilding { get; set; } = string.Empty;
 
-    public string? RegBuilding2 { get; set; }
+    public string? RegBuilding2 { get; set; } = string.Empty;
 
-    public string? RegApartment { get; set; }
+    public string? RegApartment { get; set; } = string.Empty;
 
-    public string? ResRegion { get; set; }
+    public string? ResRegion { get; set; } = string.Empty;
 
-    public string? ResArea { get; set; }
+    public string? ResArea { get; set; } = string.Empty;
 
-    public string? ResCity { get; set; }
+    public string? ResCity { get; set; } = string.Empty;
 
-    public string? ResPoint { get; set; }
+    public string? ResPoint { get; set; } = string.Empty;
 
-    public string? ResStreet { get; set; }
+    public string? ResStreet { get; set; } = string.Empty;
 
-    public string? ResBuilding { get; set; }
+    public string? ResBuilding { get; set; } = string.Empty;
 
-    public string? ResBuilding2 { get; set; }
+    public string? ResBuilding2 { get; set; } = string.Empty;
 
-    public string? ResApartment { get; set; }
+    public string? ResApartment { get; set; } = string.Empty;
 
     public string? RstypeDocId { get; set; }
 
@@ -128,9 +123,9 @@ public partial class Guest
 
     public string? Phone { get; set; }
 
-    public bool? CardIssued { get; set; }
+    public bool? CardIssued { get; set; } = false;
 
-    public bool? CardHanded { get; set; }
+    public bool? CardHanded { get; set; } = false;
 
     public int? CardId { get; set; }
 
@@ -142,13 +137,13 @@ public partial class Guest
 
     public int? GuserId { get; set; }
 
-    public DateTime? TimeStamp { get; set; }
+    public DateTime? TimeStamp { get; set; } = DateTime.Now;
 
-    public int? TurGrId { get; set; }
+    public int? TurGrId { get; set; } = 0;
 
-    public bool? InRoom { get; set; }
+    public bool? InRoom { get; set; } = true;
 
-    public bool? Exported { get; set; }
+    public bool? Exported { get; set; } = true;
 
     public int DeleteMark { get; set; }
 

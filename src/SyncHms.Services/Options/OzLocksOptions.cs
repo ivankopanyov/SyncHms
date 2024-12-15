@@ -10,6 +10,11 @@ public class OzLocksOptions
     [Required(AllowEmptyStrings = true)]
     public string ConnectionString { get; set; } = string.Empty;
 
+    /// <summary>Идентификатор пользователя, осуществляющего интеграцию.</summary>
+    [Range(0, int.MaxValue)]
+    [Description("Идентификатор пользователя, осуществляющего интеграцию.")]
+    public int IntegrationUserId { get; set; }
+
     public override int GetHashCode() => HashCode.Combine(ConnectionString);
 
     /// <summary>Метод, переопределяющий базовый метод <see cref="Equals"/></summary>

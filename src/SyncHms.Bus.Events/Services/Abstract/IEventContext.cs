@@ -6,6 +6,12 @@ public interface IEventContext
     /// <summary>Имя текущего обработчика.</summary>
     string HandlerName { get; }
 
+    string? Message { get; }
+
+    bool Logiable { get; set; }
+
+    public bool HasError { get; }
+
     /// <summary>Флаг, укзывающий, что нужно обновить идентификатор отправляемых сообщений.</summary>
     internal bool UpdateTaskId { get; set; }
 
@@ -21,4 +27,8 @@ public interface IEventContext
     /// <param name="message">Сообщение об ошибке.</param>
     /// <param name="innerException">Внутреннее исключение процесса обработки события.</param>
     void Break(string? message = null, Exception? innerException = null);
+
+    void SetHandlerName(string handlerName);
+
+    void SetMessage(string message);
 }

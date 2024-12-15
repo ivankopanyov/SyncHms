@@ -2,7 +2,9 @@
 
 internal class ReservationInventories
 {
-    public ReservationInventory Reservation { get; set; }
+    public bool HasInventories { get; set; }
 
-    public HashSet<ReservationInventory> Queue { get; set; }
+    public bool HasError { get; set; }
+
+    public HashSet<ReservationInventory> Queue { get; set; } = [];
 }

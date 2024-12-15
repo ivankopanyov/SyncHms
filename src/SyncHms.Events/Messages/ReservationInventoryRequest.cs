@@ -23,4 +23,13 @@ public class ReservationInventoryRequest
             Room = change.RoomNumber
         };
     }
+
+    public static implicit operator ReservationInventoryRequest(FiasGuestCheckOut checkOut)
+    {
+        return new ReservationInventoryRequest
+        {
+            ReservationId = checkOut.ReservationNumber,
+            Room = checkOut.RoomNumber
+        };
+    }
 }

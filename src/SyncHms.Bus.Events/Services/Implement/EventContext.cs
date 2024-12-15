@@ -5,7 +5,7 @@ namespace SyncHms.Bus.Events.Services.Implement;
 /// Реализует интерфейс <see cref="IEventContext"/>
 /// </summary>
 /// <param name="handlerName">Имя текущего обработчика.</param>
-internal class EventContext(string handlerName) : IEventContext
+internal class EventContext(string handlerName, string? message, bool hasError) : IEventContext
 {
     /// <summary>Список событий, которые должны быть опубликованы в шине данных.</summary>
     private readonly List<Event> _events = [];
@@ -20,7 +20,13 @@ internal class EventContext(string handlerName) : IEventContext
     public IEnumerable<Event> Events => _events;
 
     /// <summary>Имя текущего обработчика.</summary>
-    public string HandlerName => handlerName;
+    public string HandlerName { get; private set; } = handlerName;
+
+    public string? Message { get; private set; } = message;
+
+    public bool Logiable { get; set; } = true;
+
+    public bool HasError { get; set; } = hasError;
 
     /// <summary>Метод, добавляющий событие для публикации в шину данных.</summary>
     /// <typeparam name="TIn">Тип сообщения.</typeparam>
@@ -44,4 +50,16 @@ internal class EventContext(string handlerName) : IEventContext
     /// <param name="innerException">Внутреннее исключение процесса обработки события.</param>
     public void Break(string? message = null, Exception? innerException = null) =>
         throw new TaskCriticalException(message, innerException);
+
+    public void SetHandlerName(string handlerName)
+    {
+        if (!string.IsNullOrWhiteSpace(handlerName))
+            HandlerName = handlerName;
+    }
+
+    public void SetMessage(string message)
+    {
+        if (!string.IsNullOrWhiteSpace(message))
+            Message = message;
+    }
 }

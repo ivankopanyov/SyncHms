@@ -19,7 +19,9 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
     private static readonly IReadOnlyDictionary<string, string> SexAliases = new Dictionary<string, string>
     {
         { "1", "M" }, 
-        { "2", "F" } 
+        { "2", "F" },
+        { "M", "М" },
+        { "F", "Ж" }
     };
     
     /// <summary>Экземпляр опций транзакции.</summary>
@@ -335,75 +337,83 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                 var now = DateTime.Now;
 
                 var result = await (from rn in context.ReservationNames
-                    from rdn in context.ReservationDailyElementNames
-                        .Where(rdn => rdn.Resort == rn.Resort && rdn.ResvNameId == rn.ResvNameId)
-                    from n in context.Names.Where(n => n.NameId == rn.NameId)
-                    from rde in context.ReservationDailyElements
-                        .Where(rde =>
-                            rde.Resort == rdn.Resort && rde.ResvDailyElSeq == rdn.ResvDailyElSeq &&
-                            rdn.ReservationDate == rde.ReservationDate)
-                    from b in context.Businessdates
-                        .Where(b => b.Resort == rdn.Resort && b.BusinessDate1 == rdn.ReservationDate && b.State == "OPEN")
-                    from ri in context.ReservationItems
-                        .Where(ri => ri.Resort == rn.Resort && ri.ResvNameId == rn.ResvNameId && ri.BeginDate >= now && ri.EndDate <= now)
-                        .DefaultIfEmpty()
-                    from gi in context.GemItems.Where(gi => gi.Resort == rn.Resort && gi.ItemId == ri.ItemId).DefaultIfEmpty()
-                    from gic in context.GemItemClasses.Where(gic => gic.Resort == rn.Resort && gic.ItemclassId == gi.ItemclassId).DefaultIfEmpty()
-                    where rn.Resort == Environment.ResortCode && (count == 0 || resvStatuses.Contains(rn.ResvStatus!))
-                    && ((room != null && rde.Room == room) || (room == null && rde.Room == (
-                        from rn in context.ReservationNames
-                        from rdn in context.ReservationDailyElementNames
-                            .Where(rdn => rdn.Resort == rn.Resort && rdn.ResvNameId == rn.ResvNameId)
-                        from rde in context.ReservationDailyElements
-                            .Where(rde =>
-                                rde.Resort == rdn.Resort && rde.ResvDailyElSeq == rdn.ResvDailyElSeq &&
-                                rdn.ReservationDate == rde.ReservationDate)
-                        from b in context.Businessdates
-                            .Where(b => b.Resort == rdn.Resort && b.BusinessDate1 == rdn.ReservationDate && b.State == "OPEN")
-                        where rn.Resort == Environment.ResortCode && rn.ResvNameId == reservationId
-                        select rde.Room
-                    ).FirstOrDefault()))
-                    select new
-                    {
-                        ReservationId = rn.ResvNameId ?? default,
-                        rn.ConfirmationNo,
-                        FirstName = Trim(n.XfirstName ?? n.First),
-                        LastName = Trim(n.XlastName ?? n.Last),
-                        MiddleName = Trim(n.XmiddleName ?? n.Middle),
-                        rde.Room,
-                        Inventory = gi.ArticleNumber == null
-                            ? null
-                            : new
-                            {
-                                gi.ArticleNumber,
-                                gic.ItemclassCode,
-                                BeginDate = ri.BeginDate ?? default,
-                                EndDate = ri.EndDate ?? default
-                            }
-                    }).ToListAsync();
+                                    from rdn in context.ReservationDailyElementNames
+                                        .Where(rdn => rdn.Resort == rn.Resort && rdn.ResvNameId == rn.ResvNameId)
+                                    from n in context.Names.Where(n => n.NameId == rn.NameId)
+                                    from rde in context.ReservationDailyElements
+                                        .Where(rde =>
+                                            rde.Resort == rdn.Resort && rde.ResvDailyElSeq == rdn.ResvDailyElSeq &&
+                                            rdn.ReservationDate == rde.ReservationDate)
+                                    from b in context.Businessdates
+                                        .Where(b => b.Resort == rdn.Resort && b.BusinessDate1 == rdn.ReservationDate && b.State == "OPEN")
+                                    from ri in context.ReservationItems
+                                        .Where(ri => ri.Resort == rn.Resort && ri.ResvNameId == rn.ResvNameId && ri.BeginDate <= now && ri.EndDate >= now)
+                                        .DefaultIfEmpty()
+                                    from gi in context.GemItems.Where(gi => gi.Resort == rn.Resort && gi.ItemId == ri.ItemId).DefaultIfEmpty()
+                                    from gic in context.GemItemClasses.Where(gic => gic.Resort == rn.Resort && gic.ItemclassId == gi.ItemclassId).DefaultIfEmpty()
+                                    where rn.Resort == Environment.ResortCode && (count == 0 || resvStatuses.Contains(rn.ResvStatus!))
+                                    && ((room != null && rde.Room == room) || (room == null && rde.Room == (
+                                        from rn in context.ReservationNames
+                                        from rdn in context.ReservationDailyElementNames
+                                            .Where(rdn => rdn.Resort == rn.Resort && rdn.ResvNameId == rn.ResvNameId)
+                                        from rde in context.ReservationDailyElements
+                                            .Where(rde =>
+                                                rde.Resort == rdn.Resort && rde.ResvDailyElSeq == rdn.ResvDailyElSeq &&
+                                                rdn.ReservationDate == rde.ReservationDate)
+                                        from b in context.Businessdates
+                                            .Where(b => b.Resort == rdn.Resort && b.BusinessDate1 == rdn.ReservationDate && b.State == "OPEN")
+                                        where rn.Resort == Environment.ResortCode && rn.ResvNameId == reservationId
+                                        select rde.Room
+                                    ).FirstOrDefault()))
+                                    select new
+                                    {
+                                        ReservationId = rn.ResvNameId ?? default,
+                                        rn.ConfirmationNo,
+                                        FirstName = Trim(n.XfirstName ?? n.First),
+                                        LastName = Trim(n.XlastName ?? n.Last),
+                                        MiddleName = Trim(n.XmiddleName ?? n.Middle),
+                                        Sex = n.Gender,
+                                        Status = rn.ResvStatus,
+                                        rde.Room,
+                                        Inventory = gi.ArticleNumber == null
+                                            ? null
+                                            : new
+                                            {
+                                                gi.ArticleNumber,
+                                                gic.ItemclassCode,
+                                                BeginDate = ri.BeginDate ?? default,
+                                                EndDate = ri.EndDate ?? default
+                                            }
+                                    }).ToListAsync();
 
-                var inventories = result
-                    .Where(ri => ri.Inventory?.ItemclassCode is { } code
-                        && ri.Inventory?.ArticleNumber is { } article 
-                        && Environment.InventoryClasses.ContainsKey(code))
-                    .Select(ri => new Inventory
+                reservationInventories = result
+                    .GroupBy(i => new ReservationInventory
                     {
-                        ArticleNumber = ri.Inventory.ArticleNumber,
-                        BeginDate = ri.Inventory.BeginDate,
-                        EndDate = ri.Inventory.EndDate
+                        ReservationId = i.ReservationId,
+                        ConfirmationNo = i.ConfirmationNo,
+                        FirstName = i.FirstName,
+                        LastName = i.LastName,
+                        MiddleName = i.MiddleName,
+                        Sex = FixSex(i.Sex) ?? "М",
+                        Status = i.Status,
+                        Room = i.Room
+                    })
+                    .Select(g => {
+                        g.Key.Inventories = g
+                            .Where(ri => ri.Inventory?.ItemclassCode is { } code
+                                && ri.Inventory?.ArticleNumber is { } article
+                                && Environment.InventoryClasses.Contains(code))
+                            .Select(ri => new Inventory
+                            {
+                                ArticleNumber = ri.Inventory.ArticleNumber,
+                                BeginDate = ri.Inventory.BeginDate,
+                                EndDate = ri.Inventory.EndDate
+                            })
+                            .ToHashSet();
+
+                        return g.Key;
                     })
                     .ToHashSet();
-
-                reservationInventories = result.Select(ri => new ReservationInventory
-                {
-                    ReservationId = ri.ReservationId,
-                    ConfirmationNo = ri.ConfirmationNo,
-                    FirstName = ri.FirstName,
-                    LastName = ri.LastName,
-                    MiddleName = ri.MiddleName,
-                    Room = ri.Room,
-                    Inventories = inventories
-                }).ToHashSet();
             }
 
             control.Active();
@@ -423,7 +433,6 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
 
         HashSet<string> resvStatuses = [.. statuses];
         HashSet<decimal> reservations;
-        HashSet<string> classCodes = [.. Environment.InventoryClasses.Keys];
         int count = resvStatuses.Count;
 
         try
@@ -439,7 +448,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                         .Where(gi => gi.Resort == ri.Resort && gi.ItemId == ri.ItemId)
                                     from gic in context.GemItemClasses
                                         .Where(gic => gic.Resort == gi.Resort && gic.ItemclassId == gi.ItemclassId)
-                                    where ri.Resort == Environment.ResortCode && classCodes.Contains(gic.ItemclassCode!)
+                                    where ri.Resort == Environment.ResortCode && Environment.InventoryClasses.Contains(gic.ItemclassCode!)
                                         && ((ri.BeginDate > fromDate && ri.BeginDate <= toDate) || (ri.EndDate > fromDate && ri.EndDate <= toDate))
                                     select ri.ResvNameId ?? default).ToListAsync();
 

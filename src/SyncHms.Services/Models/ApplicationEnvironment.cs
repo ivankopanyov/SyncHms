@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace SyncHms.Services;
 
 /// <summary>Класс, описывающий объект, хранящий переменные окружения и их значения.</summary>
@@ -60,8 +58,8 @@ public class ApplicationEnvironment
     [Required, Description("Альтернативные коды типов документов.")]
     public Dictionary<string, string> DocumentTypeAliases { get; set; } = [];
 
-    [Required, Description("Коды классов инвенторя с префиксами.")]
-    public Dictionary<string, string> InventoryClasses { get; set; } = [];
+    [Required, Description("Коды классов инвентаря.")]
+    public HashSet<string> InventoryClasses { get; set; } = [];
 
     /// <summary>
     /// Идентификаторы чатов в <c>Telegram</c>

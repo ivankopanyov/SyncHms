@@ -6,4 +6,5 @@
 /// </summary>
 public interface IOzLocksService : IService<OzLocksOptions, ApplicationEnvironment>
 {
+    Task<HashSet<InventoryStatus>> UpdateInventoriesAsync(ReservationInventory reservationInventory);
 }

@@ -13,6 +13,7 @@ global using SyncHms.Events.Handlers.Opera;
 global using SyncHms.Events.Handlers.Fiscal;
 global using SyncHms.Events.Handlers.Sanatorium;
 global using SyncHms.Events.Handlers.Telegram;
+global using SyncHms.Events.Handlers.OzLocks;
 global using SyncHms.Events.Messages;
 global using SyncHms.Events.Workers;
 global using SyncHms.Fias.Entities;

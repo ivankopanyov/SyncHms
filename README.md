@@ -7,10 +7,12 @@ Cервис интеграции систем [OPERA Hotel Property Management S
 	+ [Opera](#opera)
 	+ [Micros](#micros)
 	+ [Sanatorium](#sanatorium)
+	+ [OzLocks](#ozlocks)
 	+ [Telegram](#telegram)
 * [Окружение](#окружение)
 * [Планировщик](#планировщик)
 	+ [Reservations Updates Monitoring](#reservations-updates-monitoring)
+	+ [Inventory Updates Monitoring](#inventory-updates-monitoring)
 * [Зависимости](#зависимости)
 	+ [Шина данных](#шина-данных)
 	+ [База данных](#база-данных)
@@ -23,6 +25,7 @@ Cервис интеграции систем [OPERA Hotel Property Management S
 * [Обрабатываемые события](#обрабатываемые-события)
 	+ [Синхронизация данных бронирования](#синхронизация-данных-бронирования)
 	+ [Синхронизация платежного начисления](#синхронизация-платежного-начисления)
+    + [Синхронизация резервирования инвентаря](#синхронизация-резервирования-инвентаря)
 ## Архитектура приложения
 ![SyncHms integration service architecture diagram](img/synchms_architecture.png)
 * *Полупрозрачным тоном обозначен функционал, который будет доступен в следующих версиях.*
@@ -138,6 +141,25 @@ Cервис интеграции систем [OPERA Hotel Property Management S
 				</ul>
 			</td>
 		</tr>
+		<tr>
+			<td colspan="2" align="center">Scheduler</td>
+		</tr>
+		<tr>
+			<td align="center" valign="top">
+				<img alt="SyncHms Scheduler Page" src="img/synchms_scheduler_page.png">
+			</td>
+			<td valign="top">
+				<ul>
+					<li>
+						Страница планировщика. <a href="http://localhost:8080/scheduler">http://localhost:8080/scheduler</a>
+						<ul>
+							<li>На странице отображаются конфигурации планируемых событий.</li>
+						</ul>
+					</li>
+					<li><a href="#планировщик">Планировщик</a></li>
+				</ul>
+			</td>
+		</tr>
 	</tbody>
 </table>
 
@@ -197,6 +219,18 @@ Cервис интеграции систем [OPERA Hotel Property Management S
   "License": ""
 }
 ```
+### OzLocks
+База данных системы [OZLocks Hotelier Pro](https://ozlocks.ru/catalog/programmnoe_obespechenie_/_programmnoe_obespechenie_ozlocks/programmnoe_obespechenie_ozlocks_hotelier_pro//). Для взаимодействия приложение использует ORM [Microsoft.EntityFrameworkCore](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore).
+* Конфигурации подключения
+	+ `ConnectionString` *(string)* - Строка подключения к базе данных.<br/>*По умолчанию* `пустая строка`.
+	+ `IntegrationUserId` *(int)* - Идентификатор пользователя, осуществляющего интеграцию.<br/>*По умолчанию* `0`.
+#### appsettings.json
+```json
+"OzLocks": {
+  "ConnectionString": "Data Source=127.0.0.6; Initial Catalog=OZLHS; User Id=username; password=password;",
+  "IntegrationUserId": 0
+}
+```
 ### Telegram
 [API Telegram-бота](https://core.telegram.org/bots/api). Для взаимодействия приложение использует библиотеку [Telegram.Bot](https://www.nuget.org/packages/Telegram.Bot).
 * Конфигурации подключения
@@ -221,6 +255,7 @@ Cервис интеграции систем [OPERA Hotel Property Management S
 	+ `TaxCodes` *(IDictionary<string, bool>)* - Платежные коды.<br/>*По умолчанию* `пустой список`.
 	+ `DocumentTypeAliases` *(IDictionary<string, string>)* - Псевдонимы кодов документов в базе данных OPERA.<br/>*По умолчанию* `пустой список`.
 	+ `TelegramChats` *(IDictionary<string, bool>)* - Чаты телеграм для отправки логов в формате *chat_id/message_thread_id* в качестве ключа, и флаг, указывающий, что в чат нужно отправлять только сообщения об ошибках, в качестве значения.<br/>*По умолчанию* `пустой список`.
+    + `InventoryClasses` *(ISet\<string>)* - Коды классов инвентаря.<br/>*По умолчанию* `пустой список`.
 #### appsettings.json
 ```json
 "Environment": {
@@ -244,7 +279,10 @@ Cервис интеграции систем [OPERA Hotel Property Management S
   "TelegramChats": {
     "-1234567891234": true,
     "-1234567891234/12345": false
-  }
+  },
+  "InventoryClasses": [
+    "CLASS_1"
+  ]
 }
 ```
 ## Планировщик
@@ -272,6 +310,10 @@ Cервис интеграции систем [OPERA Hotel Property Management S
 * CANCELLED
 * NO SHOW
 * WAITLIST
+### Inventory Updates Monitoring
+Задача запрашивает обновления резервирования инвентаря из базы данных «OPERA», за период с последнего удачного запроса до текущей даты и времени со статусами:
+* CHECKED IN
+* CHECKED OUT
 ## Зависимости
 Для работы приложение использует некоторые зависимости, доступ к которым осуществляется посредством провайдеров. В текущей версии поддерживаются только провайдеры по умолчанию, но в следующих версиях их список будет расширен. Конфигурации зависимостей можно задать в файле настроек приложения `appsettings.json`. Ниже представлено краткое описание зависимостей и примеры их конфигураций.
 ### Шина данных
@@ -578,4 +620,42 @@ docker compose up -d
 			</td>
 		</tr>
 	</tbody>
+</table>
+
+### Синхронизация резервирования инвентаря
+<table>
+	<tbody>
+		<tr>
+			<td align="center">Резерв инвентаря</td>
+			<td align="center">Изменение сроков</td>
+			<td align="center">Отмена резерва</td>
+		</tr>
+		<tr>
+			<td align="center">CHECK_IN</td>
+			<td align="center">CHANGE</td>
+			<td align="center">CHECK_OUT</td>
+		</tr>
+		<tr>
+			<td colspan="3" valign="top">
+				<ul>
+					<li>Получение сообщения из задачи <a href="#планировщик">планировщика</a> <a href="#inventory-updates-monitoring">Inventory Updates Monitoring</a> или системы «FIAS»..</li>
+					<li>
+						Синхронизирует изменения резервирования инвентаря в базе данных <b>OzLocks</b> c базой данных <b>OPERA</b>.
+						<ul>
+							<li>
+								Если очередь резервирования инвентаря не пустая, сообщение будет отправлено в один из обработчиков:
+								<ul>
+									<li><b>CHECK_IN</b></li>
+									<li><b>CHANGE</b></li>
+									<li><b>CHECK_OUT</b></li>
+								</ul>
+							</li>
+							<li>Если очередь резервирования инвентаря пустая, обработка задачи завершена успешно.</li>
+							<li>Если не удалось соединиться с базой данных, сообщение будет возвращено обратно в очередь.</li>
+						</ul>
+					</li>
+				</ul>
+			</td>
+		</tr>
+    </tbody>
 </table>

@@ -153,6 +153,10 @@ public class ServiceWorker : BackgroundService
 
             if (await scheduleRepository.GetAsync(s.Key) is { } schedule)
             {
+                if (schedule.First == default)
+                    schedule.First = schedule.Last;
+
+                await scheduleRepository.UpdateAsync(schedule);
                 await _eventScheduler.UpdateScheduleAsync(schedule.Name,
                     TimeSpan.FromSeconds(schedule.IntervalSeconds), schedule.Last);
             }
@@ -167,6 +171,7 @@ public class ServiceWorker : BackgroundService
                     {
                         Name = scheduleOptions.Name,
                         IntervalSeconds = scheduleOptions.IntervalSeconds,
+                        First = scheduleOptions.Last,
                         Last = scheduleOptions.Last
                     };
                 }
@@ -176,6 +181,7 @@ public class ServiceWorker : BackgroundService
                     {
                         Name = s.Key,
                         IntervalSeconds = (int)s.Value.Interval.TotalSeconds,
+                        First = s.Value.Last,
                         Last = s.Value.Last
                     };
                 }
@@ -205,6 +211,7 @@ public class ServiceWorker : BackgroundService
         {
             Name = scheduleName,
             IntervalSeconds = (int)options.Interval.TotalSeconds,
+            First = options.First,
             Last = options.Last
         };
 

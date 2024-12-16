@@ -11,6 +11,9 @@ public class ScheduleOptions(string scheduleName, string? description = null)
     /// <summary>Интервал выполнения события.</summary>
     public TimeSpan Interval { get; internal set; } = TimeSpan.Zero;
 
+    /// <summary>Дата и время первой обработки события после изменения опций.</summary>
+    public DateTime First { get; internal set; }
+
     /// <summary>Дата и время последней удачной обработки события.</summary>
     public DateTime Last { get; internal set; } = DateTime.Now;
 

@@ -6,11 +6,18 @@ public interface IEventContext
     /// <summary>Имя текущего обработчика.</summary>
     string HandlerName { get; }
 
+    /// <summary>Сообщение, полученное из метода <see cref="Handler{TIn}.Message"/></summary>
     string? Message { get; }
 
+    /// <summary>
+    /// Флаг, указывающий, будет ли логироваться удачная обработка события в случае отсутсвия ошибок.<br/>
+    /// Игнорируется в случае добавления обрарботчика в контейнер зависимостей с помощью методов
+    /// <see cref="IEventsBusBuilder.AddUnloggedEvent{THandler, TIn}"/> и <see cref="IEventsBusBuilder.AddScheduleEvent{THandler}"/>
+    /// </summary>
     bool Logiable { get; set; }
 
-    public bool HasError { get; }
+    /// <summary>Флаг, указывающий, была ли завершена предыдущая обработка текущего события с ошибкой.</summary>
+    bool HasError { get; }
 
     /// <summary>Флаг, укзывающий, что нужно обновить идентификатор отправляемых сообщений.</summary>
     internal bool UpdateTaskId { get; set; }
@@ -28,7 +35,11 @@ public interface IEventContext
     /// <param name="innerException">Внутреннее исключение процесса обработки события.</param>
     void Break(string? message = null, Exception? innerException = null);
 
+    /// <summary>Переопределяет имя обработчика в логах, если переданный параметр не пустой и не <c>null</c></summary>
+    /// <param name="handlerName">Новое имя обработчика.</param>
     void SetHandlerName(string handlerName);
 
+    /// <summary>Переопределяет сообщение обработчика в логах, если переданный параметр не пустой и не <c>null</c></summary>
+    /// <param name="message">Новое сообщение обработчика.</param>
     void SetMessage(string message);
 }

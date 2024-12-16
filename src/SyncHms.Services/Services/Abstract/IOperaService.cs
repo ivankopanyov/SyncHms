@@ -23,7 +23,20 @@ public interface IOperaService : IService<OperaOptions, ApplicationEnvironment>
     /// <returns>Коллекция обновленных бронирований.</returns>
     Task<List<UpdatedReservation>> GetUpdatedReservationsAsync(DateTime fromDate, DateTime toDate);
 
+    /// <summary>
+    /// Метод возвращает коллекцию бронирований с зарезервированнм инвентарем, которые зарегестрированы в одном номере
+    /// с бронированием, идентификатор которого передан в параметрах метода.
+    /// </summary>
+    /// <param name="reservationId">Идентификатор бронирования.</param>
+    /// <param name="room">Номер комнаты бронирования.</param>
+    /// <param name="statuses">Статусы бронирований, которые будут включены в результат.</param>
+    /// <returns>Коллекция бронирований с зарезервированным инвентарем.</returns>
     Task<HashSet<ReservationInventory>> GetReservationInventoriesAsync(decimal reservationId, string? room, params string[] statuses);
 
+    /// <summary>Метод, возвращающий коллекцию бронирований, у которых был обновлен инвентарь в указанный период.</summary>
+    /// <param name="fromDate">Минимальная дата начала и окончания резервирования инвенторя.</param>
+    /// <param name="toDate">Максимальная дата начала и окончания резервирования инвенторя.</param>
+    /// <param name="statuses">Статусы бронирований, которые будут включены в результат.</param>
+    /// <returns>Коллекция идентификаторов бронирований, у которых был обновлен инвентарь.</returns>
     Task<HashSet<decimal>> GetUpdatedReservationInventoriesAsync(DateTime fromDate, DateTime toDate, params string[] statuses);
 }

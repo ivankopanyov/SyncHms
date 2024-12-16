@@ -15,7 +15,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
     private const string NameDataQuery =
         "SELECT hrs_dev.hrs_sh_sens.dob(n.name_id) AS BIRTHDAY, hrs_dev.hrs_sh_sens.pass_id(n.name_id) AS PASS_ID FROM opera.name n WHERE ROWNUM <= 1 AND n.name_id = {0}";
 
-    /// <summary>Словарь соответсвия обозначения полов с системах <c>OPERA</c> и <c>Sanatorium</c></summary>
+    /// <summary>Словарь соответсвия обозначения полов.</summary>
     private static readonly IReadOnlyDictionary<string, string> SexAliases = new Dictionary<string, string>
     {
         { "1", "M" }, 
@@ -287,7 +287,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
         }
     }
 
-    /// <summary>Метод, возвращающий коллекцию бронирований, которые были обновлены ы указанный период.</summary>
+    /// <summary>Метод, возвращающий коллекцию бронирований, которые были обновлены в указанный период.</summary>
     /// <param name="fromDate">Минимальная дата обновления бронирования.</param>
     /// <param name="toDate">Максимальная дата обноаления бронирования.</param>
     /// <returns>Коллекция обновленных бронирований.</returns>
@@ -319,7 +319,15 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
             throw;
         }
     }
-    
+
+    /// <summary>
+    /// Метод возвращает коллекцию бронирований с зарезервированнм инвентарем, которые зарегестрированы в одном номере
+    /// с бронированием, идентификатор которого передан в параметрах метода.
+    /// </summary>
+    /// <param name="reservationId">Идентификатор бронирования.</param>
+    /// <param name="room">Номер комнаты бронирования.</param>
+    /// <param name="statuses">Статусы бронирований, которые будут включены в результат.</param>
+    /// <returns>Коллекция бронирований с зарезервированным инвентарем.</returns>
     public async Task<HashSet<ReservationInventory>> GetReservationInventoriesAsync(decimal reservationId, string? room, params string[] statuses)
     {
         if (Environment.InventoryClasses.Count == 0)
@@ -426,9 +434,14 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
         }
     }
 
+    /// <summary>Метод, возвращающий коллекцию бронирований, у которых был обновлен инвентарь в указанный период.</summary>
+    /// <param name="fromDate">Минимальная дата начала и окончания резервирования инвенторя.</param>
+    /// <param name="toDate">Максимальная дата начала и окончания резервирования инвенторя.</param>
+    /// <param name="statuses">Статусы бронирований, которые будут включены в результат.</param>
+    /// <returns>Коллекция идентификаторов бронирований, у которых был обновлен инвентарь.</returns>
     public async Task<HashSet<decimal>> GetUpdatedReservationInventoriesAsync(DateTime fromDate, DateTime toDate, params string[] statuses)
     {
-        if (Environment.InventoryClasses.Count == 0)
+        if (statuses.Length == 0 || Environment.InventoryClasses.Count == 0)
             return [];
 
         HashSet<string> resvStatuses = [.. statuses];

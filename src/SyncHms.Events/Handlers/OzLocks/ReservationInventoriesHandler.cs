@@ -1,7 +1,19 @@
-﻿namespace SyncHms.Events.Handlers.Ozlocks;
+﻿namespace SyncHms.Events.Handlers.OzLocks;
 
+/// <summary>
+/// Класс, описывающий обработчик события <see cref="ReservationInventories"/>,
+/// обновляющий данные о резервировании бронирования в базе данных <c>OzLocks</c>.<br/>
+/// Унаследован от класса <see cref="Handler{TIn}"/>
+/// </summary>
 internal class ReservationInventoriesHandler(IOzLocksService ozLocksService) : Handler<ReservationInventories>
 {
+    /// <summary>
+    /// Метод, обрабатывающий событие <see cref="ReservationInventories"/>.
+    /// Проводит попытку обновления статуса резервирования инвентаря в базе данных <c>OzLocks</c>.<br/>
+    /// Переопределяет метод <see cref="Handler{TIn}.HandleAsync"/>
+    /// </summary>
+    /// <param name="in">Экземпляр обрабатываемого события.</param>
+    /// <param name="context">Контекст обработки события.</param>
     protected override async Task HandleAsync(ReservationInventories @in, IEventContext context)
     {
         var reservationInventories = new SortedSet<ReservationInventory>(@in.Queue);
@@ -39,11 +51,20 @@ internal class ReservationInventoriesHandler(IOzLocksService ozLocksService) : H
         context.Send(@in);
     }
 
+    /// <summary>
+    /// Метод, возвращающий краткое описание события <see cref="ReservationInventories"/><br/>
+    /// Переопределяет метод <see cref="Handler{TIn}.Message"/>
+    /// </summary>
+    /// <param name="in">Экземпляр обрабатываемого события.</param>
+    /// <returns>Краткое описание события.</returns>
     protected override string? Message(ReservationInventories @in)
     {
         return @in.Queue.FirstOrDefault()?.Room is { } room ? $"Room: {room}" : null;
     }
 
+    /// <summary>Метод переопределяет имя обработчика <see cref="ReservationInventoriesHandler"/> в логах.</summary>
+    /// <param name="inventoryStatus">Экземпляр обновленного инвентаря.</param>
+    /// <param name="context">Контекст обработки события.</param>
     private static void SetHandlerName(OzLocksStatus inventoryStatus, IEventContext context)
     {
         var handlerName = inventoryStatus switch
@@ -57,6 +78,10 @@ internal class ReservationInventoriesHandler(IOzLocksService ozLocksService) : H
         context.SetHandlerName(handlerName);
     }
 
+    /// <summary>Метод переопределяет сообщение обработчика <see cref="ReservationInventoriesHandler"/> в логах.</summary>
+    /// <param name="inventory">Экземпляр обрабатываемого бронирования.</param>
+    /// <param name="inventoryStatus">Экземпляр обновленного инвентаря.</param>
+    /// <param name="context">Контекст обработки события.</param>
     private static void SetMessage(ReservationInventory inventory, InventoryStatus inventoryStatus, IEventContext context)
     {
         var stringBuilder = new StringBuilder();
@@ -72,6 +97,12 @@ internal class ReservationInventoriesHandler(IOzLocksService ozLocksService) : H
         context.SetMessage(stringBuilder.ToString());
     }
 
+    /// <summary>
+    /// Метод возвращает первое бронирование, которое содержит изменение в резервировании инвентаря.<br/>
+    /// Если бронирование не найдено, возвращает <c>null</c>
+    /// </summary>
+    /// <param name="reservationInventories">Экземпляр коллекции бронирований.</param>
+    /// <returns>Первое бронирование, которое содержит изменение в резервировании инвентаря.</returns>
     private async Task<ReservationInventory?> GetFirstNotEmptyReservationInventoryAsync(SortedSet<ReservationInventory> reservationInventories)
     {
         ReservationInventory reservationInventory;

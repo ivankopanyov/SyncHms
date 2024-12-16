@@ -22,10 +22,10 @@ internal class MessageProxyWorker : BackgroundService
         IEventPublisher<PostTransactionsRequest> postingRequestPublisher,
         IEventPublisher<ReservationInventoryRequest> inventoryPublisher)
     {
-        //fiasService.FiasGuestCheckInEvent += checkInPublisher.Publish;
-        //fiasService.FiasGuestCheckOutEvent += checkOutPublisher.Publish;
-        //fiasService.FiasGuestChangeEvent += changePublisher.Publish;
-        //sanatoriumService.PostingRequestEvent += postingRequestPublisher.Publish;
+        fiasService.FiasGuestCheckInEvent += checkInPublisher.Publish;
+        fiasService.FiasGuestCheckOutEvent += checkOutPublisher.Publish;
+        fiasService.FiasGuestChangeEvent += changePublisher.Publish;
+        sanatoriumService.PostingRequestEvent += postingRequestPublisher.Publish;
 
         fiasService.FiasGuestCheckInEvent += checkIn => inventoryPublisher.Publish(checkIn);
         fiasService.FiasGuestCheckOutEvent += checkOut => inventoryPublisher.Publish(checkOut);

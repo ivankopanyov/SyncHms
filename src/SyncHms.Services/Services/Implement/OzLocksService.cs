@@ -26,6 +26,9 @@ internal class OzLocksService(IControl<OzLocksOptions, ApplicationEnvironment> c
     /// <param name="previous">Измененное окружение.</param>
     public Task ChangedEnvironmentHandleAsync(ApplicationEnvironment current, ApplicationEnvironment previous) => Task.CompletedTask;
 
+    /// <summary>Метод обновляет статусы резервирования инвенторя для указанного бронирования.</summary>
+    /// <param name="reservationInventory">Информация о бронирования.</param>
+    /// <returns>Коллекция идентификаторов инвенторя и статусов, на которые резервирование инвентаря было изменено.</returns>
     public async Task<HashSet<InventoryStatus>> UpdateInventoriesAsync(ReservationInventory reservationInventory)
     {
         List<AuditUser> auditUsers = [];
@@ -35,7 +38,7 @@ internal class OzLocksService(IControl<OzLocksOptions, ApplicationEnvironment> c
             .ToHashSet();
 
         await using var context = Context;
-        using var transaction = context.Database.BeginTransaction();
+        await using var transaction = await context.Database.BeginTransactionAsync();
 
         var checkIn = await CheckInAsync(reservationInventory, context, inventoryCodes, auditUsers);
         var checkOut = await CheckOutAsync(reservationInventory, context, inventoryCodes, auditUsers);
@@ -47,6 +50,12 @@ internal class OzLocksService(IControl<OzLocksOptions, ApplicationEnvironment> c
         return [.. checkIn, .. checkOut];
     }
 
+    /// <summary>Метод выполняет проверку инвенторя со стаусами <see cref="OzLocksStatus.CheckIn"/> и <see cref="OzLocksStatus.Change"/></summary>
+    /// <param name="reservationInventory">Информация о бронировании и зарезервированном им инвенторе.</param>
+    /// <param name="context">Контекст подключения к базе данных <c>OzLocks</c></param>
+    /// <param name="inventoryCodes">Коды проверяемого инвенторя.</param>
+    /// <param name="auditUsers">КОллекция объектов аудита действий пользователя.</param>
+    /// <returns>Коллекция статусов измененного инвентаря.</returns>
     private async Task<HashSet<InventoryStatus>> CheckInAsync(ReservationInventory reservationInventory, OzLocksContext context,
         HashSet<string> inventoryCodes, List<AuditUser> auditUsers)
     {
@@ -158,6 +167,12 @@ internal class OzLocksService(IControl<OzLocksOptions, ApplicationEnvironment> c
         return result;
     }
 
+    /// <summary>Метод выполняет проверку инвенторя со стаусом <see cref="OzLocksStatus.CheckOut"/></summary>
+    /// <param name="reservationInventory">Информация о бронировании и зарезервированном им инвенторе.</param>
+    /// <param name="context">Контекст подключения к базе данных <c>OzLocks</c></param>
+    /// <param name="inventoryCodes">Коды проверяемого инвенторя.</param>
+    /// <param name="auditUsers">КОллекция объектов аудита действий пользователя.</param>
+    /// <returns>Коллекция статусов измененного инвентаря.</returns>
     private async Task<HashSet<InventoryStatus>> CheckOutAsync(ReservationInventory reservationInventory, OzLocksContext context,
         HashSet<string> inventoryCodes, List<AuditUser> auditUsers)
     {

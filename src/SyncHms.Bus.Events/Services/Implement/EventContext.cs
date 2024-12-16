@@ -5,6 +5,8 @@ namespace SyncHms.Bus.Events.Services.Implement;
 /// Реализует интерфейс <see cref="IEventContext"/>
 /// </summary>
 /// <param name="handlerName">Имя текущего обработчика.</param>
+/// <param name="message">Сообщение текущего обработчика.</param>
+/// <param name="hasError">Флаг, указывающий, была ли завершена предыдущая обработка текущего события с ошибкой.</param>
 internal class EventContext(string handlerName, string? message, bool hasError) : IEventContext
 {
     /// <summary>Список событий, которые должны быть опубликованы в шине данных.</summary>
@@ -22,10 +24,17 @@ internal class EventContext(string handlerName, string? message, bool hasError) 
     /// <summary>Имя текущего обработчика.</summary>
     public string HandlerName { get; private set; } = handlerName;
 
+    /// <summary>Сообщение, полученное из метода <see cref="Handler{TIn}.Message"/></summary>
     public string? Message { get; private set; } = message;
 
+    /// <summary>
+    /// Флаг, указывающий, будет ли логироваться удачная обработка события в случае отсутсвия ошибок.<br/>
+    /// Игнорируется в случае добавления обрарботчика в контейнер зависимостей с помощью методов
+    /// <see cref="IEventsBusBuilder.AddUnloggedEvent{THandler, TIn}"/> и <see cref="IEventsBusBuilder.AddScheduleEvent{THandler}"/>
+    /// </summary>
     public bool Logiable { get; set; } = true;
 
+    /// <summary>Флаг, указывающий, была ли завершена предыдущая обработка текущего события с ошибкой.</summary>
     public bool HasError { get; set; } = hasError;
 
     /// <summary>Метод, добавляющий событие для публикации в шину данных.</summary>
@@ -51,12 +60,16 @@ internal class EventContext(string handlerName, string? message, bool hasError) 
     public void Break(string? message = null, Exception? innerException = null) =>
         throw new TaskCriticalException(message, innerException);
 
+    /// <summary>Переопределяет имя обработчика в логах, если переданный параметр не пустой и не <c>null</c></summary>
+    /// <param name="handlerName">Новое имя обработчика.</param>
     public void SetHandlerName(string handlerName)
     {
         if (!string.IsNullOrWhiteSpace(handlerName))
             HandlerName = handlerName;
     }
 
+    /// <summary>Переопределяет сообщение обработчика в логах, если переданный параметр не пустой и не <c>null</c></summary>
+    /// <param name="message">Новое сообщение обработчика.</param>
     public void SetMessage(string message)
     {
         if (!string.IsNullOrWhiteSpace(message))

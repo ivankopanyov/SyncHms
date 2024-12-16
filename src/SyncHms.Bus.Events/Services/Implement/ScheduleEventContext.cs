@@ -13,18 +13,34 @@ internal class ScheduleEventContext(IEventContext baseContext) : IScheduleEventC
     /// </summary>
     public string HandlerName => baseContext.HandlerName;
 
+    /// <summary>
+    /// Сообщение, полученное из метода <see cref="Handler{TIn}.Message"/><br/>
+    /// Возвращает значение свойства <see cref="IEventContext.Message"/>
+    /// </summary>
     public string? Message => baseContext.Message;
 
+    /// <summary>
+    /// Флаг, указывающий, будет ли логироваться удачная обработка события в случае отсутсвия ошибок.<br/>
+    /// Игнорируется в случае добавления обрарботчика в контейнер зависимостей с помощью методов
+    /// <see cref="IEventsBusBuilder.AddUnloggedEvent{THandler, TIn}"/> и <see cref="IEventsBusBuilder.AddScheduleEvent{THandler}"/><br/>
+    /// Возвращает и изменяет значение свойства <see cref="IEventContext.Logiable"/>
+    /// </summary>
     public bool Logiable
     {
         get => baseContext.Logiable;
         set => baseContext.Logiable = value;
     }
 
+    /// <summary>
+    /// Флаг, указывающий, была ли завершена предыдущая обработка текущего события с ошибкой.<br/>
+    /// Возвращает значение свойства <see cref="IEventContext.HasError"/>
+    /// </summary>
     public bool HasError => baseContext.HasError;
 
+    /// <summary>Дата и время последней удачной обработки события.</summary>
     public DateTime Previous { get; init; }
 
+    /// <summary>Дата и время текущей обработки события.</summary>
     public DateTime Current { get; init; }
 
     /// <summary>Флаг, укзывающий, что нужно обновить идентификатор отправляемых сообщений.</summary>
@@ -57,11 +73,15 @@ internal class ScheduleEventContext(IEventContext baseContext) : IScheduleEventC
         baseContext.Break(message, innerException);
     }
 
+    /// <summary>Вызывает метод <see cref="IEventContext.SetHandlerName"/></summary>
+    /// <param name="handlerName">Новое имя обработчика.</param>
     public void SetHandlerName(string handlerName)
     {
         baseContext.SetHandlerName(handlerName);
     }
 
+    /// <summary>Вызывает метод <see cref="IEventContext.SetMessage"/></summary>
+    /// <param name="message">Новое сообщение обработчика.</param>
     public void SetMessage(string message)
     {
         baseContext.SetMessage(message);

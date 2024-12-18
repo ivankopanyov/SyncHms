@@ -6,8 +6,14 @@ public class MockEventContext : IScheduleEventContext
 
     private readonly List<(string?, Exception?)> _breaks = [];
 
-    public string HandlerName => "TEST";
+    public string HandlerName { get; private set; } = "TEST";
 
+    public string? Message { get; private set; }
+    
+    public bool Logiable { get; set; }
+
+    public bool HasError { get; }
+    
     public bool UpdateTaskId { get; set; }
 
     public IReadOnlyList<object?> SendMessages => _sendMessages;
@@ -26,5 +32,17 @@ public class MockEventContext : IScheduleEventContext
     public void Break(string? message = null, Exception? innerException = null)
     {
         _breaks.Add((message, innerException));
+    }
+
+    public void SetHandlerName(string handlerName)
+    {
+        if (!string.IsNullOrWhiteSpace(handlerName))
+            HandlerName = handlerName;
+    }
+
+    public void SetMessage(string message)
+    {
+        if (!string.IsNullOrWhiteSpace(message))
+            Message = message;
     }
 }

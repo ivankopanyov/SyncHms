@@ -40,6 +40,16 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
                 options.TaskName = "POST";
                 options.HandlerName = "POSTING";
             })
+            .AddScheduleEvent<UpdateInventoryScheduleHandler>(options =>
+            {
+                options.TaskName = "LOCK";
+                options.HandlerName = "Inventory Updates Monitoring";
+            })
+            .AddEvent<ReservationInventoryRequestHandler, ReservationInventoryRequest>(options =>
+            {
+                options.TaskName = "LOCK";
+                options.HandlerName = "OPERA";
+            })
             .AddEvent<FiasPostingSimpleHandler, FiasPostSimple>(options => options.HandlerName = "FIAS_SIMPLE")
             .AddEvent<FiasPostingRequestHandler, FiasPostRequest>(options => options.HandlerName = "FIAS_REQUEST")
             .AddEvent<ReservationHandler, ReservationInfo>(options => options.HandlerName = "OPERA")
@@ -48,6 +58,7 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
             .AddEvent<PostingResponseHandler, PostTransactionsResponse>(options => options.HandlerName = "SANATORIUM")
             .AddEvent<UpdateReservationHandler, ReservationUpdatedMessage>(options => options.HandlerName = "SANATORIUM")
             .AddEvent<UpdatedReservationHandler, UpdatedReservation>(options => options.HandlerName = "UPDATED")
+            .AddEvent<ReservationInventoriesHandler, ReservationInventories>(options => options.HandlerName = "OZLOCKS")
             .AddEventLog<TelegramMessageHandler>()
             .AddUnloggedEvent<ChangedServiceStateHandler, ChangedServiceState>()
             .AddHostedService<MessageProxyWorker>();

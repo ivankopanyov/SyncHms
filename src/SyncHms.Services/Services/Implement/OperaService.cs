@@ -15,11 +15,13 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
     private const string NameDataQuery =
         "SELECT hrs_dev.hrs_sh_sens.dob(n.name_id) AS BIRTHDAY, hrs_dev.hrs_sh_sens.pass_id(n.name_id) AS PASS_ID FROM opera.name n WHERE ROWNUM <= 1 AND n.name_id = {0}";
 
-    /// <summary>Словарь соответсвия обозначения полов с системах <c>OPERA</c> и <c>Sanatorium</c></summary>
+    /// <summary>Словарь соответсвия обозначения полов.</summary>
     private static readonly IReadOnlyDictionary<string, string> SexAliases = new Dictionary<string, string>
     {
         { "1", "M" }, 
-        { "2", "F" } 
+        { "2", "F" },
+        { "M", "М" },
+        { "F", "Ж" }
     };
     
     /// <summary>Экземпляр опций транзакции.</summary>
@@ -103,7 +105,6 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                                        n.NameId == rn.NameId
                                                  select new
                                                  {
-                                                     //CustomFieldValues = 
                                                      GuestGenericNo = $"{n.NameId:0}",
                                                      Id = $"{n.NameId:0}/{reservationId:0}",
                                                      FirstName = Trim(n.XfirstName ?? n.First),
@@ -112,7 +113,6 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                                      Sex = n.Gender,
                                                      BirthDateStr = string.Empty,
                                                      BirthDate = DateTime.Now,
-                                                     //Notes =
                                                      Arrival = rn.ActualCheckInDate != null,
                                                      Departure = rn.ActualCheckOutDate != null,
                                                      rn.BeginDate,
@@ -123,13 +123,9 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                                      DocumentTypeCode = (from nd in context.NameDocuments
                                                                          where nd.PrimaryYn == "Y" && nd.NameId == n.NameId
                                                                          select nd.IdType).FirstOrDefault(),
-                                                     //DocumentTypeName =
-                                                     //DocumentNumber = 
                                                      DocumentSeries = n.Udfc01,
                                                      DepartmentCode = n.Udfc03,
                                                      IssueDate = ToDateTime(n.Udfc02, "dd.MM.yy"),
-                                                     //ExpirationDate = 
-                                                     //RegistrationDate = 
                                                      IssuerInfo = Trim(n.Udfc04),
                                                      Timelines = (from rden in context.ReservationDailyElementNames
                                                                   from rde in context.ReservationDailyElements
@@ -217,7 +213,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                         CustomFieldValues = customFields!,
                         ReservationGuests =
                         [
-                            new Guest
+                            new Logus.HMS.Messages.Shared.Guest
                             {
                                 GenericNo = reservationResponse.GuestGenericNo,
                                 Id = reservationResponse.Id,
@@ -240,11 +236,9 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                 DocumentData = new DocumentData
                                 {
                                     DocumentTypeCode = FixDocumentTypeCode(reservationResponse.DocumentTypeCode),
-                                    //DocumentTypeName =
                                     DocumentSeries = reservationResponse.DocumentSeries,
                                     DocumentNumber = nameInfo?.PassId,
                                     IssueDate = reservationResponse.IssueDate,
-                                    //ExpirationDate = 
                                     DepartmentCode = reservationResponse.DepartmentCode,
                                     IssuerInfo = reservationResponse.IssuerInfo
                                 }
@@ -293,7 +287,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
         }
     }
 
-    /// <summary>Метод, возвращающий коллекцию бронирований, которые были обновлены ы указанный период.</summary>
+    /// <summary>Метод, возвращающий коллекцию бронирований, которые были обновлены в указанный период.</summary>
     /// <param name="fromDate">Минимальная дата обновления бронирования.</param>
     /// <param name="toDate">Максимальная дата обноаления бронирования.</param>
     /// <returns>Коллекция обновленных бронирований.</returns>
@@ -318,6 +312,164 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
 
             control.Active();
             return result;
+        }
+        catch (Exception ex)
+        {
+            control.Unactive(ex);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Метод возвращает коллекцию бронирований с зарезервированнм инвентарем, которые зарегестрированы в одном номере
+    /// с бронированием, идентификатор которого передан в параметрах метода.
+    /// </summary>
+    /// <param name="reservationId">Идентификатор бронирования.</param>
+    /// <param name="room">Номер комнаты бронирования.</param>
+    /// <param name="statuses">Статусы бронирований, которые будут включены в результат.</param>
+    /// <returns>Коллекция бронирований с зарезервированным инвентарем.</returns>
+    public async Task<HashSet<ReservationInventory>> GetReservationInventoriesAsync(decimal reservationId, string? room, params string[] statuses)
+    {
+        if (Environment.InventoryClasses.Count == 0)
+            return [];
+
+        HashSet<string> resvStatuses = [.. statuses];
+        HashSet<ReservationInventory> reservationInventories;
+        int count = resvStatuses.Count;
+
+        try
+        {
+            using (var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionOptions))
+            {
+                await using var context = Context;
+                var now = DateTime.Now;
+
+                var result = await (from rn in context.ReservationNames
+                                    from rdn in context.ReservationDailyElementNames
+                                        .Where(rdn => rdn.Resort == rn.Resort && rdn.ResvNameId == rn.ResvNameId)
+                                    from n in context.Names.Where(n => n.NameId == rn.NameId)
+                                    from rde in context.ReservationDailyElements
+                                        .Where(rde =>
+                                            rde.Resort == rdn.Resort && rde.ResvDailyElSeq == rdn.ResvDailyElSeq &&
+                                            rdn.ReservationDate == rde.ReservationDate)
+                                    from b in context.Businessdates
+                                        .Where(b => b.Resort == rdn.Resort && b.BusinessDate1 == rdn.ReservationDate && b.State == "OPEN")
+                                    from ri in context.ReservationItems
+                                        .Where(ri => ri.Resort == rn.Resort && ri.ResvNameId == rn.ResvNameId && ri.BeginDate <= now && ri.EndDate >= now)
+                                        .DefaultIfEmpty()
+                                    from gi in context.GemItems.Where(gi => gi.Resort == rn.Resort && gi.ItemId == ri.ItemId).DefaultIfEmpty()
+                                    from gic in context.GemItemClasses.Where(gic => gic.Resort == rn.Resort && gic.ItemclassId == gi.ItemclassId).DefaultIfEmpty()
+                                    where rn.Resort == Environment.ResortCode && (count == 0 || resvStatuses.Contains(rn.ResvStatus!))
+                                    && ((room != null && rde.Room == room) || (room == null && rde.Room == (
+                                        from rn in context.ReservationNames
+                                        from rdn in context.ReservationDailyElementNames
+                                            .Where(rdn => rdn.Resort == rn.Resort && rdn.ResvNameId == rn.ResvNameId)
+                                        from rde in context.ReservationDailyElements
+                                            .Where(rde =>
+                                                rde.Resort == rdn.Resort && rde.ResvDailyElSeq == rdn.ResvDailyElSeq &&
+                                                rdn.ReservationDate == rde.ReservationDate)
+                                        from b in context.Businessdates
+                                            .Where(b => b.Resort == rdn.Resort && b.BusinessDate1 == rdn.ReservationDate && b.State == "OPEN")
+                                        where rn.Resort == Environment.ResortCode && rn.ResvNameId == reservationId
+                                        select rde.Room
+                                    ).FirstOrDefault()))
+                                    select new
+                                    {
+                                        ReservationId = rn.ResvNameId ?? default,
+                                        rn.ConfirmationNo,
+                                        FirstName = Trim(n.XfirstName ?? n.First),
+                                        LastName = Trim(n.XlastName ?? n.Last),
+                                        MiddleName = Trim(n.XmiddleName ?? n.Middle),
+                                        Sex = n.Gender,
+                                        Status = rn.ResvStatus,
+                                        rde.Room,
+                                        Inventory = gi.ArticleNumber == null
+                                            ? null
+                                            : new
+                                            {
+                                                gi.ArticleNumber,
+                                                gic.ItemclassCode,
+                                                BeginDate = ri.BeginDate ?? default,
+                                                EndDate = ri.EndDate ?? default
+                                            }
+                                    }).ToListAsync();
+
+                reservationInventories = result
+                    .GroupBy(i => new ReservationInventory
+                    {
+                        ReservationId = i.ReservationId,
+                        ConfirmationNo = i.ConfirmationNo,
+                        FirstName = i.FirstName,
+                        LastName = i.LastName,
+                        MiddleName = i.MiddleName,
+                        Sex = FixSex(i.Sex) ?? "М",
+                        Status = i.Status,
+                        Room = i.Room
+                    })
+                    .Select(g => {
+                        g.Key.Inventories = g
+                            .Where(ri => ri.Inventory?.ItemclassCode is { } code
+                                && ri.Inventory?.ArticleNumber is { } article
+                                && Environment.InventoryClasses.Contains(code))
+                            .Select(ri => new Inventory
+                            {
+                                ArticleNumber = ri.Inventory.ArticleNumber,
+                                BeginDate = ri.Inventory.BeginDate,
+                                EndDate = ri.Inventory.EndDate
+                            })
+                            .ToHashSet();
+
+                        return g.Key;
+                    })
+                    .ToHashSet();
+            }
+
+            control.Active();
+            return reservationInventories;
+        }
+        catch (Exception ex)
+        {
+            control.Unactive(ex);
+            throw;
+        }
+    }
+
+    /// <summary>Метод, возвращающий коллекцию бронирований, у которых был обновлен инвентарь в указанный период.</summary>
+    /// <param name="fromDate">Минимальная дата начала и окончания резервирования инвенторя.</param>
+    /// <param name="toDate">Максимальная дата начала и окончания резервирования инвенторя.</param>
+    /// <param name="statuses">Статусы бронирований, которые будут включены в результат.</param>
+    /// <returns>Коллекция идентификаторов бронирований, у которых был обновлен инвентарь.</returns>
+    public async Task<HashSet<decimal>> GetUpdatedReservationInventoriesAsync(DateTime fromDate, DateTime toDate, params string[] statuses)
+    {
+        if (statuses.Length == 0 || Environment.InventoryClasses.Count == 0)
+            return [];
+
+        HashSet<string> resvStatuses = [.. statuses];
+        HashSet<decimal> reservations;
+        int count = resvStatuses.Count;
+
+        try
+        {
+            using (var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionOptions))
+            {
+                await using var context = Context;
+
+                var result = await (from ri in context.ReservationItems
+                                    from rn in context.ReservationNames
+                                        .Where(rn => rn.Resort == ri.Resort && resvStatuses.Contains(rn.ResvStatus!))
+                                    from gi in context.GemItems
+                                        .Where(gi => gi.Resort == ri.Resort && gi.ItemId == ri.ItemId)
+                                    from gic in context.GemItemClasses
+                                        .Where(gic => gic.Resort == gi.Resort && gic.ItemclassId == gi.ItemclassId)
+                                    where ri.Resort == Environment.ResortCode && Environment.InventoryClasses.Contains(gic.ItemclassCode!)
+                                        && ((ri.BeginDate > fromDate && ri.BeginDate <= toDate) || (ri.EndDate > fromDate && ri.EndDate <= toDate))
+                                    select ri.ResvNameId ?? default).ToListAsync();
+
+                reservations = [.. result];
+            }
+
+            control.Active();
+            return reservations;
         }
         catch (Exception ex)
         {

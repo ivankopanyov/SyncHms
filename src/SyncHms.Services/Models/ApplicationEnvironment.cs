@@ -58,6 +58,9 @@ public class ApplicationEnvironment
     [Required, Description("Альтернативные коды типов документов.")]
     public Dictionary<string, string> DocumentTypeAliases { get; set; } = [];
 
+    [Required, Description("Коды классов инвентаря.")]
+    public HashSet<string> InventoryClasses { get; set; } = [];
+
     /// <summary>
     /// Идентификаторы чатов в <c>Telegram</c>
     /// </summary>
@@ -95,5 +98,6 @@ public class ApplicationEnvironment
         && TaxCodes.SequenceEqual(other.TaxCodes)
         && TrxCodes.SequenceEqual(other.TrxCodes)
         && DocumentTypeAliases.SequenceEqual(other.DocumentTypeAliases)
-        && TelegramChats.SequenceEqual(other.TelegramChats);
+        && TelegramChats.SequenceEqual(other.TelegramChats)
+        && InventoryClasses.SequenceEqual(other.InventoryClasses);
 }

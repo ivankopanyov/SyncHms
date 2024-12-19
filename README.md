@@ -627,16 +627,18 @@ docker compose up -d
 	<tbody>
 		<tr>
 			<td align="center">Резерв инвентаря</td>
+			<td align="center">Обновление бронирования</td>
 			<td align="center">Изменение сроков</td>
 			<td align="center">Отмена резерва</td>
 		</tr>
 		<tr>
 			<td align="center">CHECK_IN</td>
+			<td align="center">UPDATE</td>
 			<td align="center">CHANGE</td>
 			<td align="center">CHECK_OUT</td>
 		</tr>
 		<tr>
-			<td colspan="3" valign="top">
+			<td colspan="4" valign="top">
 				<ul>
 					<li>Получение сообщения из задачи <a href="#планировщик">планировщика</a> <a href="#inventory-updates-monitoring">Inventory Updates Monitoring</a> или системы «FIAS»..</li>
 					<li>
@@ -646,6 +648,7 @@ docker compose up -d
 								Если очередь резервирования инвентаря не пустая, сообщение будет отправлено в один из обработчиков:
 								<ul>
 									<li><b>CHECK_IN</b></li>
+									<li><b>UPDATE</b></li>
 									<li><b>CHANGE</b></li>
 									<li><b>CHECK_OUT</b></li>
 								</ul>

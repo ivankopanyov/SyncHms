@@ -10,5 +10,8 @@ public enum OzLocksStatus
     Change,
 
     /// <summary>Инвентарь присвоен бронированию.</summary>
-    CheckIn
+    CheckIn,
+
+    /// <summary>Изменены данные бронирования.</summary>
+    Update
 }

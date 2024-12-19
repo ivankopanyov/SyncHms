@@ -125,6 +125,9 @@ internal class OzLocksService(IControl<OzLocksOptions, ApplicationEnvironment> c
                 });
             }
 
+            var confirmation = $"{reservationInventory.ConfirmationNo}/{reservationInventory.Room}";
+            var room = item.Room.RoomName ?? item.Room.RoomNum?.ToString() ?? item.Room.RoomId.ToString();
+
             if (item.Guest is not { } guest)
             {
                 isRenewal = false;
@@ -140,7 +143,7 @@ internal class OzLocksService(IControl<OzLocksOptions, ApplicationEnvironment> c
                     Otch = reservationInventory.MiddleName,
                     Sex = reservationInventory.Sex,
                     RoomId = item.Room.RoomId,
-                    Phone = $"{reservationInventory.ConfirmationNo}/{reservationInventory.Room}",
+                    Phone = confirmation,
                     ActionId = roomAction.ActionId,
                     GuserId = control.Options.IntegrationUserId
                 };
@@ -156,12 +159,34 @@ internal class OzLocksService(IControl<OzLocksOptions, ApplicationEnvironment> c
                     ObjId = guest.GuestId
                 });
             }
+            else if (guest.Name != reservationInventory.FirstName || guest.Fam != reservationInventory.LastName
+                || guest.Otch != reservationInventory.MiddleName || guest.Sex != reservationInventory.Sex
+                || guest.Phone != confirmation)
+            {
+                guest.Name = reservationInventory.FirstName;
+                guest.Fam = reservationInventory.LastName;
+                guest.Otch = reservationInventory.MiddleName;
+                guest.Sex = reservationInventory.Sex;
+                guest.Phone = confirmation;
+
+                await context.SaveChangesAsync();
+
+                auditUsers.Add(new AuditUser
+                {
+                    CatId = 13,
+                    ActId = 60,
+                    UserId = control.Options.IntegrationUserId,
+                    ObjId = guest.GuestId
+                });
+
+                result.Add(new(OzLocksStatus.Update, room));
+            }
 
             if (isCheckIn)
-                result.Add(new(OzLocksStatus.CheckIn, item.Room.RoomName ?? item.Room.RoomNum?.ToString() ?? item.Room.RoomId.ToString()));
+                result.Add(new(OzLocksStatus.CheckIn, room));
 
             if (isRenewal)
-                result.Add(new(OzLocksStatus.Change, item.Room.RoomName ?? item.Room.RoomNum?.ToString() ?? item.Room.RoomId.ToString()));
+                result.Add(new(OzLocksStatus.Change, room));
         }
 
         return result;

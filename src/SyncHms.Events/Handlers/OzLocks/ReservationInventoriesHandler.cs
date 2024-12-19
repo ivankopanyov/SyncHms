@@ -72,6 +72,7 @@ internal class ReservationInventoriesHandler(IOzLocksService ozLocksService) : H
             OzLocksStatus.CheckOut => "CHECK_OUT",
             OzLocksStatus.Change => "CHANGE",
             OzLocksStatus.CheckIn => "CHECK_IN",
+            OzLocksStatus.Update => "UPDATE",
            _ => "UNKNOWN"
         };
 

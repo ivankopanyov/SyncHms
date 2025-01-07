@@ -14,15 +14,6 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
     /// </summary>
     private const string NameDataQuery =
         "SELECT hrs_dev.hrs_sh_sens.dob(n.name_id) AS BIRTHDAY, hrs_dev.hrs_sh_sens.pass_id(n.name_id) AS PASS_ID FROM opera.name n WHERE ROWNUM <= 1 AND n.name_id = {0}";
-
-    /// <summary>Словарь соответсвия обозначения полов.</summary>
-    private static readonly IReadOnlyDictionary<string, string> SexAliases = new Dictionary<string, string>
-    {
-        { "1", "M" }, 
-        { "2", "F" },
-        { "M", "М" },
-        { "F", "Ж" }
-    };
     
     /// <summary>Экземпляр опций транзакции.</summary>
     private static readonly TransactionOptions TransactionOptions = new()
@@ -220,7 +211,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                 FirstName = reservationResponse.FirstName,
                                 LastName = reservationResponse.LastName,
                                 MiddleName = reservationResponse.MiddleName,
-                                Sex = FixSex(reservationResponse.Sex),
+                                Sex = reservationResponse.Sex == "M" || reservationResponse.Sex == "F" ? reservationResponse.Sex : null,
                                 BirthDate = ToDateTime(nameInfo?.BirthDay, "dd.MM.yyyy"),
                                 CountryCode = reservationResponse.Address?.CountryCode,
                                 Region = reservationResponse.Address?.Region,
@@ -512,25 +503,15 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
 
         return value;
     }
-    
-    /// <summary>Метод, преобразующий код пола <c>OPERA</c> в код пола <c>Sanatorium</c></summary>
+
+    /// <summary>Метод, преобразующий код пола <c>OPERA</c> в код пола <c>Ozlocks</c></summary>
     /// <param name="value">Значение пола.</param>
     /// <returns>
     /// Результат преобразования.<br/>
     /// Если переданный код не найден,
     /// будет возвращено значение параметра <c>value</c>
     /// </returns>
-    private static string? FixSex(string? value)
-    {
-        if (value == null)
-            return null;
-
-        foreach (var alias in SexAliases)
-            if (value == alias.Key)
-                return alias.Value;
-
-        return value;
-    }
+    private static string? FixSex(string? value) => value == "F" ? "Ж" : "M";
     
     /// <summary>Метод, преобразующий строку в <see cref="DateTime"/></summary>
     /// <param name="value">Строка для преобразования.</param>
@@ -540,7 +521,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
     /// Если преобразование не удалось, будет возвращен <c>null</c>
     /// </returns>
     private static DateTime? ToDateTime(string? value, string format) 
-        => value == null || !DateTime.TryParseExact(value, format, null, System.Globalization.DateTimeStyles.None, out DateTime issue)
+        => value == null || !DateTime.TryParseExact(value, format, null, DateTimeStyles.None, out DateTime issue)
             ? null : issue;
 
     /// <summary>Метод, удаляющий пробелы в начале и конце строки.</summary>

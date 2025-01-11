@@ -55,7 +55,7 @@ internal class TelegramMessageItem : IComparable<TelegramMessageItem>
         -DateTime.Compare(DateTime, other?.DateTime ?? DateTime.MinValue);
 
     public override string ToString() => new StringBuilder()
-        .AppendLine($"🖥 {HandlerName ?? "UNKNOWN"}\n📅 {DateTime:dd.MM.yyyy HH:mm:ss}")
+        .AppendLine($"🖥 {HandlerName ?? "UNKNOWN"}\n📅 {DateTime.ToLocalTime():dd.MM.yyyy HH:mm:ss}")
         .AppendLineSubstring(Message, MaxLengthInfo, "💬 ")
         .AppendLineSubstring(Error, MaxLengthInfo, "⚠️ ")
         .ToString();

@@ -21,8 +21,7 @@ internal class ReservationInventoryRequestHandler(IOperaService operaService) : 
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(operaService.Environment.ResortCode, nameof(operaService.Environment.ResortCode));
 
-        var reservations = await operaService.GetReservationInventoriesAsync(@in.ReservationId, @in.Room,
-            OperaReservationStatus.CheckedIn, OperaReservationStatus.CheckedOut, OperaReservationStatus.Cancelled, OperaReservationStatus.NoShow);
+        var reservations = await operaService.GetReservationInventoriesAsync(@in.ReservationId, @in.Room);
 
         context.Logiable = context.HasError;
 

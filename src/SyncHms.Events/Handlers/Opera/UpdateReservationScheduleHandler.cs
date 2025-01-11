@@ -18,6 +18,13 @@ internal class UpdateReservationScheduleHandler(IOperaService operaService) : Sc
         OperaReservationStatus.NoShow
     };
 
+    /// <summary>Статусы бронирований, запрашиваемые в базе данных <c>OPERA</c>, для интеграции с сервисом <c>OzLocks</c></summary>
+    private static readonly IReadOnlySet<string> OzLocksStatuses = new HashSet<string>
+    {
+        OperaReservationStatus.Cancelled,
+        OperaReservationStatus.NoShow
+    };
+
     /// <summary>
     /// Метод, запрашивающий обновления бронирований из базы данных <c>OPERA</c>.<br/>
     /// Переопределяет метод <see cref="ScheduleHandler.HandleAsync"/>
@@ -29,7 +36,12 @@ internal class UpdateReservationScheduleHandler(IOperaService operaService) : Sc
 
         var reservations = await operaService.GetUpdatedReservationsAsync(context.Previous, context.Current);
         foreach (var reservation in reservations)
+        {
             if (Statuses.Contains(reservation.Status))
                 context.Send(reservation);
+
+            if (OzLocksStatuses.Contains(reservation.Status))
+                context.Send((ReservationInventoryRequest)reservation);
+        }
     }
 }

@@ -22,7 +22,7 @@ internal class ReservationInventoryRequestHandler(IOperaService operaService) : 
         ArgumentException.ThrowIfNullOrWhiteSpace(operaService.Environment.ResortCode, nameof(operaService.Environment.ResortCode));
 
         var reservations = await operaService.GetReservationInventoriesAsync(@in.ReservationId, @in.Room,
-            OperaReservationStatus.CheckedIn, OperaReservationStatus.CheckedOut);
+            OperaReservationStatus.CheckedIn, OperaReservationStatus.CheckedOut, OperaReservationStatus.Cancelled, OperaReservationStatus.NoShow);
 
         context.Logiable = context.HasError;
 
@@ -35,8 +35,11 @@ internal class ReservationInventoryRequestHandler(IOperaService operaService) : 
             .ToHashSet();
 
         foreach (var reservation in reservations)
-            reservation.Inventories = reservation.Status == OperaReservationStatus.CheckedIn
-                ? inventories : [];
+        {
+            reservation.Inventories = reservation.Status == OperaReservationStatus.CheckedIn ? inventories : [];
+            if (reservation.Status != OperaReservationStatus.CheckedIn)
+                reservation.Status = OperaReservationStatus.CheckedOut;
+        }
 
         context.Send(new ReservationInventories
         {

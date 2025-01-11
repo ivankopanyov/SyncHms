@@ -41,4 +41,13 @@ public class ReservationInventoryRequest
             Room = checkOut.RoomNumber
         };
     }
+
+    /// <summary>Привидение объекта типа <see cref="UpdatedReservation"/> к типу <see cref="ReservationInventoryRequest"/></summary>
+    public static implicit operator ReservationInventoryRequest(UpdatedReservation updatedReservation)
+    {
+        return new ReservationInventoryRequest
+        {
+            ReservationId = updatedReservation.ReservationNumber
+        };
+    }
 }

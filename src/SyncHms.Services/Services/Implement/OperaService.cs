@@ -365,9 +365,9 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                     {
                                         ReservationId = rn.ResvNameId ?? default,
                                         rn.ConfirmationNo,
-                                        FirstName = Trim(n.XfirstName ?? n.First ?? string.Empty),
-                                        LastName = Trim(n.XlastName ?? n.Last ?? string.Empty),
-                                        MiddleName = Trim(n.XmiddleName ?? n.Middle ?? string.Empty),
+                                        FirstName = Trim(n.XfirstName ?? n.First) ?? string.Empty,
+                                        LastName = Trim(n.XlastName ?? n.Last) ?? string.Empty,
+                                        MiddleName = Trim(n.XmiddleName ?? n.Middle) ?? string.Empty,
                                         Sex = n.Gender,
                                         Status = rn.ResvStatus,
                                         rde.Room,

@@ -131,11 +131,11 @@ internal class FiasService(
                 throw new KeyNotFoundException();
 
             if (posting.NoPostStatus == true)
-                throw new Exception($"No Post status for reservation {message.ReservationNumber}.");
+                throw new Exception($"No Post status for reservation {message.ReservationNumber} in room {message.RoomNumber}.");
         }
         catch (KeyNotFoundException)
         {
-            throw new Exception($"Reservation {message.ReservationNumber} not found.");
+            throw new Exception($"Reservation {message.ReservationNumber} not found in room {message.RoomNumber}.");
         }
 
         message.SalesOutlet = request.SalesOutlet;

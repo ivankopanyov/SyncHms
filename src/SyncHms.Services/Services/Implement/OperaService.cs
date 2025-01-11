@@ -317,16 +317,13 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
     /// </summary>
     /// <param name="reservationId">Идентификатор бронирования.</param>
     /// <param name="room">Номер комнаты бронирования.</param>
-    /// <param name="statuses">Статусы бронирований, которые будут включены в результат.</param>
     /// <returns>Коллекция бронирований с зарезервированным инвентарем.</returns>
-    public async Task<HashSet<ReservationInventory>> GetReservationInventoriesAsync(decimal reservationId, string? room, params string[] statuses)
+    public async Task<HashSet<ReservationInventory>> GetReservationInventoriesAsync(decimal reservationId, string? room)
     {
         if (Environment.InventoryClasses.Count == 0)
             return [];
 
-        HashSet<string> resvStatuses = [.. statuses];
         HashSet<ReservationInventory> reservationInventories;
-        int count = resvStatuses.Count;
 
         try
         {
@@ -350,7 +347,7 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                         .DefaultIfEmpty()
                                     from gi in context.GemItems.Where(gi => gi.Resort == rn.Resort && gi.ItemId == ri.ItemId).DefaultIfEmpty()
                                     from gic in context.GemItemClasses.Where(gic => gic.Resort == rn.Resort && gic.ItemclassId == gi.ItemclassId).DefaultIfEmpty()
-                                    where rn.Resort == Environment.ResortCode && (count == 0 || resvStatuses.Contains(rn.ResvStatus!))
+                                    where rn.Resort == Environment.ResortCode
                                     && ((room != null && rde.Room == room) || (room == null && rde.Room == (
                                         from rn in context.ReservationNames
                                         from rdn in context.ReservationDailyElementNames
@@ -368,9 +365,9 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
                                     {
                                         ReservationId = rn.ResvNameId ?? default,
                                         rn.ConfirmationNo,
-                                        FirstName = Trim(n.XfirstName ?? n.First),
-                                        LastName = Trim(n.XlastName ?? n.Last),
-                                        MiddleName = Trim(n.XmiddleName ?? n.Middle),
+                                        FirstName = Trim(n.XfirstName ?? n.First ?? string.Empty),
+                                        LastName = Trim(n.XlastName ?? n.Last ?? string.Empty),
+                                        MiddleName = Trim(n.XmiddleName ?? n.Middle ?? string.Empty),
                                         Sex = n.Gender,
                                         Status = rn.ResvStatus,
                                         rde.Room,
@@ -437,7 +434,6 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
 
         HashSet<string> resvStatuses = [.. statuses];
         HashSet<decimal> reservations;
-        int count = resvStatuses.Count;
 
         try
         {

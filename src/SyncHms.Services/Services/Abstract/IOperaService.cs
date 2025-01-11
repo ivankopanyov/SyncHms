@@ -29,9 +29,8 @@ public interface IOperaService : IService<OperaOptions, ApplicationEnvironment>
     /// </summary>
     /// <param name="reservationId">Идентификатор бронирования.</param>
     /// <param name="room">Номер комнаты бронирования.</param>
-    /// <param name="statuses">Статусы бронирований, которые будут включены в результат.</param>
     /// <returns>Коллекция бронирований с зарезервированным инвентарем.</returns>
-    Task<HashSet<ReservationInventory>> GetReservationInventoriesAsync(decimal reservationId, string? room, params string[] statuses);
+    Task<HashSet<ReservationInventory>> GetReservationInventoriesAsync(decimal reservationId, string? room);
 
     /// <summary>Метод, возвращающий коллекцию бронирований, у которых был обновлен инвентарь в указанный период.</summary>
     /// <param name="fromDate">Минимальная дата начала и окончания резервирования инвенторя.</param>

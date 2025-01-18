@@ -86,4 +86,12 @@ internal class ScheduleEventContext(IEventContext baseContext) : IScheduleEventC
     {
         baseContext.SetMessage(message);
     }
+
+    /// <summary>Вызывает метод <see cref="IEventContext.MarkWithError"/></summary>
+    /// <param name="errorMessage">Сообщение ошибки.</param>
+    /// <param name="stackTrace"></param>
+    public void MarkWithError(string errorMessage, string? stackTrace = null)
+    {
+        baseContext.MarkWithError(errorMessage, stackTrace);
+    }
 }

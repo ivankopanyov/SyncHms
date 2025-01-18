@@ -115,7 +115,7 @@ internal class FiasService(
             PostingInquiry = message.RoomNumber,
             PostingSequenceNumber = postingSequenceNumber,
             DateTime = message.DateTime,
-            PmsPaymentMethod = "ROOM",
+            PmsPaymentMethod = message.PmsPaymentMethod,
             WorkStationId = "1",
             MaximumGuests = 10,
             UserId = "0"
@@ -139,10 +139,8 @@ internal class FiasService(
         }
 
         message.SalesOutlet = request.SalesOutlet;
-        message.PmsPaymentMethod = request.PmsPaymentMethod;
         message.WorkStationId = request.WorkStationId;
         message.UserId = request.UserId;
-        message.DateTime = DateTime.Now;
         message.PostingSequenceNumber = postingSequenceNumber;
         
         return await SendAsync<FiasPostingAnswer>(message.ToString(cultureInfo), postingSequenceNumber,

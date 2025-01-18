@@ -465,6 +465,28 @@ internal class OperaService(IControl<OperaOptions, ApplicationEnvironment> contr
         }
     }
 
+    /// <summary>Метод, записывающий детали чека в базу данных <c>OPERA</c></summary>
+    /// <param name="details">Объект деталей чека.</param>
+    public async Task AddCheckDetails(GuestCheckDetails details)
+    {
+        try
+        {
+            using (var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionOptions))
+            {
+                await using var context = Context;
+                await context.GuestCheckDetails.AddAsync(details);
+                await context.SaveChangesAsync();
+            }
+            
+            control.Active();
+        }
+        catch (Exception ex)
+        {
+            control.Unactive(ex);
+            throw;
+        }
+    }
+
     /// <summary>Метод, формирующий текст заметки.</summary>
     /// <param name="codes">Коды пакетов бронирования.</param>
     /// <param name="noPost">Статус возможности начисления платежей на комнату.</param>

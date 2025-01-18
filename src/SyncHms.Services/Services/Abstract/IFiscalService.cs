@@ -11,6 +11,6 @@ public interface IFiscalService : IService<MicrosOptions, ApplicationEnvironment
     /// для сохранения чека в базе данных <c>MICROS</c>
     /// </summary>
     /// <param name="fiscalCheck">Объект чека.</param>
-    /// <returns>Ответ от удаленного сервиса.</returns>
-    Task<SetCheckResponse> SetCheckAsync(FiscalCheck fiscalCheck);
+    /// <returns>Идентификатор записанного чека..</returns>
+    Task<int> SetCheckAsync(FiscalCheck fiscalCheck);
 }

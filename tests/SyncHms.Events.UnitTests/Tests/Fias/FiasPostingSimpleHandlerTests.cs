@@ -6,62 +6,60 @@ public class FiasPostingSimpleHandlerTests : FiasPostingHandlerTestsBase
     internal async Task HandleAsyncSuccess()
     {
         var context = new MockEventContext();
-        var fiasService = GetFiasService(true, FiasAnswerStatuses.Successfully);
+        var fiasService = GetFiasService(FiasAnswerStatuses.Successfully);
         var handler = new ExposedFiasPostingSimpleHandler(fiasService);
         await handler.ExposedHandleAsync(new FiasPostSimple
         {
-            Checks = []
+            Transactions = []
         }, context);
-
-        CheckType(context);
+        
+        Assert.Single(context.SendMessages);
+        Assert.Empty(context.Breaks);
+        Assert.IsType<CheckDetails>(context.SendMessages[0]);
     }
-    
-    [Fact]
-    internal async Task HandleAsyncSyncPostingMicrosIsFalseSuccess()
+
+    [Theory]
+    [ClassData(typeof(FiasPostingHandlerCases))]
+    internal async Task HandleAsyncUnsucceededStatusSuccess(FiasAnswerStatuses status)
     {
         var context = new MockEventContext();
-        var fiasService = GetFiasService(false, FiasAnswerStatuses.Successfully);
+        var fiasService = GetFiasService(status);
         var handler = new ExposedFiasPostingSimpleHandler(fiasService);
         var correlationId = default(int).ToString();
         await handler.ExposedHandleAsync(new FiasPostSimple
         {
             CorrelationId = correlationId,
-            Checks = []
+            Transactions = []
         }, context);
-
-        CheckPostTransactionsResponse(true, correlationId, context, 1);
-    }
-    
-    [Fact]
-    internal async Task HandleAsyncAnswerStatusIsNotSuccessfullyFailed()
-    {
-        var context = new MockEventContext();
-        var answerStatus = (FiasAnswerStatuses)Random.Shared.Next((int)FiasAnswerStatuses.Successfully);
-        var fiasService = GetFiasService(true, answerStatus);
-        var handler = new ExposedFiasPostingSimpleHandler(fiasService);
-        var correlationId = default(int).ToString();
-        await handler.ExposedHandleAsync(new FiasPostSimple
+        
+        Assert.Single(context.SendMessages);
+        Assert.Empty(context.Breaks);
+        Assert.Equivalent(context.SendMessages[0], new PostTransactionsResponse(correlationId)
         {
-            CorrelationId = correlationId,
-            Checks = []
-        }, context);
-
-        CheckPostTransactionsResponse(false, correlationId, context, 1, answerStatus.ToString());
+            Succeeded = false,
+            ErrorMessage = status.ToString()
+        });
     }
-    
+
     [Fact]
     internal async Task HandleAsyncFailed()
     {
         var context = new MockEventContext();
-        var fiasService = GetFiasServiceWithThrow(true);
+        var fiasService = GetFiasServiceWithThrow();
         var handler = new ExposedFiasPostingSimpleHandler(fiasService);
         var correlationId = default(int).ToString();
         await handler.ExposedHandleAsync(new FiasPostSimple
         {
             CorrelationId = correlationId,
-            Checks = []
+            Transactions = []
         }, context);
         
-        CheckPostTransactionsResponse(false, correlationId, context, 1, new Exception().Message);
+        Assert.Single(context.SendMessages);
+        Assert.Empty(context.Breaks);
+        Assert.Equivalent(context.SendMessages[0], new PostTransactionsResponse(correlationId)
+        {
+            Succeeded = false,
+            ErrorMessage = new Exception().Message
+        });
     }
 }

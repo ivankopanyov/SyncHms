@@ -132,7 +132,9 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                     HandlerName = context.HandlerName,
                     Message = context.Message,
                     IsEnd = !context.Events.Any(),
-                    InputObjectJson = inputObjectJson
+                    InputObjectJson = inputObjectJson,
+                    Error = context.ErrorMessage,
+                    StackTrace = context.StackTrace
                 });
             }
 

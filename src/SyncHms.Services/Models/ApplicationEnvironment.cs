@@ -16,7 +16,7 @@ public class ApplicationEnvironment
     /// <summary>Идентификатор платежного сервиса MICROS.</summary>
     [Description("Идентификатор платежного сервиса MICROS в диапазоне от 1 до 999.")]
     [Newtonsoft.Json.JsonConverter(typeof(DecimalToIntConverter))]
-    [Range(1, 999)]
+    [Range(0, 999)]
     public int Rvc { get; set; }
 
     /// <summary>Код локализации чека.</summary>

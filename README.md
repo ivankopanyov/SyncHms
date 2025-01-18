@@ -246,10 +246,11 @@ Cервис интеграции систем [OPERA Hotel Property Management S
 ## Окружение
 * Переменные окружения
 	+ `ResortCode` *(string)* - Код отеля в базе данных OPERA.<br/>*По умолчанию* `пустая строка`.
-	+ `Rvc` *(int)* - Номер кассира, указанный в чека платежа.<br/>*По умолчанию* `0`.
+	+ `Rvc` *(int)* - Идентификатор платежного сервиса MICROS в диапазоне от `0` до `999`.<br/>*По умолчанию* `0`.
+	+ `CheckLocalizationCode` *(string)* - Код локализации чека в OPERA.<br/>*Если поле пустое - будет установлена локализация хоста.*<br/>*По умолчанию* `пустая строка`.
+	+ `CheckHeader` *(string)* - Заголовок чека.<br/>*По умолчанию* `пустая строка`.
 	+ `SyncPostingOpera` *(bool)* - Флаг, указывающий, нужно ли синхронизировать платежи с системой OPERA.<br/>*По умолчанию* `false`.
 	+ `SyncPostingMicros` *(bool)* - Флаг, указывающий, нужно ли синхронизировать платежи с системой MICROS.<br/>*Если* `SyncPostingOpera` *равен* `false` *- значение переменной будет проигнорировано.*<br/>*По умолчанию* `false`.
-	+ `NextMicrosCheckNumber` *(int)* - Номер следующего чека в системе MICROS.<br/>*Значение в диапазоне от 1 до 9999 включительно.*<br/>*По умолчанию* `1`.
 	+ `SanatoriumCustomField` *(string)* - Имя кастомного поля в системе Sanatorium, в котором будет сохранен переданный комментарий.<br/>*По умолчанию* `пустая строка`.
 	+ `TrxCodes` *(ISet\<string>)* - Коды пакетов в системе OPERA, которые должны быть синхронизированы с системой Sanatorium.<br/>*Пакеты в системе Sanatorium долнжы иметь соответствующее значение поля* `ExternalId`*.*<br/>*По умолчанию* `пустой список`.
 	+ `TaxCodes` *(IDictionary<string, bool>)* - Платежные коды.<br/>*По умолчанию* `пустой список`.
@@ -261,9 +262,10 @@ Cервис интеграции систем [OPERA Hotel Property Management S
 "Environment": {
   "ResortCode": "",
   "Rvc": 99,
+  "CheckLocalizationCode": "",
+  "CheckHeader": "",
   "SyncPostingOpera": true,
   "SyncPostingMicros": true,
-  "NextMicrosCheckNumber": 1,
   "SanatoriumCustomField": "",
   "TrxCodes": [
     "CODE_1",
@@ -499,13 +501,14 @@ docker compose up -d
 					<li>
 						Получение сообщения из шины данных системы «Sanatorium» на обработку денежного начисления.
 						<ul>
-							<li>Если переменная окружения <b>SyncPostingOpera</b> имеет значение <b>false</b>, сообщение будет отправлено в обработчик <b>SANATORIUM</b> со статусом <b>Success</b>.</li>
+							<li>Если переменные окружения <b>SyncPostingOpera</b> и <b>SyncPostingMicros</b> имеют значение <b>false</b>, сообщение будет отправлено в обработчик <b>SANATORIUM</b> со статусом <b>Success</b>.</li>
+							<li>Если переменная окружения <b>SyncPostingOpera</b> имеет значение <b>false</b>, а <b>SyncPostingMicros</b> имеет значение <b>true</b>, сообщение будет отправлено в обработчик <b>MICROS</b>.</li>
 						</ul>
 					</li>
 					<li>
 						Определение типа начисления (денежный платеж, начисление на номер комнаты).
 						<ul>
-							<li>Если тип начисления - начисление на номер, сообщение будет отправлено в обработчик <b>OPERA</b>.</li>
+							<li>Если тип начисления - начисление на номер, сообщение будет отправлено в обработчик <b>ROOM</b>.</li>
 							<li>Если тип начисления - денежный платеж, сообщение будет отправлено в обработчик <b>FIAS_SIMPLE</b>.</li>
 						</ul>
 					</li>
@@ -513,7 +516,7 @@ docker compose up -d
 			</td>
 		</tr>
 		<tr>
-			<td align="center">OPERA</td>
+			<td align="center">ROOM</td>
 			<td align="center">FIAS_SIMPLE</td>
 		</tr>
 		<tr>
@@ -535,13 +538,7 @@ docker compose up -d
 					<li>
 						Получение ответа из «FIAS».
 						<ul>
-							<li>
-								Если статус ответа - <b>Successfully</b>.
-								<ul>
-									<li>Если переменная окружения <b>SyncPostingMicros</b> имеет значение <b>true</b>, сообщение будет отправлено в обработчик <b>MICROS</b>.</li>
-									<li>Если переменная окружения <b>SyncPostingMicros</b> имеет значение <b>false</b>, сообщение будет отправлено в обработчик <b>SANATORIUM</b> со статусом <b>Success</b>.</li>
-								</ul>
-							</li>
+							<li>Если статус ответа - <b>Successfully</b>, сообщение будет отправлено в обработчик <b>CHECK_DETAILS</b>.</li>
 							<li>Если статус ответа отличный от <b>Successfully</b>, сообщение будет отправлено в обработчик <b>SANATORIUM</b> с текстом ошибки.</li>
 							<li>Если ответ не был получен за отведенное время, сообщение будет отправлено в обработчик <b>SANATORIUM</b> с кодом ошибки <b>TimeoutException</b>.</li>
 						</ul>
@@ -566,13 +563,7 @@ docker compose up -d
 									<li>
 										Получение ответа из «FIAS».
 										<ul>
-											<li>
-												Если статус ответа - <b>Successfully</b>.
-												<ul>
-													<li>Если переменная окружения <b>SyncPostingMicros</b> имеет значение <b>true</b>, сообщение будет отправлено в обработчик <b>MICROS</b>.</li>
-													<li>Если переменная окружения <b>SyncPostingMicros</b> имеет значение <b>false</b>, сообщение будет отправлено в обработчик <b>SANATORIUM</b> со статусом <b>Success</b>.</li>
-												</ul>
-											</li>
+											<li>Если статус ответа - <b>Successfully</b>, сообщение будет отправлено в обработчик <b>CHECK_DETAILS</b>.</li>
 											<li>Если статус ответа отличный от <b>Successfully</b>, сообщение будет отправлено в обработчик <b>SANATORIUM</b> с текстом ошибки.</li>
 											<li>Если ответ не был получен за отведенное время, сообщение будет отправлено в обработчик <b>SANATORIUM</b> с кодом ошибки <b>TimeoutException</b>.</li>
 										</ul>
@@ -587,6 +578,22 @@ docker compose up -d
 			</td>
 		</tr>
 		<tr>
+			<td colspan="2" align="center">CHECK_DETAILS</td>
+		</tr>
+		<tr>
+			<td colspan="2" valign="top">
+				<ul>
+					<li>
+						Запрос на сохранение чека платежа в системе «OPERA».
+						<ul>
+							<li>Если переменная окружения <b>SyncPostingMicros</b> имеет значение <b>true</b>, сообщение будет отправлено в обработчик <b>MICROS</b>.</li>
+							<li>Если переменная окружения <b>SyncPostingMicros</b> имеет значение <b>false</b>, сообщение будет отправлено в обработчик <b>SANATORIUM</b> со статусом <b>Success</b>.</li>
+						</ul>
+					</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td colspan="2" align="center">MICROS</td>
 		</tr>
 		<tr>
@@ -595,9 +602,14 @@ docker compose up -d
 					<li>
 						Запрос на сохранение чека платежа в системе «MICROS».
 						<ul>
-							<li>Если статус ответа - <b>success</b>, сообщение будет отправлено в обработчик <b>SANATORIUM</b> со статусом <b>Success</b>.</li>
-							<li>Если статус ответа отличный от <b>success</b>, сообщение будет отправлено в обработчик <b>SANATORIUM</b> с текстом ошибки.</li>
-							<li>Если не удалось установить соединение с «MICROS», сообщение будет отправлено в обработчик <b>SANATORIUM</b> с кодом ошибки.</li>
+							<li>Если чек успешно сохранен, сообщение будет отправлено в обработчик <b>SANATORIUM</b> со статусом <b>Success</b>.</li>
+							<li>
+								Если не удалось сохранить чек.
+								<ul>
+									<li>Если переменная окружения <b>SyncPostingOpera</b> имеет значение <b>true</b>, сообщение будет отправлено в обработчик <b>SANATORIUM</b> со статусом <b>Success</b>.</li>
+									<li>Если переменная окружения <b>SyncPostingOpera</b> имеет значение <b>false</b>, сообщение будет отправлено в обработчик <b>SANATORIUM</b> с текстом ошибки.</li>
+								</ul>
+							</li>
 						</ul>
 					</li>
 				</ul>

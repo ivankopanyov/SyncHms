@@ -27,6 +27,5 @@ jobs:
       run: |
         TAG=$((echo $GITHUB_REF_NAME | awk -F 'v' '{print $2}') | awk -F '.' '{printf "%s.%s", $1, $2}')
         docker build . -f src/SyncHms.Server/Dockerfile -t ivankopanyov/synchms:${TAG}
-        docker image tag ivankopanyov/synchms:${TAG} ivankopanyov/synchms:latest
         docker push ivankopanyov/synchms:${TAG}
-        docker push ivankopanyov/synchms:latest
+        if [ ${TAG} == "1.1" ]; then docker image tag ivankopanyov/synchms:${TAG} ivankopanyov/synchms:latest; docker push ivankopanyov/synchms:latest; fi

@@ -1,20 +1,15 @@
 namespace SyncHms.Events.Messages;
 
-/// <summary>Класс, описывающий событие проведения денежного платежа.</summary>
-internal class FiasPostSimple
+/// <summary>
+/// Класс, описывающий событие проведения денежного платежа.<br/>
+/// Унаследован от класса <see cref="PostingBase"/>
+/// </summary>
+internal class FiasPostSimple : PostingBase
 {
-    /// <summary>Идентификатор события из шины данных удаленного сервиса <c>Sanatorium</c></summary>
-    public string CorrelationId { get; set; }
-    
-    /// <summary>Итоговая сумма платежа.</summary>
-    public decimal Total { get; set; }
-    
-    /// <summary>Метод оплаты.</summary>
-    public string PmsPaymentMethod { get; set; }
-    
-    /// <summary>Номер чека.</summary>
-    public string CheckNumber { get; set; }
-    
-    /// <summary>Позиции в чеке платежа.</summary>
-    public IEnumerable<IEnumerable<FiscalCheckItem>> Checks { get; set; }
+    /// <summary>
+    /// Метод, приводящий объект к типу <see cref="CheckDetails"/><br/>
+    /// Вызывает метод <see cref="PostingBase.Cast{T}"/>
+    /// </summary>
+    /// <returns>Объект типа <see cref="CheckDetails"/></returns>
+    public CheckDetails ToCheckDetails() => Cast<CheckDetails>();
 }

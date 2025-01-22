@@ -25,6 +25,9 @@ public class ServiceWorker : BackgroundService
     /// <summary>Экземпляр опций планировщика событий.</summary>
     private readonly SchedulerOptions _schedulerOptions;
 
+    /// <summary>Экземпляр логгера.</summary>
+    private readonly ILogger _logger;
+
     /// <summary>Инициализация сервиса.</summary>
     /// <param name="serviceScopeFactory">
     /// Экземпляр фабрики, создающей объекты, реализующие интерфейс <see cref="IServiceScopeFactory"/>
@@ -34,12 +37,14 @@ public class ServiceWorker : BackgroundService
     /// <param name="serviceStatePublisher">Сервис публикации событий <see cref="ChangedServiceState"/></param>
     /// <param name="eventScheduler">Экземпляр планировщика событий.</param>
     /// <param name="schedulerOptions">Экземпляр опций планировщика событий.</param>
+    /// <param name="logger">Экземпляр логгера.</param>
     public ServiceWorker(IServiceScopeFactory serviceScopeFactory,
         IOptions<ApplicationEnvironment>? environment,
         IServiceController<ApplicationEnvironment> serviceController,
         IEventPublisher<ChangedServiceState> serviceStatePublisher,
         IEventScheduler eventScheduler,
-        SchedulerOptions schedulerOptions)
+        SchedulerOptions schedulerOptions,
+        ILogger<ServiceWorker> logger)
     {
         _serviceScopeFactory = serviceScopeFactory;
         _environment = environment;
@@ -47,6 +52,7 @@ public class ServiceWorker : BackgroundService
         _serviceStatePublisher = serviceStatePublisher;
         _eventScheduler = eventScheduler;
         _schedulerOptions = schedulerOptions;
+        _logger = logger;
 
         _serviceController.ChangedOptionsEvent += async serviceInfo => await HandleAsync(serviceInfo);
         _eventScheduler.UpdateScheduleEvent += UpdateScheduleHandleAsync;
@@ -77,7 +83,7 @@ public class ServiceWorker : BackgroundService
         };
             
         var result = await serviceRepository.UpdateAsync(service, serviceInfo.UpdateOptions);
-        await hubContext.Clients.All.SendAsync("Service", result);
+        await hubContext.Clients.All.TrySendAsync("Service", result, _logger);
 
         if (result.State != null)
         {
@@ -144,7 +150,6 @@ public class ServiceWorker : BackgroundService
     private async Task UpdateSchedulesAsync(IServiceScope scope)
     {
         var scheduleRepository = scope.ServiceProvider.GetRequiredService<IScheduleRepository>();
-        var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<ScheduleHub>>();
         HashSet<string> exists = [];
 
         foreach (var s in _eventScheduler.Schedules)
@@ -220,7 +225,7 @@ public class ServiceWorker : BackgroundService
         var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<ScheduleHub>>();
 
         await scheduleRepository.UpdateAsync(schedule);
-        await hubContext.Clients.All.SendAsync("Schedule", new ScheduleInfo
+        await hubContext.Clients.All.TrySendAsync("Schedule", new ScheduleInfo
         {
             Name = scheduleName,
             Description = options.Description,
@@ -228,6 +233,6 @@ public class ServiceWorker : BackgroundService
             Last = options.Last,
             Message = options.Message,
             StackTrace = options.StackTrace
-        });
+        }, _logger);
     }
 }

@@ -48,6 +48,8 @@ public class OperaDbContext : OperaDbContextBase
 
     public virtual DbSet<ReservationItems> ReservationItems { get; set; }
 
+    public virtual DbSet<GuestCheckDetails> GuestCheckDetails { get; set; }
+
     internal OperaDbContext(string connectionString, string? oracleSqlCompatibility = null)
     {
         _connectionString = connectionString;

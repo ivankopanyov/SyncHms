@@ -67,7 +67,7 @@ public partial class CheckItem
 
     private string ttlField;
 
-    private int typeField;
+    private char typeField;
 
     private bool typeFieldSpecified;
 
@@ -497,7 +497,7 @@ public partial class CheckItem
 
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order = 21)]
-    public int type
+    public char type
     {
         get
         {

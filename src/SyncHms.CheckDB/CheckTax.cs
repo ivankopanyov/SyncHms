@@ -21,7 +21,7 @@ public partial class CheckTax
 
     private string txblField;
 
-    private int typeField;
+    private char typeField;
 
     private bool typeFieldSpecified;
 
@@ -125,7 +125,7 @@ public partial class CheckTax
 
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
-    public int type
+    public char type
     {
         get
         {

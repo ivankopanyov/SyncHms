@@ -37,6 +37,10 @@ internal class EventContext(string handlerName, string? message, bool hasError) 
     /// <summary>Флаг, указывающий, была ли завершена предыдущая обработка текущего события с ошибкой.</summary>
     public bool HasError { get; set; } = hasError;
 
+    public string? ErrorMessage { get; set; }
+
+    public string? StackTrace { get; set; }
+
     /// <summary>Метод, добавляющий событие для публикации в шину данных.</summary>
     /// <typeparam name="TIn">Тип сообщения.</typeparam>
     /// <param name="in">Экземпляр сообщения.</param>
@@ -74,5 +78,20 @@ internal class EventContext(string handlerName, string? message, bool hasError) 
     {
         if (!string.IsNullOrWhiteSpace(message))
             Message = message;
+    }
+
+    /// <summary>
+    /// Помечает сообщение в логах с ошибкой, но продожает выполнение задачи,
+    /// если параметр <c>errorMessage</c> не пустой и не <c>null</c>
+    /// </summary>
+    /// <param name="errorMessage">Сообщение ошибки.</param>
+    /// <param name="stackTrace"></param>
+    public void MarkWithError(string errorMessage, string? stackTrace = null)
+    {
+        if (string.IsNullOrWhiteSpace(errorMessage))
+            return;
+
+        ErrorMessage = errorMessage;
+        StackTrace = stackTrace;
     }
 }

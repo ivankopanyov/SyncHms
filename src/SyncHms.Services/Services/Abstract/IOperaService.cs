@@ -38,4 +38,8 @@ public interface IOperaService : IService<OperaOptions, ApplicationEnvironment>
     /// <param name="statuses">Статусы бронирований, которые будут включены в результат.</param>
     /// <returns>Коллекция идентификаторов бронирований, у которых был обновлен инвентарь.</returns>
     Task<HashSet<decimal>> GetUpdatedReservationInventoriesAsync(DateTime fromDate, DateTime toDate, params string[] statuses);
+
+    /// <summary>Метод, записывающий детали чека в базу данных <c>OPERA</c></summary>
+    /// <param name="details">Объект деталей чека.</param>
+    Task AddCheckDetails(GuestCheckDetails details);
 }

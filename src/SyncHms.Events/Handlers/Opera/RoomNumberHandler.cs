@@ -21,35 +21,11 @@ internal class RoomNumberHandler(IOperaService operaService) : Handler<RoomNumbe
     {
         try
         {
-            decimal? reservationNumber = null;
-            long? profileNumber = null;
-            
-            if (@in.ReservationGuestId?.Split('/') is { Length: 2 } reservationGuestIdSplit)
-            {
-                if (long.TryParse(reservationGuestIdSplit[0], out var profileId))
-                    profileNumber = profileId;
+            var split = @in.ReservationGuestId.Split('/');
+            var profileNumber = long.Parse(split[0]);
+            var reservationNumber = decimal.Parse(split[1]);
 
-                if (int.TryParse(reservationGuestIdSplit[1], out var reservationId))
-                    reservationNumber = reservationId;
-            }
-
-            if (@in.FolioGenericNo?.Split('/') is { Length: 2 } folioGenericNoSplit)
-            {
-                if (int.TryParse(folioGenericNoSplit[0], out var reservationId))
-                    reservationNumber = reservationId;
-            }
-            
-            if (reservationNumber is not { } reservation)
-            {
-                context.Send(new PostTransactionsResponse(@in.CorrelationId)
-                {
-                    Succeeded = false,
-                    ErrorMessage = "Reservation ID is null."
-                });
-                return;
-            }
-
-            if (await operaService.GetRoomNumberAsync(reservation) is not { } room)
+            if (await operaService.GetRoomNumberAsync(reservationNumber) is not { } room)
             {
                 context.Send(new PostTransactionsResponse(@in.CorrelationId)
                 {
@@ -58,16 +34,10 @@ internal class RoomNumberHandler(IOperaService operaService) : Handler<RoomNumbe
                 });
                 return;
             }
-            
-            context.Send(new FiasPostRequest
-            {
-                CorrelationId = @in.CorrelationId,
-                ReservationNumber = (long)reservation,
-                ProfileNumber = profileNumber,
-                RoomNumber = room,
-                CheckNumber = @in.CheckNumber,
-                Checks = @in.Checks
-            });
+
+            context.SetMessage($"{@in}, Room: {room}, Reservation: {(long)reservationNumber}");
+            @in.PaymentMethod = $"Room {room}";
+            context.Send(@in.ToFiasPostRequest((long)reservationNumber, room, profileNumber));
         }
         catch (Exception ex)
         {
@@ -78,12 +48,12 @@ internal class RoomNumberHandler(IOperaService operaService) : Handler<RoomNumbe
             });
         }
     }
-    
+
     /// <summary>
     /// Метод, возвращающий краткое описание события <see cref="RoomNumberRequest"/><br/>
     /// Переопределяет метод <see cref="Handler{TIn}.Message"/>
     /// </summary>
     /// <param name="in">Экземпляр обрабатываемого события.</param>
     /// <returns>Краткое описание события.</returns>
-    protected override string? Message(RoomNumberRequest @in) => $"Reservation: {@in.ReservationGuestId}";
+    protected override string Message(RoomNumberRequest @in) => @in.ToString();
 }

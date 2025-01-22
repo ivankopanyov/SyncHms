@@ -42,4 +42,12 @@ public interface IEventContext
     /// <summary>Переопределяет сообщение обработчика в логах, если переданный параметр не пустой и не <c>null</c></summary>
     /// <param name="message">Новое сообщение обработчика.</param>
     void SetMessage(string message);
+
+    /// <summary>
+    /// Помечает сообщение в логах с ошибкой, но продожает выполнение задачи,
+    /// если параметр <c>errorMessage</c> не пустой и не <c>null</c>
+    /// </summary>
+    /// <param name="errorMessage">Сообщение ошибки.</param>
+    /// <param name="stackTrace"></param>
+    void MarkWithError(string errorMessage, string? stackTrace = null);
 }

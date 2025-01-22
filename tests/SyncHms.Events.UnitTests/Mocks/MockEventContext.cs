@@ -45,4 +45,8 @@ public class MockEventContext : IScheduleEventContext
         if (!string.IsNullOrWhiteSpace(message))
             Message = message;
     }
+    
+    public void MarkWithError(string errorMessage, string? stackTrace = null)
+    {
+    }
 }

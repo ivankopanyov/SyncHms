@@ -30,4 +30,5 @@ global using System.Net;
 global using System.Reflection;
 global using System.Security.Claims;
 
+global using ILogger = Microsoft.Extensions.Logging.ILogger;
 global using Log = SyncHms.Domain.Log;

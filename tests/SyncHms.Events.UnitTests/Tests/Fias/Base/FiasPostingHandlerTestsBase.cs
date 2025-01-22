@@ -1,24 +1,14 @@
 namespace SyncHms.Events.UnitTests.Tests.Fias.Base;
 
-public abstract class FiasPostingHandlerTestsBase : PostTransactionsResponseHandlerTestsBase
+public abstract class FiasPostingHandlerTestsBase
 {
-    private protected static void CheckType(MockEventContext context)
-    {
-        Assert.Equal(2, context.SendMessages.Count);
-        Assert.Empty(context.Breaks);
-        Assert.IsType<ApplicationEnvironment>(context.SendMessages[0]);
-        Assert.IsType<Check>(context.SendMessages[1]);
-    }
-    
-    private protected static IFiasService GetFiasService(bool syncPostingMicros, FiasAnswerStatuses status)
+    private protected static IFiasService GetFiasService(FiasAnswerStatuses status)
     {
         var fiasService = new Mock<IFiasService>();
 
         fiasService.SetupGet(fs => fs.Environment).Returns(new ApplicationEnvironment
         {
-            SyncPostingMicros = syncPostingMicros,
-            Rvc = 99,
-            NextMicrosCheckNumber = default
+            TaxCodes = []
         });
 
         var answer = new FiasPostingAnswer
@@ -38,14 +28,13 @@ public abstract class FiasPostingHandlerTestsBase : PostTransactionsResponseHand
         return fiasService.Object;
     }
     
-    protected static IFiasService GetFiasServiceWithThrow(bool syncPostingMicros)
+    protected static IFiasService GetFiasServiceWithThrow()
     {
         var fiasService = new Mock<IFiasService>();
 
         fiasService.SetupGet(fs => fs.Environment).Returns(new ApplicationEnvironment
         {
-            SyncPostingMicros = syncPostingMicros,
-            Rvc = 99
+            TaxCodes = []
         });
 
         fiasService

@@ -1,12 +1,9 @@
 namespace SyncHms.Events.UnitTests.Tests.Opera;
 
-public class RoomNumberHandlerTests : PostTransactionsResponseHandlerTestsBase
+public class RoomNumberHandlerTests
 {
-    [Theory]
-    [InlineData("ReservationGuestId/2147483647", null)]
-    [InlineData(null, "2147483647/FolioGenericNo")]
-    [InlineData("GuestId/2147483647", "2147483647")]
-    internal async Task HandleAsyncSuccess(string? reservationGuestId, string? folioGenericNo)
+    [Fact]
+    internal async Task HandleAsyncSuccess()
     {
         var context = new MockEventContext();
         var operaService = GetOperaService();
@@ -15,40 +12,14 @@ public class RoomNumberHandlerTests : PostTransactionsResponseHandlerTestsBase
         await handler.ExposedHandleAsync(new RoomNumberRequest
         {
             CorrelationId = correlationId,
-            ReservationGuestId = reservationGuestId,
-            FolioGenericNo = folioGenericNo
+            ReservationGuestId = $"{Random.Shared.Next(int.MaxValue)}/{Random.Shared.Next(int.MaxValue)}"
         }, context);
         
         Assert.Single(context.SendMessages);
         Assert.Empty(context.Breaks);
         Assert.IsType<FiasPostRequest>(context.SendMessages[0]);
     }
-    
-    [Theory]
-    [InlineData(null, null)]
-    [InlineData("ReservationGuestId", null)]
-    [InlineData("GuestId/ReservationId", null)]
-    [InlineData(null, "FolioGenericNo")]
-    [InlineData("GuestId/ReservationId", "FolioGenericNo")]
-    [InlineData("ReservationGuestId/2147483648", null)]
-    [InlineData(null, "2147483648/FolioGenericNo")]
-    [InlineData("GuestId/2147483648", "2147483648")]
-    internal async Task HandleAsyncReservationNumberIsNullFailed(string? reservationGuestId, string? folioGenericNo)
-    {
-        var context = new MockEventContext();
-        var operaService = GetOperaService();
-        var handler = new ExposedRoomNumberHandler(operaService);
-        var correlationId = default(int).ToString();
-        await handler.ExposedHandleAsync(new RoomNumberRequest
-        {
-            CorrelationId = correlationId,
-            ReservationGuestId = reservationGuestId,
-            FolioGenericNo = folioGenericNo
-        }, context);
 
-        CheckPostTransactionsResponse(false, correlationId, context, 1, "Reservation ID is null.");
-    }
-    
     [Fact]
     internal async Task HandleAsyncRoomNotFoundFailed()
     {
@@ -56,14 +27,20 @@ public class RoomNumberHandlerTests : PostTransactionsResponseHandlerTestsBase
         var operaService = GetOperaService(true);
         var handler = new ExposedRoomNumberHandler(operaService);
         var correlationId = default(int).ToString();
-        var reservationNumber = default(int).ToString();
+        var reservationNumber = Random.Shared.Next(int.MaxValue);
         await handler.ExposedHandleAsync(new RoomNumberRequest
         {
             CorrelationId = correlationId,
-            ReservationGuestId = $"GuestId/{reservationNumber}"
+            ReservationGuestId = $"{Random.Shared.Next(int.MaxValue)}/{reservationNumber}"
         }, context);
-
-        CheckPostTransactionsResponse(false, correlationId, context, 1, $"Reservation {reservationNumber} not found.");
+        
+        Assert.Single(context.SendMessages);
+        Assert.Empty(context.Breaks);
+        Assert.Equivalent(context.SendMessages[0], new PostTransactionsResponse(correlationId)
+        {
+            Succeeded = false,
+            ErrorMessage = $"Reservation {reservationNumber} not found."
+        });
     }
     
     [Fact]
@@ -73,14 +50,19 @@ public class RoomNumberHandlerTests : PostTransactionsResponseHandlerTestsBase
         var operaService = GetOperaServiceWithThrow();
         var handler = new ExposedRoomNumberHandler(operaService);
         var correlationId = default(int).ToString();
-        var reservationNumber = default(int).ToString();
         await handler.ExposedHandleAsync(new RoomNumberRequest
         {
             CorrelationId = correlationId,
-            ReservationGuestId = $"GuestId/{reservationNumber}"
+            ReservationGuestId = $"{Random.Shared.Next(int.MaxValue)}/{Random.Shared.Next(int.MaxValue)}"
         }, context);
-
-        CheckPostTransactionsResponse(false, correlationId, context, 1, new Exception().Message);
+        
+        Assert.Single(context.SendMessages);
+        Assert.Empty(context.Breaks);
+        Assert.Equivalent(context.SendMessages[0], new PostTransactionsResponse(correlationId)
+        {
+            Succeeded = false,
+            ErrorMessage = new Exception().Message
+        });
     }
 
     private static IOperaService GetOperaService(bool returnNull = false)

@@ -7,9 +7,11 @@
 /// <param name="serviceRepository">Экземпляр репозитория для работы с состоянием сервисов.</param>
 /// <param name="serviceController">Экземпляр контроллера сервисов.</param>
 /// <param name="hubContext">Экземпляр контекста концентратора сервисов <c>SignalR</c></param>
+/// <param name="logger">Экземпляр логгера.</param>
 [ApiController]
 [Route("api/v1.0/services")]
-public class ServiceController(IServiceRepository serviceRepository, IServiceController<ApplicationEnvironment> serviceController, IHubContext<ServiceHub> hubContext) : ControllerBase
+public class ServiceController(IServiceRepository serviceRepository, IServiceController<ApplicationEnvironment> serviceController,
+    IHubContext<ServiceHub> hubContext, ILogger<ServiceController> logger) : ControllerBase
 {
     /// <summary>Конечная точка для запроса состояния все сервисов приложения.</summary>
     /// <returns>Результат запроса.</returns>
@@ -79,10 +81,10 @@ public class ServiceController(IServiceRepository serviceRepository, IServiceCon
     {
         if (await serviceRepository.RemoveAsync(serviceName) is { } serviceInfo)
         {
-            await hubContext.Clients.All.SendAsync("RemoveService", new RemoveService
+            await hubContext.Clients.All.TrySendAsync("RemoveService", new RemoveService
             {
                 ServiceName = serviceName
-            });
+            }, logger);
 
             serviceController.SetOptions(new Bus.Services.Options
             {

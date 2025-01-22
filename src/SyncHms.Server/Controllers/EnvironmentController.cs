@@ -7,10 +7,12 @@
 /// <param name="environmentRepository">Экземпляр репозитория для работы с окружением.</param>
 /// <param name="serviceController">Экземпляр контроллера сервисов.</param>
 /// <param name="hubContext">Экземпляр контекста концентратора окружения <c>SignalR</c></param>
+/// <param name="logger">Экземпляр логгера.</param>
 [ApiController]
 [Route("api/v1.0/environment")]
 public class EnvironmentController(IEnvironmentRepository<ApplicationEnvironment> environmentRepository,
-    IServiceController<ApplicationEnvironment> serviceController, IHubContext<EnvironmentHub> hubContext) : ControllerBase
+    IServiceController<ApplicationEnvironment> serviceController, IHubContext<EnvironmentHub> hubContext,
+    ILogger<EnvironmentController> logger) : ControllerBase
 {
     /// <summary>Конечная точка для запроса экземпляра текущего окружения.</summary>
     [HttpGet("")]
@@ -35,7 +37,7 @@ public class EnvironmentController(IEnvironmentRepository<ApplicationEnvironment
         if (await environmentRepository.UpdateAsync(environment))
         {
             serviceController.SetEnvironment(environment);
-            await hubContext.Clients.All.SendAsync("Environment", environment);
+            await hubContext.Clients.All.TrySendAsync("Environment", environment, logger);
         }
 
         return Ok(environment);

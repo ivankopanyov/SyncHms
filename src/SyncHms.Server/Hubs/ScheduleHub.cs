@@ -5,14 +5,15 @@ namespace SyncHms.Server.Hubs;
 /// Унаследован от класса <see cref="Hub"/>
 /// </summary>
 /// <param name="eventScheduler">Экземпляр планировщика событий.</param>
+/// <param name="logger">Экземпляр логгера.</param>
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class ScheduleHub(IEventScheduler eventScheduler) : Hub
+public class ScheduleHub(IEventScheduler eventScheduler, ILogger<ScheduleHub> logger) : Hub
 {
     public async Task Schedules()
     {
         await Clients
             .Client(Context.ConnectionId)
-            .SendAsync("Schedules", eventScheduler.Schedules.Select(s => new ScheduleInfo
+            .TrySendAsync("Schedules", eventScheduler.Schedules.Select(s => new ScheduleInfo
             {
                 Name = s.Key,
                 Description = s.Value.Description,
@@ -20,6 +21,6 @@ public class ScheduleHub(IEventScheduler eventScheduler) : Hub
                 Last = s.Value.Last,
                 Message = s.Value.Message,
                 StackTrace = s.Value.StackTrace
-            }).ToList());
+            }).ToList(), logger);
     }
 }

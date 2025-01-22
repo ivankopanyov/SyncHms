@@ -6,14 +6,15 @@
 /// Унаследован от класса <see cref="Hub"/>
 /// </summary>
 /// <param name="serviceRepository">Экземпляр репозитория для работы с сервисами.</param>
+/// <param name="logger">Экземпляр логгера.</param>
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class ServiceHub(IServiceRepository serviceRepository) : Hub
+public class ServiceHub(IServiceRepository serviceRepository, ILogger<ServiceHub> logger) : Hub
 {
     /// <summary>Конечная точка концентратора для запроса состояния сервисов.</summary>
     public async Task Services()
     {
         await Clients
             .Client(Context.ConnectionId)
-            .SendAsync("Services", await serviceRepository.GetAllAsync());
+            .TrySendAsync("Services", await serviceRepository.GetAllAsync(), logger);
     }
 }

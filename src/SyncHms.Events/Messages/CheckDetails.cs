@@ -93,8 +93,10 @@ internal class CheckDetails : PostingBase
                 header = header[..lineLength];
             
             stringBuilder
-                .AppendLine(header.PadLeft(header.Length + Math.Max(0, (lineLength - header.Length) / 2)))
-                .AppendLine(line);
+                .Append(header.PadLeft(header.Length + Math.Max(0, (lineLength - header.Length) / 2)))
+                .Append('\n')
+                .Append(line)
+                .Append('\n');
         }
 
         var checkNumberLimitLength = lineLength - checkItems.Check.Length - 1;
@@ -104,10 +106,13 @@ internal class CheckDetails : PostingBase
 
         stringBuilder
             .Append(checkItems.Check)
-            .AppendLine(checkNumber.PadLeft(lineLength - checkItems.Check.Length))
+            .Append(checkNumber.PadLeft(lineLength - checkItems.Check.Length))
+            .Append('\n')
             .Append(checkItems.Date)
-            .AppendLine(DateTime.ToString("dd-MMM-yyyy HH:mm:ss", cultureInfo).PadLeft(lineLength - checkItems.Date.Length))
-            .AppendLine(line);
+            .Append(DateTime.ToString("dd-MMM-yyyy HH:mm:ss", cultureInfo).PadLeft(lineLength - checkItems.Date.Length))
+            .Append('\n')
+            .Append(line)
+            .Append('\n');
 
         for (var i = 0; i < Transactions.Length; i++)
         {
@@ -115,26 +120,31 @@ internal class CheckDetails : PostingBase
                 .Append(counts[i].PadLeft(countMax))
                 .Append(' ')
                 .Append((items[i].Count == 0 ? string.Empty : items[i][0]).PadRight(itemNameLength + 1))
-                .AppendLine(amounts[i].PadLeft(amountMax));
+                .Append(amounts[i].PadLeft(amountMax))
+                .Append('\n');
 
             for (var j = 1; j < items[i].Count; j++)
-                stringBuilder.AppendLine(items[i][j].PadLeft(items[i][j].Length + countMax + 1));
+                stringBuilder
+                    .Append(items[i][j].PadLeft(items[i][j].Length + countMax + 1))
+                    .Append('\n');
 
             if (discounts[i].Length > 0)
             {
                 stringBuilder
                     .Append(checkItems.Discount.PadLeft(countMax + checkItems.Discount.Length + 1).PadRight(itemNameLength + countMax + 2))
-                    .AppendLine(discounts[i].PadLeft(amountMax));
+                    .Append(discounts[i].PadLeft(amountMax))
+                    .Append('\n');
             }
 
-            stringBuilder.AppendLine();
+            stringBuilder.Append('\n');
         }
 
         var description = PaymentMethod.Length > itemNameLength ? PaymentMethod[..itemNameLength] : PaymentMethod;
 
         stringBuilder
             .Append(description.PadLeft(countMax + description.Length + 1).PadRight(itemNameLength + countMax + 2))
-            .AppendLine(totalString.PadLeft(amountMax))
+            .Append(totalString.PadLeft(amountMax))
+            .Append('\n')
             .Append(line);
 
         return stringBuilder.ToString();

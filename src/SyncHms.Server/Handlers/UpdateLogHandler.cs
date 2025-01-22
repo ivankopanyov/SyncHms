@@ -6,7 +6,8 @@
 /// </summary>
 /// <param name="logRepository">Экземпляр репозитория для работы с логами.</param>
 /// <param name="hubContext">Контекст концентратора логов <c>SignalR</c></param>
-public class UpdateLogHandler(ILogRepository logRepository, IHubContext<LogHub> hubContext) : LogHandler
+/// <param name="logger">Экземпляр логгера.</param>
+public class UpdateLogHandler(ILogRepository logRepository, IHubContext<LogHub> hubContext, ILogger<UpdateLogHandler> logger) : LogHandler
 {
     /// <summary>
     /// Метод, обрабатывающий лог обработки события.<br/>
@@ -34,6 +35,6 @@ public class UpdateLogHandler(ILogRepository logRepository, IHubContext<LogHub> 
         };
 
         await logRepository.AddAsync(log);
-        await hubContext.Clients.All.SendAsync("Log", log);
+        await hubContext.Clients.All.TrySendAsync("Log", log, logger);
     }
 }

@@ -5,8 +5,9 @@
 /// Унаследован от класса <see cref="Hub"/>
 /// </summary>
 /// <param name="logRepository">Экземпляр репозитория для работы с логами.</param>
+/// <param name="logger">Экземпляр логгера.</param>
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class LogHub(ILogRepository logRepository) : Hub
+public class LogHub(ILogRepository logRepository, ILogger<LogHub> logger) : Hub
 {
     /// <summary>Конечная точка концентратора для запроса логов.</summary>
     /// <param name="size">Максимальное колличество возвращаемых логов.</param>
@@ -34,6 +35,6 @@ public class LogHub(ILogRepository logRepository) : Hub
     private async Task SendAsync(SearchFilter filter, bool update = false)
     {
         var logs = await logRepository.FindAsync(filter);
-        await Clients.Client(Context.ConnectionId).SendAsync("Logs", logs, update);
+        await Clients.Client(Context.ConnectionId).TrySendAsync("Logs", logs, update, logger);
     }
 }

@@ -2,19 +2,13 @@ namespace SyncHms.Events.Handlers.Fias;
 
 /// <summary>
 /// Класс, описывающий обработчик события <see cref="FiasPostRequest"/>,
-/// оповещающего о начисления платежа на номер.<br/>
-/// Унаследован от класса <see cref="PostingHandler{TIn}"/>
+/// оповещающего о начисления платежа на номер.
 /// </summary>
-internal class FiasPostingRequestHandler(IFiasService fiasService)
-    : PostingHandler<FiasPostRequest>(fiasService)
+internal class FiasPostingRequestHandler(IFiasService fiasService) : Handler<FiasPostRequest>
 {
     /// <summary>
     /// Метод, обрабатывающий событие <see cref="FiasPostRequest"/>.
     /// Проводит попытку начисления платежа на номер через интерфейс <c>FIAS</c>.<br/>
-    /// В случае неудачного начисления или если параметр окружения
-    /// <see cref="ApplicationEnvironment.SyncPostingMicros"/> равен <c>false</c>,
-    /// отправляет в шину данных событие <see cref="PostTransactionsResponse"/>.<br/>
-    /// В противном случае отправляет в шину данных событие <see cref="Check"/>.<br/>
     /// Переопределяет метод <see cref="Handler{TIn}.HandleAsync"/>
     /// </summary>
     /// <param name="in">Экземпляр обрабатываемого события.</param>
@@ -23,40 +17,33 @@ internal class FiasPostingRequestHandler(IFiasService fiasService)
     {
         try
         {
-            var checkNumber = GetCheckNumber(context);
-            var subtotals = @in.Checks.Select(c => c.Select(i => i.Total).Sum() * 100).ToArray();
-            var dateTime = DateTime.Now;
-            var total = subtotals.Sum();
+            var subtotals = fiasService.Environment.TaxCodes.Keys.Subtotals(@in.Transactions);
+            var total = @in.Total * 100;
 
             var answer = await fiasService.SendPostingAsync(new FiasPostingRequest
             {
-                DateTime = dateTime,
+                DateTime = @in.DateTime,
                 ReservationNumber = @in.ReservationNumber,
+                PmsPaymentMethod = @in.TransactionCode,
                 TotalPostingAmount = total,
                 ProfileNumber = @in.ProfileNumber,
-                CheckNumber = $"{fiasService.Environment.Rvc:000.##}{checkNumber}{DateTime.Now:yyyyMMddHHmmss}",
-                RoomNumber = @in.RoomNumber,
+                RoomNumber = @in.Room,
+                CheckNumber = @in.CheckNumber,
                 Subtotals = subtotals.Select(s => (decimal?)s).ToArray()
             });
 
-            var success = answer.AnswerStatus == FiasAnswerStatuses.Successfully;
-
-            if (!success || !fiasService.Environment.SyncPostingMicros)
+            if (answer.AnswerStatus != FiasAnswerStatuses.Successfully)
+            {
                 context.Send(new PostTransactionsResponse(@in.CorrelationId)
                 {
-                    Succeeded = success,
-                    ErrorMessage = !success ? answer.ClearText : null
+                    Succeeded = false,
+                    ErrorMessage = answer.ClearText
                 });
+            }
             else
-                context.Send(new Check
-                {
-                    CorrelationId = @in.CorrelationId,
-                    DateTime = dateTime,
-                    Total = total.ToString(),
-                    CheckNumber = checkNumber,
-                    ExternalCheckNumber = @in.CheckNumber,
-                    Details = @in.Checks.SelectMany(c => c)
-                });
+            {
+                context.Send(@in.ToCheckDetails());
+            }
         }
         catch (Exception ex)
         {
@@ -74,17 +61,5 @@ internal class FiasPostingRequestHandler(IFiasService fiasService)
     /// </summary>
     /// <param name="in">Экземпляр обрабатываемого события.</param>
     /// <returns>Краткое описание события.</returns>
-    protected override string? Message(FiasPostRequest @in)
-    {
-        var stringBuilder = new StringBuilder();
-        stringBuilder.Append($"Reservation: {@in.ReservationNumber}");
-
-        if (!string.IsNullOrEmpty(@in.RoomNumber))
-            stringBuilder.Append($", Room: {@in.RoomNumber}");
-
-        if (@in.ProfileNumber != null)
-            stringBuilder.Append($", Profile: {@in.ProfileNumber}");
-
-        return stringBuilder.ToString();
-    }
+    protected override string Message(FiasPostRequest @in) => @in.ToString();
 }

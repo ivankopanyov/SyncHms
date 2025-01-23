@@ -49,6 +49,7 @@ internal class PostingRequestHandler(ISanatoriumService sanatoriumService) : Han
             {
                 if (@in.IsRoomPosting())
                 {
+                    context.SetTaskName("ROOM_POST");
                     var roomNumberRequest = @in.ToRoomNumberRequest(taxCodes);
                     message = roomNumberRequest;
                     context.Send(roomNumberRequest);

@@ -6,6 +6,8 @@ public class MockEventContext : IScheduleEventContext
 
     private readonly List<(string?, Exception?)> _breaks = [];
 
+    public string TaskName { get; private set; } = "TASK";
+
     public string HandlerName { get; private set; } = "TEST";
 
     public string? Message { get; private set; }
@@ -32,6 +34,12 @@ public class MockEventContext : IScheduleEventContext
     public void Break(string? message = null, Exception? innerException = null)
     {
         _breaks.Add((message, innerException));
+    }
+
+    public void SetTaskName(string taskName)
+    {
+        if (!string.IsNullOrWhiteSpace(taskName))
+            TaskName = taskName;
     }
 
     public void SetHandlerName(string handlerName)

@@ -3,6 +3,9 @@ namespace SyncHms.Bus.Events;
 /// <summary>Интерфейс, определяющий методы контекста обработки события.</summary>
 public interface IEventContext
 {
+    /// <summary>Имя текущей задачи.</summary>
+    string? TaskName { get; }
+
     /// <summary>Имя текущего обработчика.</summary>
     string HandlerName { get; }
 
@@ -34,6 +37,10 @@ public interface IEventContext
     /// <param name="message">Сообщение об ошибке.</param>
     /// <param name="innerException">Внутреннее исключение процесса обработки события.</param>
     void Break(string? message = null, Exception? innerException = null);
+
+    /// <summary>Переопределяет имя задачи в логах, если переданный параметр не пустой и не <c>null</c></summary>
+    /// <param name="taskName">Новое имя задачи.</param>
+    void SetTaskName(string taskName);
 
     /// <summary>Переопределяет имя обработчика в логах, если переданный параметр не пустой и не <c>null</c></summary>
     /// <param name="handlerName">Новое имя обработчика.</param>

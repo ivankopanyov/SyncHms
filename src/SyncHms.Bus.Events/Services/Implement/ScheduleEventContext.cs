@@ -8,6 +8,12 @@
 internal class ScheduleEventContext(IEventContext baseContext) : IScheduleEventContext
 {
     /// <summary>
+    /// Имя текущей задачи.<br/>
+    /// Возвращает значение свойства <see cref="IEventContext.TaskName"/>
+    /// </summary>
+    public string? TaskName => baseContext.TaskName;
+
+    /// <summary>
     /// Имя текущего обработчика.<br/>
     /// Возвращает значение свойства <see cref="IEventContext.HandlerName"/>
     /// </summary>
@@ -71,6 +77,13 @@ internal class ScheduleEventContext(IEventContext baseContext) : IScheduleEventC
     public void Break(string? message = null, Exception? innerException = null)
     {
         baseContext.Break(message, innerException);
+    }
+
+    /// <summary>Вызывает метод <see cref="IEventContext.SetTaskName"/></summary>
+    /// <param name="taskName">Новое имя задачи.</param>
+    public void SetTaskName(string taskName)
+    {
+        baseContext.SetTaskName(taskName);
     }
 
     /// <summary>Вызывает метод <see cref="IEventContext.SetHandlerName"/></summary>

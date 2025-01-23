@@ -117,7 +117,7 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
             }
         }
         
-        var context = new EventContext(handlerName, message, @event.Error != null);
+        var context = new EventContext(@event.TaskName, handlerName, message, @event.Error != null);
 
         try
         {
@@ -128,7 +128,7 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                 await LogAsync(new EventLog
                 {
                     TaskId = @event.TaskId,
-                    TaskName = @event.TaskName,
+                    TaskName = context.TaskName,
                     HandlerName = context.HandlerName,
                     Message = context.Message,
                     IsEnd = !context.Events.Any(),
@@ -141,7 +141,7 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
             foreach (var @out in context.Events)
             {
                 @out.TaskId = !context.UpdateTaskId ? @event.TaskId : Guid.NewGuid().ToString();
-                @out.TaskName = @event.TaskName;
+                @out.TaskName = context.TaskName;
                 await @out.PublishAsync(_provider);
             }
         }
@@ -152,7 +152,7 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                 await LogAsync(new EventLog
                 {
                     TaskId = @event.TaskId,
-                    TaskName = @event.TaskName,
+                    TaskName = context.TaskName,
                     HandlerName = context.HandlerName,
                     Message = context.Message,
                     IsEnd = true,
@@ -173,7 +173,7 @@ internal class HandlerWorker<THandler, TIn> : BackgroundService where THandler :
                 {
                     await LogAsync(new EventLog
                     {
-                        TaskName = @event.TaskName,
+                        TaskName = context.TaskName,
                         HandlerName = context.HandlerName,
                         TaskId = @event.TaskId,
                         Message = context.Message,

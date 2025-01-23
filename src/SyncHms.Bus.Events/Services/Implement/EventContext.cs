@@ -4,10 +4,11 @@ namespace SyncHms.Bus.Events.Services.Implement;
 /// Класс, описывающий контекст обработки события.
 /// Реализует интерфейс <see cref="IEventContext"/>
 /// </summary>
+/// <param name="taskName">Имя текущей задачи.</param>
 /// <param name="handlerName">Имя текущего обработчика.</param>
 /// <param name="message">Сообщение текущего обработчика.</param>
 /// <param name="hasError">Флаг, указывающий, была ли завершена предыдущая обработка текущего события с ошибкой.</param>
-internal class EventContext(string handlerName, string? message, bool hasError) : IEventContext
+internal class EventContext(string? taskName, string handlerName, string? message, bool hasError) : IEventContext
 {
     /// <summary>Список событий, которые должны быть опубликованы в шине данных.</summary>
     private readonly List<Event> _events = [];
@@ -20,6 +21,9 @@ internal class EventContext(string handlerName, string? message, bool hasError) 
     /// которые должны быть опубликованы в шине данных.
     /// </summary>
     public IEnumerable<Event> Events => _events;
+
+    /// <summary>Имя текущей задачи.</summary>
+    public string? TaskName { get; private set; } = taskName;
 
     /// <summary>Имя текущего обработчика.</summary>
     public string HandlerName { get; private set; } = handlerName;
@@ -63,6 +67,14 @@ internal class EventContext(string handlerName, string? message, bool hasError) 
     /// <param name="innerException">Внутреннее исключение процесса обработки события.</param>
     public void Break(string? message = null, Exception? innerException = null) =>
         throw new TaskCriticalException(message, innerException);
+
+    /// <summary>Переопределяет имя задачи в логах, если переданный параметр не пустой и не <c>null</c></summary>
+    /// <param name="taskName">Новое имя задачи.</param>
+    public void SetTaskName(string taskName)
+    {
+        if (!string.IsNullOrWhiteSpace(taskName))
+            TaskName = taskName;
+    }
 
     /// <summary>Переопределяет имя обработчика в логах, если переданный параметр не пустой и не <c>null</c></summary>
     /// <param name="handlerName">Новое имя обработчика.</param>

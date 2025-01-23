@@ -34,7 +34,7 @@ internal static class PostTransactionsRequestExtensions
             TransactionCode = RoomTransactionCode,
             PaymentMethod = RoomTransactionCode,
             ReservationGuestId = postTransactionsRequest.ReservationGuestId,
-            CheckNumber = transaction.Name,
+            CheckNumber = CheckNumber(transaction.Name),
             Total = Total(transaction),
             Transactions = transaction.Items
         };
@@ -57,7 +57,7 @@ internal static class PostTransactionsRequestExtensions
             DateTime = postTransactionsRequest.PublishDate,
             TransactionCode = amountTransaction.TransactionCode,
             PaymentMethod = postTransactionsRequest.TransactionCode(),
-            CheckNumber = transaction.Name,
+            CheckNumber = CheckNumber(transaction.Name),
             Total = Total(transaction),
             Transactions = transaction.Items
         };
@@ -74,7 +74,7 @@ internal static class PostTransactionsRequestExtensions
         {
             CorrelationId = postTransactionsRequest.CorrelationId,
             DateTime = postTransactionsRequest.PublishDate,
-            CheckNumber = transaction.Name,
+            CheckNumber = CheckNumber(transaction.Name),
             Total = Total(transaction),
             Transactions = transaction.Items
         };
@@ -135,4 +135,10 @@ internal static class PostTransactionsRequestExtensions
     {
         return transaction.Items.Select(i => i.Amount)?.Sum() ?? 0;
     }
+
+    /// <summary>Метод преобразует строку в номер чека.</summary>
+    /// <param name="source">Исходная строка.</param>
+    /// <returns>Номер чека.</returns>
+    private static string CheckNumber(string? source) =>
+        new([..(source ?? string.Empty).Where(ch => !char.IsLetter(ch) || ch is >= 'A' and <= 'Z' or >= 'a' and <= 'z')]);
 }

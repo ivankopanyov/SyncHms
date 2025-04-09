@@ -24,7 +24,7 @@ internal class FiasPostingSimpleHandler(IFiasService fiasService) : Handler<Fias
             {
                 RoomNumber = string.Empty,
                 PostingType = FiasPostingTypes.DirectCharge,
-                SalesOutlet = 100,
+                SalesOutlet = @in.SalesOutlet,
                 TotalPostingAmount = total,
                 DateTime = @in.DateTime,
                 PmsPaymentMethod = @in.TransactionCode,

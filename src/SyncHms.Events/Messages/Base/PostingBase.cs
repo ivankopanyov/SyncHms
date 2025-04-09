@@ -18,6 +18,9 @@ internal abstract class PostingBase
     /// <summary>Метод оплаты.</summary>
     public string PaymentMethod { get; set; }
 
+    /// <summary>Номер точки продаж.</summary>
+    public int SalesOutlet { get; set; }
+
     /// <summary>Итоговая сумма платежа.</summary>
     public decimal Total { get; set; }
 
@@ -36,6 +39,7 @@ internal abstract class PostingBase
             CheckNumber = CheckNumber,
             TransactionCode = TransactionCode,
             PaymentMethod = PaymentMethod,
+            SalesOutlet = SalesOutlet,
             Total = Total,
             Transactions = Transactions
         };

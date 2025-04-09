@@ -13,11 +13,13 @@ internal static class PostTransactionsRequestExtensions
 
     /// <summary>Метод, приводящий объект к типу <see cref="RoomNumberRequest"/></summary>
     /// <param name="taxCodes">Платежные коды.</param>
+    /// <param name="salesOutlet">Точка продаж.</param>
     /// <returns>Объект типа <see cref="RoomNumberRequest"/></returns>
     /// <exception cref="ArgumentException">
     /// <see cref="PostTransactionsRequest.ReservationGuestId"/> не валидный.
     /// </exception>
-    public static RoomNumberRequest ToRoomNumberRequest(this PostTransactionsRequest postTransactionsRequest, Dictionary<string,bool> taxCodes)
+    public static RoomNumberRequest ToRoomNumberRequest(this PostTransactionsRequest postTransactionsRequest,
+        Dictionary<string,bool> taxCodes, int salesOutlet)
     {
         if (string.IsNullOrEmpty(postTransactionsRequest.ReservationGuestId))
             throw new ArgumentException("Medical Record external ID not specified.");
@@ -35,6 +37,7 @@ internal static class PostTransactionsRequestExtensions
             PaymentMethod = RoomTransactionCode,
             ReservationGuestId = postTransactionsRequest.ReservationGuestId,
             CheckNumber = CheckNumber(transaction.Name),
+            SalesOutlet = salesOutlet,
             Total = Total(transaction),
             Transactions = transaction.Items
         };
@@ -42,9 +45,11 @@ internal static class PostTransactionsRequestExtensions
 
     /// <summary>Метод, приводящий объект к типу <see cref="FiasPostSimple"/></summary>
     /// <param name="taxCodes">Платежные коды.</param>
+    /// <param name="salesOutlet">Точка продаж.</param>
     /// <returns>Объект типа <see cref="FiasPostSimple"/></returns>
     /// <exception cref="ArgumentException">Код оплаты не определен.</exception>
-    public static FiasPostSimple ToFiasPostSimple(this PostTransactionsRequest postTransactionsRequest, Dictionary<string,bool> taxCodes)
+    public static FiasPostSimple ToFiasPostSimple(this PostTransactionsRequest postTransactionsRequest,
+        Dictionary<string,bool> taxCodes, int salesOutlet)
     {
         if (postTransactionsRequest.AmountTransaction() is not { } amountTransaction)
             throw new ArgumentException("Transaction code not specified.");
@@ -57,6 +62,7 @@ internal static class PostTransactionsRequestExtensions
             DateTime = postTransactionsRequest.PublishDate,
             TransactionCode = amountTransaction.TransactionCode,
             PaymentMethod = postTransactionsRequest.TransactionCode(),
+            SalesOutlet = salesOutlet,
             CheckNumber = CheckNumber(transaction.Name),
             Total = Total(transaction),
             Transactions = transaction.Items

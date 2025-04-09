@@ -40,6 +40,7 @@ public static class BusBuilderExtensions
             servicesBusBuilder.AddOptions<MicrosOptions>().Bind(configurationManager.GetSection(MicrosOptions.Section));
             servicesBusBuilder.AddOptions<SanatoriumOptions>().Bind(configurationManager.GetSection(SanatoriumOptions.Section));
             servicesBusBuilder.AddOptions<OzLocksOptions>().Bind(configurationManager.GetSection(OzLocksOptions.Section));
+            servicesBusBuilder.AddOptions<IikoOptions>().Bind(configurationManager.GetSection(IikoOptions.Section));
             servicesBusBuilder.AddOptions<TelegramBotOptions>().Bind(configurationManager.GetSection(TelegramBotOptions.Section));
             servicesBusBuilder.AddOptions<ApplicationEnvironment>().Bind(configurationManager.GetSection(ApplicationEnvironment.Section));
         }
@@ -50,6 +51,7 @@ public static class BusBuilderExtensions
             .AddScoped<IOperaService, OperaService, OperaOptions>(options => options.ServiceName = "Oracle")
             .AddScoped<IFiscalService, FiscalService, MicrosOptions>(options => options.ServiceName = "CheckDB")
             .AddScoped<IOzLocksService, OzLocksService, OzLocksOptions>(options => options.ServiceName = "OzLocks")
+            .AddScoped<IIikoService, IikoService, IikoOptions>(options => options.ServiceName = "Iiko")
             .AddScoped<ITelegramBotService, TelegramBotService, TelegramBotOptions>(options => options.ServiceName = "TelegramBot")
             .AddCacheMemory()
             .AddSingleton<ISocketConnectionFactory, SocketConnectionFactory>();

@@ -50,6 +50,14 @@ internal class ApplicationEventsBuilder(IApplicationServicesBuilder builder) :
                 options.TaskName = "LOCK";
                 options.HandlerName = "OPERA";
             })
+            .AddScheduleEvent<PaymentTransactionsScheduleHandler>(options =>
+            {
+                options.TaskName = "IIKO";
+                options.HandlerName = "Iiko Payment And Return Monitoring";
+            })
+            .AddEvent<PaymentTransactionsErrorHandler, PaymentTransactionsError>(options => options.HandlerName = "IIKO")
+            .AddEvent<IikoPostingSimpleHandler, IikoPostings>(options => options.HandlerName = "FIAS_SIMPLE")
+            .AddEvent<IikoPostingErrorHandler, List<IikoPostingError>>(options => options.HandlerName = "IIKO")
             .AddEvent<FiasPostingSimpleHandler, FiasPostSimple>(options => options.HandlerName = "FIAS_SIMPLE")
             .AddEvent<FiasPostingRequestHandler, FiasPostRequest>(options => options.HandlerName = "FIAS_REQUEST")
             .AddEvent<ReservationHandler, ReservationInfo>(options => options.HandlerName = "OPERA")

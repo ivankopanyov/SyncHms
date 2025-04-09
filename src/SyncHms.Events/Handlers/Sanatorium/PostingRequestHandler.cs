@@ -50,13 +50,13 @@ internal class PostingRequestHandler(ISanatoriumService sanatoriumService) : Han
                 if (@in.IsRoomPosting())
                 {
                     context.SetTaskName("ROOM_POST");
-                    var roomNumberRequest = @in.ToRoomNumberRequest(taxCodes);
+                    var roomNumberRequest = @in.ToRoomNumberRequest(taxCodes, sanatoriumService.SalesOutlet);
                     message = roomNumberRequest;
                     context.Send(roomNumberRequest);
                 }
                 else
                 {
-                    var fiasPostSimple = @in.ToFiasPostSimple(taxCodes);
+                    var fiasPostSimple = @in.ToFiasPostSimple(taxCodes, sanatoriumService.SalesOutlet);
                     message = fiasPostSimple;
                     context.Send(fiasPostSimple);
                 }

@@ -4,7 +4,8 @@ namespace SyncHms.Events.Infrastructure;
 /// <param name="check">Чек.</param>
 /// <param name="date">Дата.</param>
 /// <param name="discount">Скидка.</param>
-internal readonly struct CheckItems(string check, string date, string discount)
+/// <param name="increase">Наценка.</param>
+public readonly struct CheckItems(string check, string date, string discount, string increase)
 {
     /// <summary>Чек.</summary>
     public string Check { get; } = check;
@@ -14,4 +15,7 @@ internal readonly struct CheckItems(string check, string date, string discount)
 
     /// <summary>Скидка.</summary>
     public string Discount { get; } = discount;
+
+    /// <summary>Наценка.</summary>
+    public string Increase { get; } = increase;
 }

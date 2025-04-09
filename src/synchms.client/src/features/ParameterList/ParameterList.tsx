@@ -177,6 +177,7 @@ export const ParameterList: FC<Readonly<ParameterListProps>> = ({
                             disabled={disabled}
                             fullWidth
                             multiline
+                            maxRows={!editMode ? 5 : undefined}
                         />
                     </div>)
             }

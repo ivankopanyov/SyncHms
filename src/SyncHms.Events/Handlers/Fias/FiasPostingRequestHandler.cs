@@ -27,6 +27,7 @@ internal class FiasPostingRequestHandler(IFiasService fiasService) : Handler<Fia
                 PmsPaymentMethod = @in.TransactionCode,
                 TotalPostingAmount = total,
                 ProfileNumber = @in.ProfileNumber,
+                SalesOutlet = @in.SalesOutlet,
                 RoomNumber = @in.Room,
                 CheckNumber = @in.CheckNumber,
                 Subtotals = subtotals.Select(s => (decimal?)s).ToArray()

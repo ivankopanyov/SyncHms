@@ -9,8 +9,8 @@ internal class CheckDetails : PostingBase
     /// <summary>Коллекция элементов чека с кодами локализации.</summary>
     private static readonly IReadOnlyDictionary<int, CheckItems> CheckItems = new Dictionary<int, CheckItems>
     {
-        { CultureInfo.InvariantCulture.LCID, new CheckItems("CHECK", "DATE", "Discount") },
-        { new CultureInfo("ru-RU").LCID, new CheckItems("ЧЕК", "ДАТА", "Скидка") }
+        { CultureInfo.InvariantCulture.LCID, new CheckItems("CHECK", "DATE", "Discount", "Increase") },
+        { new CultureInfo("ru-RU").LCID, new CheckItems("ЧЕК", "ДАТА", "Скидка", "Наценка") }
     };
 
     /// <summary>

@@ -52,7 +52,7 @@ public class PaymentTransaction
 
     public override string ToString()
     {
-        return $"CheckNumber: {OrderNumber}, Date: {CloseDateTime:yyyy-MM-dd HH:mm:s}, Section: {RestaurantSectionName}"
+        return $"CheckNumber: {OrderNumber}, Date: {CloseDateTime:yyyy-MM-dd HH:mm:ss}, Section: {RestaurantSectionName}"
                + $"\nPosition: {DishName}, Category: {DishCategoryName}, PayType: {PayTypeName}"
                + $"\nSum: {DishSumInt + DishReturnSum}, Discount: {DiscountSum}, Increase: {IncreaseSum}";
     }

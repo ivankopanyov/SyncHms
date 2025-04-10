@@ -1,7 +1,7 @@
 import { useState, FC, useEffect } from 'react';
 import { Accordion } from '@mui/material';
 import { CreditCardOutlined, CreditCardOffOutlined, ShoppingCartCheckoutOutlined, RemoveShoppingCartOutlined,
-    Person, PersonOff, Sync, SyncDisabled, Lock, NoEncryption, Done, DoneOutline } from '@mui/icons-material'
+    Person, PersonOff, Sync, SyncDisabled, Lock, NoEncryption, Done, DoneOutline, Fastfood, NoFood } from '@mui/icons-material'
 import { TaskInfo } from '../LogList/data';
 import { getTask } from '../LogList/LogListStore';
 import { AccordionBody, AccordionHeader, Text, Loading } from '../../components';
@@ -59,7 +59,10 @@ const Task: FC<Readonly<TaskProps>> = ({ task }) => {
                                     : <ShoppingCartCheckoutOutlined className={style} />,
                                 'LOCK': failed
                                     ? <NoEncryption className={style} />
-                                    : <Lock className={style} />
+                                    : <Lock className={style} />,
+                                'IIKO': failed
+                                    ? <NoFood className={style} />
+                                    : <Fastfood className={style} />
                             } [task.logs[0].taskName ?? ''] || (failed
                                 ? <SyncDisabled className={style} />
                                 : <Sync className={style} />)

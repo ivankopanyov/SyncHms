@@ -217,7 +217,7 @@ public class IikoPaymentTransaction
                 total -= item.DiscountSum;
             else
                 AddPosting(postings, postingErrors, categories, operaPayType, salesOutlet, discountName,
-                    item.DiscountSum, "Discount category name", item);
+                    -item.DiscountSum, "Discount category name", item);
             
             if (increaseName == null)
                 total += item.IncreaseSum;

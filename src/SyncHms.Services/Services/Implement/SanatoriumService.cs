@@ -24,8 +24,9 @@ internal class SanatoriumService : ISanatoriumService
 
     private CancellationToken _cancellationToken;
 
-    /// <summary>Номер точки продаж <c>Sanatorium</c> в интерфейсе <c>Fias</c></summary>
-    public int SalesOutlet => _control.Options.SalesOutlet;
+    public int RoomSalesOutlet => _control.Options.RoomSalesOutlet;
+
+    public int PaymentSalesOutlet => _control.Options.PaymentSalesOutlet;
 
     /// <summary>Экземпляр окружения.</summary>
     public ApplicationEnvironment Environment => _control.Environment;

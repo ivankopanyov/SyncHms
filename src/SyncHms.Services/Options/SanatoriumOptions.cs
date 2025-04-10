@@ -22,8 +22,12 @@ public class SanatoriumOptions
     public string Endpoint { get; set; } = string.Empty;
 
     /// <summary>Номер точки продаж <c>Sanatorium</c> в интерфейсе <c>Fias</c></summary>
-    [Description("Номер точки продаж Sanatorium в интерфейсе Fias.")]
-    public int SalesOutlet { get; set; }
+    [Description("Номер точки продаж начисления на комнату из Sanatorium в интерфейсе Fias.")]
+    public int RoomSalesOutlet { get; set; }
+
+    /// <summary>Номер точки продаж <c>Sanatorium</c> в интерфейсе <c>Fias</c></summary>
+    [Description("Номер точки продаж платежного начисления из Sanatorium в интерфейсе Fias.")]
+    public int PaymentSalesOutlet { get; set; }
 
     /// <summary>Тело лицензии библиотеки <c>NServiceBus</c></summary>
     [Required(AllowEmptyStrings = true)]

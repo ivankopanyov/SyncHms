@@ -11,8 +11,9 @@ public delegate void PostingRequestHandle(PostTransactionsRequest message);
 /// </summary>
 public interface ISanatoriumService : IService<SanatoriumOptions, ApplicationEnvironment>
 {
-    /// <summary>Номер точки продаж <c>Sanatorium</c> в интерфейсе <c>Fias</c></summary>
-    int SalesOutlet { get; }
+    int RoomSalesOutlet { get; }
+
+    int PaymentSalesOutlet { get; }
 
     /// <summary>
     /// Событие, вызываемое при получении сервисом сообщения типа <see cref="PostingRequestEvent"/>,

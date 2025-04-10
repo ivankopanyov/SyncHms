@@ -21,17 +21,26 @@ public class IikoOptions
     [Required(AllowEmptyStrings = true)]
     [Description("Sha1 hash от пароля пользователя IIKO.")]
     public string PasswordHash { get; set; } = string.Empty;
+
+    [Required(AllowEmptyStrings = true)]
+    [Description("Имя категории, к которой будут относится скидки. Если значение не установлено, то скидка будет вычтена из стоимости.")]
+    public string DiscountCategoryName { get; set; } = string.Empty;
     
+    [Required(AllowEmptyStrings = true)]
+    [Description("Имя категории, к которой будут относится наценки. Если значение не установлено, то наценка будет прибавлена к стоимости.")]
+    public string IncreaseCategoryName { get; set; } = string.Empty;
+
     [Required]
     [Description("Соответствие типов оплат IIKO и OPERA.")]
     public Dictionary<string, string> PaymentTypes { get; set; } = [];
 
     [Required]
-    [JsonType<IikoConfiguration>(ErrorMessage = "Некорректный формат конфигураций.")]
-    public string ConfigurationJson { get; set; } = JsonConvert.SerializeObject(new RouteConfiguration());
+    [Description("Соответствие точки продаж IIKO и FIAS.")]
+    public Dictionary<string, int> SalesOutlet { get; set; } = [];
 
-    [Newtonsoft.Json.JsonIgnore]
-    public IikoConfiguration RouteConfiguration => JsonConvert.DeserializeObject<IikoConfiguration>(ConfigurationJson)!;
+    [Required, MaxLength(10)]
+    [Description("Список категорий товаров IIKO в порядке кодов оплат в интерфейсе FIAS. Максимум 10 позиций.")]
+    public List<string> Categories { get; set; } = [];
 
     public override int GetHashCode() => HashCode.Combine(Url, Login, PasswordHash);
 

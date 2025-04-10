@@ -6,9 +6,15 @@ namespace SyncHms.Services;
 /// </summary>
 public interface IIikoService : IService<IikoOptions, ApplicationEnvironment>
 {
-    IReadOnlyDictionary<string, string> PayTypes { get; }
+    string? DiscountCategoryName { get; }
+    
+    string? IncreaseCategoryName { get; }
 
-    IikoConfiguration RouteConfiguration { get; }
+    IReadOnlyDictionary<string, string> PaymentTypes { get; }
+
+    IReadOnlyDictionary<string, int> SalesOutlet { get; }
+
+    IReadOnlyList<string> Categories { get; }
 
     Task<string> LoginAsync();
 

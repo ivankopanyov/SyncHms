@@ -189,7 +189,8 @@ public class IikoPaymentTransaction
         return stringBuilder.ToString();
     }
 
-    public IikoPostings GetPostings(IikoConfiguration config, IReadOnlyDictionary<string, string> payTypes)
+    public IikoPostings GetPostings(IReadOnlyDictionary<string, string> payTypes, IReadOnlyDictionary<string, int> restaurantSections,
+        IReadOnlyList<string> categories, string? discountName, string? increaseName)
     {
         Dictionary<string, Dictionary<int, decimal[]>> postings = [];
         List<IikoPostingError> postingErrors = [];
@@ -199,38 +200,34 @@ public class IikoPaymentTransaction
             if (!payTypes.TryGetValue(item.PayTypeName, out var operaPayType))
                 continue;
 
-            if (config.RestaurantSections?.FirstOrDefault(rs => rs.Name == item.RestaurantSectionName) is not { } restaurantSection)
+            if (!restaurantSections.TryGetValue(item.RestaurantSectionName, out var salesOutlet))
             {
                 postingErrors.Add(new IikoPostingError
                 {
-                    Message = $"Restaurant section name \"{item.RestaurantSectionName}\" not found in configuration.",
+                    Message = $"Restaurant section name \"{item.RestaurantSectionName}\" not found in restaurant sections list.",
                     PaymentTransaction = item
                 });
                 
                 continue;
             }
 
-            if (restaurantSection.DishCategories?.FirstOrDefault(dc => dc.Name == item.DishCategoryName) is not { } dishCategory)
-            {
-                postingErrors.Add(new IikoPostingError
-                {
-                    Message = $"Dish category name \"{item.DishCategoryName}\" not found in configuration.",
-                    PaymentTransaction = item
-                });
-                
-                continue;
-            }
+            var total = item.DishSumInt + item.DishReturnSum;
             
-            AddPosting(item, operaPayType, item.DishSumInt + item.DishReturnSum, postings, postingErrors, "Sum",
-                config.TotalRoute,restaurantSection.TotalRoute, dishCategory.TotalRoute);
+            if (discountName == null)
+                total -= item.DiscountSum;
+            else
+                AddPosting(postings, postingErrors, categories, operaPayType, salesOutlet, discountName,
+                    item.DiscountSum, "Discount category name", item);
             
-            if (item.DiscountSum != 0)
-                AddPosting(item, operaPayType, item.DiscountSum, postings, postingErrors, "Discount", config.DiscountRoute,
-                    restaurantSection.DiscountRoute, dishCategory.DiscountRoute);
-            
-            if (item.IncreaseSum != 0)
-                AddPosting(item, operaPayType, item.IncreaseSum, postings, postingErrors, "Increase", config.IncreaseRoute,
-                    restaurantSection.IncreaseRoute, dishCategory.IncreaseRoute);
+            if (increaseName == null)
+                total += item.IncreaseSum;
+            else
+                AddPosting(postings, postingErrors, categories, operaPayType, salesOutlet, increaseName,
+                    item.IncreaseSum, "Increase category name", item);
+
+            var categoryName = item.DishCategoryName ?? string.Empty;
+            AddPosting(postings, postingErrors, categories, operaPayType, salesOutlet, categoryName,
+                total, "Category name", item);
         }
         
         var iikoPostings = new IikoPostings
@@ -254,6 +251,51 @@ public class IikoPaymentTransaction
         }
 
         return iikoPostings;
+    }
+
+    private static void AddPosting(Dictionary<string, Dictionary<int, decimal[]>> postings, List<IikoPostingError> postingErrors,
+        IReadOnlyList<string> categories, string operaPayType, int salesOutlet, string categoryName, decimal sum,
+        string categoryFieldName, PaymentTransaction paymentTransaction)
+    {
+        var transactionCodeIndex = GetTransactionCodeIndex(categories, categoryName);
+        if (transactionCodeIndex is >= 0 and < 10)
+        {
+            if (sum == 0)
+                return;
+            
+            if (!postings.TryGetValue(operaPayType, out var salesOutlets))
+            {
+                salesOutlets = [];
+                postings.Add(operaPayType, salesOutlets);
+            }
+                
+            if (!salesOutlets.TryGetValue(salesOutlet, out var transactionCodes))
+            {
+                transactionCodes = new decimal[10];
+                salesOutlets.Add(salesOutlet, transactionCodes);
+            }
+
+            transactionCodes[transactionCodeIndex] += sum * 100;
+        }
+        else
+        {
+            postingErrors.Add(new IikoPostingError
+            {
+                Message = $"{categoryFieldName} \"{categoryName}\" not found in categories list.",
+                PaymentTransaction = paymentTransaction
+            });
+        }
+    }
+
+    private static int GetTransactionCodeIndex(IReadOnlyList<string> categories, string categoryName)
+    {
+        for (var i = 0; i < Math.Max(10, categories.Count); i++)
+        {
+            if (categories[i] == categoryName)
+                return i;
+        }
+
+        return -1;
     }
 
     private static void AddRowItem(StringBuilder stringBuilder, string amount, List<string> item, string total, string discount,
@@ -287,72 +329,6 @@ public class IikoPaymentTransaction
                 .Append(rowName.PadLeft(amountMax + rowName.Length + 1).PadRight(itemNameLength + amountMax + 2))
                 .Append(rowValue.PadLeft(totalMax))
                 .Append('\n');
-        }
-    }
-
-    private static void AddPosting(PaymentTransaction paymentTransaction, string operaPayType, decimal sum,
-        Dictionary<string, Dictionary<int, decimal[]>> postings, List<IikoPostingError> postingErrors,
-        string postingName, params int?[]?[] sourceRoutes)
-    {
-        int?[] route = [null, null];
-
-        foreach (var sourceRoute in sourceRoutes)
-        {
-            if (sourceRoute == null)
-                continue;
-            
-            for (var i = 0; i < Math.Min(sourceRoute.Length, route.Length); i++)
-                if (sourceRoute[i] != null)
-                    route[i] = sourceRoute[i];
-        }
-        
-        if (route[0] is { } salesOutletNumber)
-        {
-            if (route[1] is { } transactionCodeIndex)
-            {
-                if (transactionCodeIndex is >= 1 and <= 10)
-                {
-                    transactionCodeIndex--;
-                        
-                    if (!postings.TryGetValue(operaPayType, out var salesOutlet))
-                    {
-                        salesOutlet = [];
-                        postings.Add(operaPayType, salesOutlet);
-                    }
-
-                    if (!salesOutlet.TryGetValue(salesOutletNumber, out var transactionCodes))
-                    {
-                        transactionCodes = new decimal[10];
-                        salesOutlet.Add(salesOutletNumber, transactionCodes);
-                    }
-
-                    transactionCodes[transactionCodeIndex] += sum * 100;
-                }
-                else
-                {
-                    postingErrors.Add(new IikoPostingError
-                    {
-                        Message = $"{postingName} post failed. Transaction code index \"{transactionCodeIndex}\" out of range bounds [1..10].",
-                        PaymentTransaction = paymentTransaction
-                    });
-                }
-            }
-            else
-            {
-                postingErrors.Add(new IikoPostingError
-                {
-                    Message = $"{postingName} post failed. Transaction code index route not found.",
-                    PaymentTransaction = paymentTransaction
-                });
-            }
-        }
-        else
-        {
-            postingErrors.Add(new IikoPostingError
-            {
-                Message = $"{postingName} post failed. Sales outlet number route not found.",
-                PaymentTransaction = paymentTransaction
-            });
         }
     }
 }

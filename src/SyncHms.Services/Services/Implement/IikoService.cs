@@ -7,9 +7,19 @@ namespace SyncHms.Services.Services.Implement;
 /// <param name="control">Экземпляр контроллера, управляющего состоянием сервиса.</param>
 internal class IikoService(IControl<IikoOptions, ApplicationEnvironment> control) : IIikoService
 {
-    public IReadOnlyDictionary<string, string> PayTypes => control.Options.PaymentTypes;
+    public string? DiscountCategoryName => !string.IsNullOrWhiteSpace(control.Options.DiscountCategoryName)
+        ? control.Options.DiscountCategoryName
+        : null;
+    
+    public string? IncreaseCategoryName => !string.IsNullOrWhiteSpace(control.Options.IncreaseCategoryName)
+        ? control.Options.IncreaseCategoryName
+        : null;
 
-    public IikoConfiguration RouteConfiguration => control.Options.RouteConfiguration;
+    public IReadOnlyDictionary<string, string> PaymentTypes => control.Options.PaymentTypes;
+
+    public IReadOnlyDictionary<string, int> SalesOutlet => control.Options.SalesOutlet;
+
+    public IReadOnlyList<string> Categories => control.Options.Categories;
     
     /// <summary>Экземпляр окружения.</summary>
     public ApplicationEnvironment Environment => control.Environment;

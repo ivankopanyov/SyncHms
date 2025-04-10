@@ -64,7 +64,9 @@ public class PaymentTransactionsScheduleHandler(IIikoService iikoService) : Sche
                         Items = transaction.ToList()
                     };
 
-                    var postings = iikoPaymentTransaction.GetPostings(iikoService.RouteConfiguration, iikoService.PayTypes);
+                    var postings = iikoPaymentTransaction.GetPostings(iikoService.PaymentTypes, iikoService.SalesOutlet,
+                        iikoService.Categories, iikoService.DiscountCategoryName, iikoService.IncreaseCategoryName);
+                    
                     if (postings.Queue.Count > 0)
                     {
                         postings.Current = postings.Queue.First();

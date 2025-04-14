@@ -48,34 +48,35 @@ public class IikoPaymentTransaction
                 DishName = g.FirstOrDefault()?.DishName ?? string.Empty,
                 DishAmountInt = g.Select(i => i.DishAmountInt).Sum(),
                 DishSumInt = g.Select(i => i.DishSumInt + i.DishReturnSum).Sum(),
-                DiscountSum = g.Select(i => i.DiscountSum).Sum(),
+                DiscountSum = g.Select(i => -i.DiscountSum).Sum(),
                 IncreaseSum = g.Select(i => i.IncreaseSum).Sum()
             })
             .ToList();
 
         List<PaymentTransaction> totals = [];
         
-        var totalDiscount = Items.Select(i => i.DiscountSum).Sum();
-        if (totalDiscount != 0)
-            totals.Add(new PaymentTransaction
-            {
-                DishName = checkItems.Discount,
-                DishSumInt = Items.Select(i => i.DiscountSum).Sum()
-            });
-        
+        var totalDiscount = Items.Select(i => -i.DiscountSum).Sum();
         var totalIncrease = Items.Select(i => i.IncreaseSum).Sum();
-        if (totalIncrease != 0)
-            totals.Add(new PaymentTransaction
-            {
-                DishName = checkItems.Increase,
-                DishSumInt = Items.Select(i => i.IncreaseSum).Sum()
-            });
         
-        if (totals.Count > 0)
+        if (totalDiscount != 0 || totalIncrease != 0)
             totals.Add(new PaymentTransaction
             {
                 DishName = string.Empty,
                 DishSumInt = Items.Select(i => i.DishSumInt + i.DishReturnSum).Sum()
+            });
+        
+        if (totalDiscount != 0)
+            totals.Add(new PaymentTransaction
+            {
+                DishName = checkItems.Discount,
+                DishSumInt = totalDiscount
+            });
+        
+        if (totalIncrease != 0)
+            totals.Add(new PaymentTransaction
+            {
+                DishName = checkItems.Increase,
+                DishSumInt = totalIncrease
             });
         
         var payTypeTotals = Items

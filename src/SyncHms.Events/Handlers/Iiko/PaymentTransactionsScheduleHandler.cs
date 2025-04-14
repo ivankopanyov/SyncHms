@@ -27,7 +27,8 @@ public class PaymentTransactionsScheduleHandler(IIikoService iikoService) : Sche
                 var tomorrow = today.AddDays(1);
                 
                 var paymentTransactions = await iikoService.GetPaymentTransactionsAsync(token, yesterday, tomorrow,
-                    new DateTimeRangeFilter("CloseTime", context.Previous, context.Current)
+                    new DateTimeRangeFilter("CloseTime", context.Previous.AddSeconds(-iikoService.TimeShiftSeconds),
+                        context.Current.AddSeconds(-iikoService.TimeShiftSeconds))
                 );
 
                 var orderReturned = await iikoService.GetOrderReturnedAsync(token, context.Previous, context.Current);

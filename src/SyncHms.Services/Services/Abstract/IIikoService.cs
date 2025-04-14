@@ -6,6 +6,8 @@ namespace SyncHms.Services;
 /// </summary>
 public interface IIikoService : IService<IikoOptions, ApplicationEnvironment>
 {
+    int TimeShiftSeconds { get; }
+    
     string? DiscountCategoryName { get; }
     
     string? IncreaseCategoryName { get; }

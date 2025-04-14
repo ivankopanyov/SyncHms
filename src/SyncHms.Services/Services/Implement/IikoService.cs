@@ -7,6 +7,8 @@ namespace SyncHms.Services.Services.Implement;
 /// <param name="control">Экземпляр контроллера, управляющего состоянием сервиса.</param>
 internal class IikoService(IControl<IikoOptions, ApplicationEnvironment> control) : IIikoService
 {
+    public int TimeShiftSeconds => control.Options.TimeShiftSeconds;
+    
     public string? DiscountCategoryName => !string.IsNullOrWhiteSpace(control.Options.DiscountCategoryName)
         ? control.Options.DiscountCategoryName
         : null;

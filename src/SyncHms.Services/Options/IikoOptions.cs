@@ -21,6 +21,10 @@ public class IikoOptions
     [Required(AllowEmptyStrings = true)]
     [Description("Sha1 hash от пароля пользователя IIKO.")]
     public string PasswordHash { get; set; } = string.Empty;
+    
+    [Required, Range(0, int.MaxValue)]
+    [Description("Временной сдвиг назад в секундах для опроса IIKO Server. Для случаев задержки при закрытии чеков.")]
+    public int TimeShiftSeconds{ get; set; }
 
     [Required(AllowEmptyStrings = true)]
     [Description("Имя категории, к которой будут относится скидки. Если значение не установлено, то скидка будет вычтена из стоимости.")]

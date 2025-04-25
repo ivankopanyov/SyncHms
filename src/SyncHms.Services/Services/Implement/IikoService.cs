@@ -134,7 +134,7 @@ internal class IikoService(IControl<IikoOptions, ApplicationEnvironment> control
         }
     }
     
-    public async Task<HashSet<long>> GetOrderReturnedAsync(string token, DateTime fromInclude, DateTime toExclude)
+    public async Task<HashSet<OrderReturn>> GetOrderReturnedAsync(string token, DateTime fromInclude, DateTime toExclude)
     {
         try
         {
@@ -174,8 +174,13 @@ internal class IikoService(IControl<IikoOptions, ApplicationEnvironment> control
             return responseSerializer.Deserialize(reader) is IikoEventList eventList
                 ? eventList.Events
                     .Select(e => decimal.TryParse(e.Attributes.FirstOrDefault(a => a.Name == "orderNum")?.Value, numberFormatInfo, out var orderNum)
-                        ? (long?)orderNum : -1)
-                    .OfType<long>()
+                        ? new OrderReturn
+                        {
+                            CheckNumber = (long)orderNum,
+                            DateTime = e.Date
+                        }
+                        : null)
+                    .OfType<OrderReturn>()
                     .ToHashSet()
                 : throw new JsonSerializationException("Response is null");
         }

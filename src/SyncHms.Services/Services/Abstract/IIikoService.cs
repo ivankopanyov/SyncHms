@@ -28,5 +28,5 @@ public interface IIikoService : IService<IikoOptions, ApplicationEnvironment>
         DateOnly toExclude,
         params OlapReportFilter[] filters);
 
-    Task<HashSet<long>> GetOrderReturnedAsync(string token, DateTime fromInclude, DateTime toExclude);
+    Task<HashSet<OrderReturn>> GetOrderReturnedAsync(string token, DateTime fromInclude, DateTime toExclude);
 }

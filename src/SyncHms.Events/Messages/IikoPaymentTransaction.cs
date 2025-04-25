@@ -47,7 +47,7 @@ public class IikoPaymentTransaction
             {
                 DishName = g.FirstOrDefault()?.DishName ?? string.Empty,
                 DishAmountInt = g.Select(i => i.DishAmountInt).Sum(),
-                DishSumInt = g.Select(i => i.DishSumInt + i.DishReturnSum).Sum(),
+                DishSumInt = g.Select(i => i.DishSumInt).Sum(),
                 DiscountSum = g.Select(i => -i.DiscountSum).Sum(),
                 IncreaseSum = g.Select(i => i.IncreaseSum).Sum()
             })
@@ -62,7 +62,7 @@ public class IikoPaymentTransaction
             totals.Add(new PaymentTransaction
             {
                 DishName = string.Empty,
-                DishSumInt = Items.Select(i => i.DishSumInt + i.DishReturnSum).Sum()
+                DishSumInt = Items.Select(i => i.DishSumInt).Sum()
             });
         
         if (totalDiscount != 0)
@@ -84,7 +84,7 @@ public class IikoPaymentTransaction
             .Select(g => new PaymentTransaction
             {
                 DishName = g.FirstOrDefault()?.PayTypeName ?? string.Empty,
-                DishSumInt = g.Select(i => i.DishSumInt - i.DiscountSum + i.IncreaseSum + i.DishReturnSum).Sum()
+                DishSumInt = g.Select(i => i.DishSumInt - i.DiscountSum + i.IncreaseSum).Sum()
             })
             .ToList();
         
@@ -92,7 +92,7 @@ public class IikoPaymentTransaction
             payTypeTotals.Add(new PaymentTransaction
             {
                 DishName = string.Empty,
-                DishSumInt = Items.Select(i => i.DishSumInt - i.DiscountSum + i.IncreaseSum + i.DishReturnSum).Sum()
+                DishSumInt = Items.Select(i => i.DishSumInt - i.DiscountSum + i.IncreaseSum).Sum()
             });
 
         List<PaymentTransaction> rows = [];
@@ -212,7 +212,7 @@ public class IikoPaymentTransaction
                 continue;
             }
 
-            var total = item.DishSumInt + item.DishReturnSum;
+            var total = item.DishSumInt;
             
             if (discountName == null)
                 total -= item.DiscountSum;

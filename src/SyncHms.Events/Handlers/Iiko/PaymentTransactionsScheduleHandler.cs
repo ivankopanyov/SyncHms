@@ -25,20 +25,19 @@ public class PaymentTransactionsScheduleHandler(IIikoService iikoService) : Sche
                 var today = DateOnly.FromDateTime(DateTime.Now);
                 var yesterday = today.AddDays(-1);
                 var tomorrow = today.AddDays(1);
+                var previous = context.Previous.AddSeconds(-iikoService.TimeShiftSeconds);
+                var current = context.Current.AddSeconds(-iikoService.TimeShiftSeconds);
                 
                 var paymentTransactions = await iikoService.GetPaymentTransactionsAsync(token, yesterday, tomorrow,
-                    new DateTimeRangeFilter("CloseTime", context.Previous.AddSeconds(-iikoService.TimeShiftSeconds),
-                        context.Current.AddSeconds(-iikoService.TimeShiftSeconds))
-                );
+                    new DateTimeRangeFilter("CloseTime", previous, current));
 
-                var orderReturned = await iikoService.GetOrderReturnedAsync(token, context.Previous, context.Current);
+                var orderReturned = await iikoService.GetOrderReturnedAsync(token, previous, current);
                 
                 IEnumerable<List<PaymentTransaction>> orders = [];
                 if (orderReturned.Count > 0)
                 {
                     var returnOrders = await iikoService.GetPaymentTransactionsAsync(token, yesterday, tomorrow,
-                        new ValuesFilter<long>("OrderNum", orderReturned.Select(o => o).ToArray())
-                    );
+                        new ValuesFilter<long>("OrderNum", orderReturned.Select(o => o.CheckNumber).ToArray()));
 
                     orders = returnOrders
                         .Where(p => p.DishSumInt < 0)
@@ -69,7 +68,10 @@ public class PaymentTransactionsScheduleHandler(IIikoService iikoService) : Sche
                     var iikoPaymentTransaction = new IikoPaymentTransaction
                     {
                         CheckNumber = transactionItem.OrderNumber.ToString(),
-                        CloseDateTime = transactionItem.CloseDateTime,
+                        CloseDateTime = transactionItem.DishSumInt < 0 &&
+                            orderReturned.FirstOrDefault(i => i.CheckNumber == transactionItem.OrderNumber) is { } orderReturn
+                            ? orderReturn.DateTime
+                            : transactionItem.CloseDateTime,
                         Items = transaction.ToList()
                     };
 

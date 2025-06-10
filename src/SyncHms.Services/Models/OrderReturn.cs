@@ -6,6 +6,8 @@ public class OrderReturn
 
     public DateTime DateTime { get; set; }
 
+    public long? NewCheckNumber { get; set; }
+
     public override int GetHashCode() => CheckNumber.GetHashCode();
 
     public override bool Equals(object? obj)

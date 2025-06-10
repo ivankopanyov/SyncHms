@@ -34,11 +34,12 @@ internal class FiscalService(IControl<MicrosOptions, ApplicationEnvironment> con
     public async Task<int> SetCheckAsync(FiscalCheck fiscalCheck)
     {
         await Semaphore.WaitAsync();
+        var client = Client;
 
         try
         {
             var cknumQuery = $"SELECT cknum FROM Checks WHERE rvc = {Environment.Rvc} ORDER BY date DESC LIMIT 1";
-            var cknumResponse = await Client.ExecuteReaderAsync(cknumQuery);
+            var cknumResponse = await client.ExecuteReaderAsync(cknumQuery);
             var cknum = int.TryParse(cknumResponse.ExecuteReaderResult?.Any1?.InnerText, out var num) ? num : 0;
             fiscalCheck.cknum = cknum <= 0 || ++cknum >= 10000 ? 1 : cknum;
 
@@ -78,7 +79,15 @@ internal class FiscalService(IControl<MicrosOptions, ApplicationEnvironment> con
         }
         catch (Exception ex)
         {
-            control.Unactive(ex);
+            try
+            {
+                await client.GetCheckAsync(new Request());
+            }
+            catch
+            {
+                control.Unactive(ex);
+            }
+
             throw;
         }
         finally

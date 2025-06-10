@@ -34,9 +34,11 @@ internal class IikoService(IControl<IikoOptions, ApplicationEnvironment> control
             using var client = new HttpClient();
             using var response = await client.GetAsync(uri);
             var text = await response.Content.ReadAsStringAsync();
-            return response.IsSuccessStatusCode
-                ? text
-                : throw new HttpRequestException(text, null, response.StatusCode);
+            if (!response.IsSuccessStatusCode)
+                throw new HttpRequestException(text, null, response.StatusCode);
+
+            control.Active();
+            return text;
         }
         catch (Exception ex)
         {
@@ -55,6 +57,8 @@ internal class IikoService(IControl<IikoOptions, ApplicationEnvironment> control
             var text = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
                 throw new HttpRequestException(text, null, response.StatusCode);
+
+            control.Active();
         }
         catch (Exception ex)
         {
@@ -124,8 +128,11 @@ internal class IikoService(IControl<IikoOptions, ApplicationEnvironment> control
 
             await using var responseStream = await response.Content.ReadAsStreamAsync();
             var jsonMessage = await new StreamReader(responseStream).ReadToEndAsync();
-            return JsonConvert.DeserializeObject<PaymentTransactionRange>(jsonMessage)?.Data
-                ?? throw new JsonSerializationException("Response is null");
+            if (JsonConvert.DeserializeObject<PaymentTransactionRange>(jsonMessage)?.Data is not { } payments)
+                throw new JsonSerializationException("Response is null");
+
+            control.Active();
+            return payments;
         }
         catch (Exception ex)
         {
@@ -170,9 +177,12 @@ internal class IikoService(IControl<IikoOptions, ApplicationEnvironment> control
             {
                 NumberDecimalSeparator = "."
             };
+
+            if (responseSerializer.Deserialize(reader) is not IikoEventList eventList)
+                throw new JsonSerializationException("Response is null");
             
-            return responseSerializer.Deserialize(reader) is IikoEventList eventList
-                ? eventList.Events
+            control.Active();
+            return eventList.Events
                     .Select(e => decimal.TryParse(e.Attributes.FirstOrDefault(a => a.Name == "orderNum")?.Value, numberFormatInfo, out var orderNum)
                         ? new OrderReturn
                         {
@@ -183,8 +193,7 @@ internal class IikoService(IControl<IikoOptions, ApplicationEnvironment> control
                         }
                         : null)
                     .OfType<OrderReturn>()
-                    .ToHashSet()
-                : throw new JsonSerializationException("Response is null");
+                    .ToHashSet();
         }
         catch (Exception ex)
         {

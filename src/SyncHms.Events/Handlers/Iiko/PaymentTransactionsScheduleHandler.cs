@@ -43,6 +43,15 @@ public class PaymentTransactionsScheduleHandler(IIikoService iikoService) : Sche
                         .Where(p => p.DishSumInt < 0)
                         .GroupBy(p => p.OrderNumber)
                         .Select(g => g.ToList());
+
+                    var newPayments = await iikoService.GetPaymentTransactionsAsync(token, yesterday, tomorrow,
+                        new ValuesFilter<long>("OrderNum", orderReturned
+                            .Select(o => o.NewCheckNumber)
+                            .OfType<long>()
+                            .Where(cn => paymentTransactions.All(pt => pt.OrderNumber != cn))
+                            .ToArray()));
+
+                    paymentTransactions.AddRange(newPayments);
                 }
 
                 var payments = paymentTransactions

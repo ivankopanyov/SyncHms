@@ -177,7 +177,9 @@ internal class IikoService(IControl<IikoOptions, ApplicationEnvironment> control
                         ? new OrderReturn
                         {
                             CheckNumber = (long)orderNum,
-                            DateTime = e.Date
+                            DateTime = e.Date,
+                            NewCheckNumber = e.Attributes.FirstOrDefault(a => a.Name == "comment")?.Value is not { } comment ? null
+                                : long.TryParse(comment.Split()[0], out var newOrderNum) ? newOrderNum : null
                         }
                         : null)
                     .OfType<OrderReturn>()

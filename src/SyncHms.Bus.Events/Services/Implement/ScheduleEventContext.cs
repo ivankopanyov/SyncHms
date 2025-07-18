@@ -49,9 +49,6 @@ internal class ScheduleEventContext(IEventContext baseContext) : IScheduleEventC
     /// <summary>Дата и время текущей обработки события.</summary>
     public DateTime Current { get; init; }
 
-    /// <summary>Дата и время последней удачной обработки события.</summary>
-    public DateTime? LastSuccess { get; init; }
-
     /// <summary>Флаг, укзывающий, что нужно обновить идентификатор отправляемых сообщений.</summary>
     public bool UpdateTaskId
     {

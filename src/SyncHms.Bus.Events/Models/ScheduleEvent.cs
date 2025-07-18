@@ -17,4 +17,7 @@ public class ScheduleEvent
 
     /// <summary>Дата и время текущей обработки планируемого события.</summary>
     internal DateTime Current { get; init; }
+
+    /// <summary>Дата и время последней удачной обработки планируемого события.</summary>
+    internal DateTime? LastSuccess { get; init; }
 }

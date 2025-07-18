@@ -1,5 +1,5 @@
 import { useState, FC } from 'react';
-import { Accordion, CircularProgress } from '@mui/material';
+import { Accordion, CircularProgress, TextField } from '@mui/material';
 import { Alarm, AlarmOff } from '@mui/icons-material';
 import { useAppDispatch } from '../../redux/hooks';
 import { updateSchedule } from '../ScheduleList/ScheduleListStore';
@@ -7,6 +7,7 @@ import { ScheduleInfo } from '../ScheduleList/data';
 import { AccordionBody, AccordionHeader, Text } from '../../components';
 import { Parameters } from '../ParameterList/data';
 import ParameterList from '../ParameterList/ParameterList';
+import ParameterHeader from '../../components/ParameterHeader/ParameterHeader';
 import './Schedule.scss';
 
 interface ScheduleProps {
@@ -67,6 +68,15 @@ const Schedule: FC<Readonly<ScheduleProps>> = ({ schedule }) => {
                     setModifiedParameters={setModifiedParameters}
                     onSave={onSaveClick}
                 />
+                <div>
+                    <ParameterHeader name="Last Success" />
+                    <TextField
+                        value={schedule.lastSuccess ?? ''}
+                        disabled={true}
+                        fullWidth
+                        multiline
+                    />
+                </div>
             </AccordionBody>
         </Accordion>
     );

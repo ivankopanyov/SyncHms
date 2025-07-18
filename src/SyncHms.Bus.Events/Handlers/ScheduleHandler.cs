@@ -15,7 +15,8 @@ public abstract class ScheduleHandler : HandlerBase<ScheduleEvent>
         var eventContext = new ScheduleEventContext(context)
         {
             Previous = @in.Previous,
-            Current = @in.Current
+            Current = @in.Current,
+            LastSuccess = @in.LastSuccess
         };
 
         try

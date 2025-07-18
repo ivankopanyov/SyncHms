@@ -39,7 +39,8 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
             Destination = key.Name,
             EventScheduler = this,
             Previous = options.Last,
-            Current = now
+            Current = now,
+            LastSuccess = options.LastSuccess
         });
     }
 
@@ -77,6 +78,7 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
             options.Interval = interval;
             options.First = last;
             options.Last = last;
+            options.LastSuccess = null;
             await _scheduler.DeleteJob(options.Key);
             await RunScheduleAsync(options, notify);
         }
@@ -108,6 +110,9 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
 
         var last = options.Last;
         options.Last = current;
+        if (ex == null)
+            options.LastSuccess = current;
+
         await RunScheduleAsync(options, currentMessage != options.Message || last != current);
     }
 

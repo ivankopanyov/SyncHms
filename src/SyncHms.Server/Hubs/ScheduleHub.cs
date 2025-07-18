@@ -19,6 +19,7 @@ public class ScheduleHub(IEventScheduler eventScheduler, ILogger<ScheduleHub> lo
                 Description = s.Value.Description,
                 IntervalSeconds = (int)s.Value.Interval.TotalSeconds,
                 Last = s.Value.Last,
+                LastSuccess = s.Value.LastSuccess,
                 Message = s.Value.Message,
                 StackTrace = s.Value.StackTrace
             }).ToList(), logger);

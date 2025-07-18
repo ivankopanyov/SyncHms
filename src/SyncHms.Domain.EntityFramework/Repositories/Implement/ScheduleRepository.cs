@@ -47,6 +47,7 @@ internal class ScheduleRepository(IDomainContextFactory domainContextFactory) : 
                 current.IntervalSeconds = schedule.IntervalSeconds;
                 current.First = schedule.First;
                 current.Last = schedule.Last;
+                current.LastSuccess = schedule.LastSuccess;
             }
             else
             {

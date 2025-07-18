@@ -14,8 +14,11 @@ public class ScheduleOptions(string scheduleName, string? description = null)
     /// <summary>Дата и время первой обработки события после изменения опций.</summary>
     public DateTime First { get; internal set; }
 
-    /// <summary>Дата и время последней удачной обработки события.</summary>
+    /// <summary>Дата и время последней обработки события.</summary>
     public DateTime Last { get; internal set; } = DateTime.Now;
+
+    /// <summary>Дата и время последней удачной обработки события.</summary>
+    public DateTime? LastSuccess { get; internal set; } = DateTime.Now;
 
     /// <summary>Сообщение об ошибке.</summary>
     public string? Message { get; internal set; }

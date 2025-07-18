@@ -9,6 +9,7 @@ export interface Schedule {
     description?: string;
     intervalSeconds: number;
     last: string;
+    lastSuccess?: string;
     message?: string;
     stackTrace?: string;
 }
@@ -27,7 +28,7 @@ export const updateSchedule = createAsyncThunk('scheduleList/updateSchedule', as
 }) => await api.put(`/scheduler/${schedule.name}`, object(schedule.parameters)));
 
 const setSchedule = (state: ScheduleList, payload: Schedule) => {
-    const { name, description, intervalSeconds, last, message, stackTrace } = payload;
+    const { name, description, intervalSeconds, last, lastSuccess, message, stackTrace } = payload;
     const isRunning = intervalSeconds > 0;
     const schedule = state.schedules.find(s => s.name === name);
 
@@ -44,7 +45,8 @@ const setSchedule = (state: ScheduleList, payload: Schedule) => {
             isRunning: isRunning,
             loading: false,
             error: message,
-            stackTrace: stackTrace
+            stackTrace: stackTrace,
+            lastSuccess: lastSuccess
         });
     } else {
         schedule.description = description;
@@ -54,6 +56,7 @@ const setSchedule = (state: ScheduleList, payload: Schedule) => {
         schedule.error = message;
         schedule.stackTrace = stackTrace;
         schedule.updateError = undefined;
+        schedule.lastSuccess = lastSuccess;
     }
 };
 

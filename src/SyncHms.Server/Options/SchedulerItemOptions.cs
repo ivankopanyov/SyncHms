@@ -9,6 +9,9 @@ public class SchedulerItemOptions
     /// <summary>Интервал выполнения события в секундах.</summary>
     public int IntervalSeconds { get; set; }
 
-    /// <summary>Последняя успешная обработка события в секундах.</summary>
+    /// <summary>Последняя обработка события.</summary>
     public DateTime Last { get; set; } = DateTime.Now;
+
+    /// <summary>Последняя успешная обработка события.</summary>
+    public DateTime? LastSuccess { get; set; }
 }

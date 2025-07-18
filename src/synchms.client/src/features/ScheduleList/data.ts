@@ -9,6 +9,7 @@ export interface ScheduleInfo {
     error?: string;
     stackTrace?: string;
     updateError?: string;
+    lastSuccess?: string;
 }
 
 export interface ScheduleList {

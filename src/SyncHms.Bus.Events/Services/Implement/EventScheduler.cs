@@ -115,6 +115,8 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
         options.Last = current;
         if (ex == null)
             options.LastSuccess = current;
+        else
+            options.LastSuccess ??= last;
 
         await RunScheduleAsync(options, currentMessage != options.Message || last != current);
     }

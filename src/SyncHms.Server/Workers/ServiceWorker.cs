@@ -163,14 +163,14 @@ public class ServiceWorker : BackgroundService
 
                 await scheduleRepository.UpdateAsync(schedule);
                 await _eventScheduler.UpdateScheduleAsync(schedule.Name,
-                    TimeSpan.FromSeconds(schedule.IntervalSeconds), schedule.Last);
+                    TimeSpan.FromSeconds(schedule.IntervalSeconds), schedule.Last, schedule.LastSuccess);
             }
             else
             {
                 if (_schedulerOptions.Schedules?.FirstOrDefault(i => i.Name == s.Key) is { } scheduleOptions)
                 {
                     await _eventScheduler.UpdateScheduleAsync(scheduleOptions.Name,
-                        TimeSpan.FromSeconds(scheduleOptions.IntervalSeconds), scheduleOptions.Last);
+                        TimeSpan.FromSeconds(scheduleOptions.IntervalSeconds), scheduleOptions.Last, scheduleOptions.LastSuccess);
                     
                     schedule = new Schedule
                     {

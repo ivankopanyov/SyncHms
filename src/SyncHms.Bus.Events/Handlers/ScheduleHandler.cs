@@ -14,7 +14,7 @@ public abstract class ScheduleHandler : HandlerBase<ScheduleEvent>
         context.UpdateTaskId = true;
         var eventContext = new ScheduleEventContext(context)
         {
-            Previous = @in.Previous,
+            Previous = @in.LastSuccess ?? @in.Previous,
             Current = @in.Current
         };
 

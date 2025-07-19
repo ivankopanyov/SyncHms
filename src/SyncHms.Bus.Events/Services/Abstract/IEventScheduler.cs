@@ -25,12 +25,13 @@ public interface IEventScheduler : IJob
     /// Интервал обработки планируемого события.<br/>
     /// Если передан <c>0</c> - событие будет остановлено.
     /// </param>
-    /// <param name="last">Дата и время последней удачной обработки события.</param>
+    /// <param name="last">Дата и время последней обработки события.</param>
+    /// <param name="lastSuccess">Дата и время последней удачной обработки события.</param>
     /// <param name="notify">
     /// Флаг, указывающий, нужно ли вызывать событие <see cref="IEventScheduler.UpdateScheduleEvent"/>
     /// </param>
     /// <returns>Экземпляр обновленных опций планируемого события.</returns>
-    Task<ScheduleOptions> UpdateScheduleAsync(string scheduleName, TimeSpan interval, DateTime last, bool notify = false);
+    Task<ScheduleOptions> UpdateScheduleAsync(string scheduleName, TimeSpan interval, DateTime last, DateTime? lastSuccess = null, bool notify = false);
 
     /// <summary>Метод обновления опций планируемого события.</summary>
     /// <param name="scheduleName">Уникальное имя планируемого события.</param>

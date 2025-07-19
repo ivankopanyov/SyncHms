@@ -163,21 +163,22 @@ public class ServiceWorker : BackgroundService
 
                 await scheduleRepository.UpdateAsync(schedule);
                 await _eventScheduler.UpdateScheduleAsync(schedule.Name,
-                    TimeSpan.FromSeconds(schedule.IntervalSeconds), schedule.Last);
+                    TimeSpan.FromSeconds(schedule.IntervalSeconds), schedule.Last, schedule.LastSuccess);
             }
             else
             {
                 if (_schedulerOptions.Schedules?.FirstOrDefault(i => i.Name == s.Key) is { } scheduleOptions)
                 {
                     await _eventScheduler.UpdateScheduleAsync(scheduleOptions.Name,
-                        TimeSpan.FromSeconds(scheduleOptions.IntervalSeconds), scheduleOptions.Last);
+                        TimeSpan.FromSeconds(scheduleOptions.IntervalSeconds), scheduleOptions.Last, scheduleOptions.LastSuccess);
                     
                     schedule = new Schedule
                     {
                         Name = scheduleOptions.Name,
                         IntervalSeconds = scheduleOptions.IntervalSeconds,
                         First = scheduleOptions.Last,
-                        Last = scheduleOptions.Last
+                        Last = scheduleOptions.Last,
+                        LastSuccess = scheduleOptions.LastSuccess
                     };
                 }
                 else
@@ -187,7 +188,8 @@ public class ServiceWorker : BackgroundService
                         Name = s.Key,
                         IntervalSeconds = (int)s.Value.Interval.TotalSeconds,
                         First = s.Value.Last,
-                        Last = s.Value.Last
+                        Last = s.Value.Last,
+                        LastSuccess = s.Value.LastSuccess
                     };
                 }
 
@@ -217,7 +219,8 @@ public class ServiceWorker : BackgroundService
             Name = scheduleName,
             IntervalSeconds = (int)options.Interval.TotalSeconds,
             First = options.First,
-            Last = options.Last
+            Last = options.Last,
+            LastSuccess = options.LastSuccess
         };
 
         using var scope = _serviceScopeFactory.CreateScope();
@@ -231,6 +234,7 @@ public class ServiceWorker : BackgroundService
             Description = options.Description,
             IntervalSeconds = (int)options.Interval.TotalSeconds,
             Last = options.Last,
+            LastSuccess = options.LastSuccess,
             Message = options.Message,
             StackTrace = options.StackTrace
         }, _logger);

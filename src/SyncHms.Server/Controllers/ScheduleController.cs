@@ -32,6 +32,7 @@ public class ScheduleController(IEventScheduler eventScheduler) : ControllerBase
                 Description = result.Description,
                 IntervalSeconds = (int)result.Interval.TotalSeconds,
                 Last = result.Last,
+                LastSuccess = result.LastSuccess,
                 Message = result.Message,
                 StackTrace = result.StackTrace
             });

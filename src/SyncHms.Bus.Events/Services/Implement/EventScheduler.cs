@@ -39,7 +39,8 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
             Destination = key.Name,
             EventScheduler = this,
             Previous = options.Last,
-            Current = now
+            Current = now,
+            LastSuccess = options.LastSuccess
         });
     }
 
@@ -49,7 +50,8 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
     /// Интервал обработки планируемого события.<br/>
     /// Если передан <c>0</c> - событие будет остановлено.
     /// </param>
-    /// <param name="last">Дата и время последней удачной обработки события.</param>
+    /// <param name="last">Дата и время последней обработки события.</param>
+    /// <param name="lastSuccess">Дата и время последней удачной обработки события.</param>
     /// <param name="notify">
     /// Флаг, указывающий, нужно ли вызывать событие <see cref="IEventScheduler.UpdateScheduleEvent"/>
     /// </param>
@@ -60,20 +62,23 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
     /// <exception cref="KeyNotFoundException">
     /// Исключение возбуждается, если обработчик с указанным именем не зарегистрирован.
     /// </exception>
-    public async Task<ScheduleOptions> UpdateScheduleAsync(string scheduleName, TimeSpan interval, DateTime last, bool notify = false)
+    public async Task<ScheduleOptions> UpdateScheduleAsync(string scheduleName, TimeSpan interval, DateTime last, DateTime? lastSuccess = null, bool notify = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(scheduleName, nameof(scheduleName));
 
         if (!_events.TryGetValue(scheduleName, out var options))
             throw new KeyNotFoundException($"Handler named {scheduleName} was not found.");
 
-        if (options.Interval == interval && options.Last == last)
+        if (options.Interval == interval && options.Last == last && options.LastSuccess == lastSuccess)
         {
             if (!await _scheduler.CheckExists(options.Key))
                 await RunScheduleAsync(options, notify);
         }
         else
         {
+            if (options.Last != last)
+                options.LastSuccess = lastSuccess;
+
             options.Interval = interval;
             options.First = last;
             options.Last = last;
@@ -108,6 +113,9 @@ internal class EventScheduler(IEventPublisher<ScheduleEvent> schedulePublisher,
 
         var last = options.Last;
         options.Last = current;
+        if (ex == null)
+            options.LastSuccess = current;
+
         await RunScheduleAsync(options, currentMessage != options.Message || last != current);
     }
 

@@ -12,8 +12,11 @@ public class ScheduleInfo
     /// <summary>Интервал выполнения события в секундах.</summary>
     public int IntervalSeconds { get; set; }
 
-    /// <summary>Дата и время последней удачной обработки события.</summary>
+    /// <summary>Дата и время последней обработки события.</summary>
     public DateTime Last { get; set; }
+
+    /// <summary>Дата и время последней удачной обработки события.</summary>
+    public DateTime? LastSuccess { get; set; }
 
     /// <summary>Сообщение об ошибке.</summary>
     public string? Message { get; internal set; }

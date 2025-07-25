@@ -62,14 +62,32 @@ public class PaymentTransactionsScheduleHandler(IIikoService iikoService) : Sche
                 List<List<PaymentTransaction>> transactions = [];
                 transactions.AddRange(payments);
                 transactions.AddRange(orders);
-                transactions.ForEach(t => t.ForEach(p =>
+                transactions = transactions.Where(t =>
                 {
-                    var divider = -p.DishReturnSum / (p.DishSumInt - p.DiscountSum + p.IncreaseSum + p.DishReturnSum) + 1;
-                    p.DishSumInt /= divider;
-                    p.DiscountSum /= divider;
-                    p.IncreaseSum /= divider;
-                    p.DishReturnSum = 0;
-                }));
+                    for (var i = t.Count - 1; i >= 0; i--)
+                    {
+                        var divider = t[i].DishSumInt - t[i].DiscountSum + t[i].IncreaseSum + t[i].DishReturnSum;
+                        if (divider == 0)
+                        {
+                            t.RemoveAt(i);
+                            continue;
+                        }
+
+                        divider = -t[i].DishReturnSum / divider + 1;
+                        if (divider == 0)
+                        {
+                            t.RemoveAt(i);
+                            continue;
+                        }
+
+                        t[i].DishSumInt /= divider;
+                        t[i].DiscountSum /= divider;
+                        t[i].IncreaseSum /= divider;
+                        t[i].DishReturnSum = 0;
+                    }
+
+                    return t.Count > 0;
+                }).ToList();
                 
                 foreach (var transaction in transactions)
                 {

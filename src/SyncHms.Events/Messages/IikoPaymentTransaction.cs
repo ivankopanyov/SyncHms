@@ -290,7 +290,7 @@ public class IikoPaymentTransaction
 
     private static int GetTransactionCodeIndex(IReadOnlyList<string> categories, string categoryName)
     {
-        for (var i = 0; i < Math.Max(10, categories.Count); i++)
+        for (var i = 0; i < Math.Min(10, categories.Count); i++)
         {
             if (categories[i] == categoryName)
                 return i;
